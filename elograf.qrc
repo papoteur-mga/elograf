@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/elograf/index.theme</file>
+        <file>icons/elograf/24/micro.png</file>
+        <file>icons/elograf/24/nomicro.png</file>
+        <file>icons/elograf/scalable/micro.svg</file>
+        <file>icons/elograf/scalable/nomicro.svg</file>
+    </qresource>
+</RCC>

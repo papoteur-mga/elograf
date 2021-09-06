@@ -1,0 +1,15 @@
+[Icon Theme]
+Name=elograf
+Comment=Icons for elograf program
+Directories=24,scalable
+
+[scalable]
+Type=Scalable
+MinSize=1
+MaxSize=256
+Context=Actions
+
+[24]
+Type=Fixed
+Size=24
+Context=Actions
