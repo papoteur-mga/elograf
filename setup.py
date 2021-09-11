@@ -7,13 +7,13 @@ class BuildQm(build):
   for ts in glob.glob('translations/*.ts'):
     os.system('lrelease {0} -qm {1}'.format(ts, (ts[:-2]+'qm')))
 
-data_files = [("share/icons/hicolor/scalable/apps/", ["icons/elograf/scalable/micro.svg"]),
-                ("share/icons/hicolor/scalable/apps/", ["icons/elograf/scalable/nomicro.svg"]),
+data_files = [("share/icons/hicolor/scalable/apps/", ["icons/elograf/scalable/micro.svg","icons/elograf/scalable/nomicro.svg"]),
+                ("share/doc/elograf/", ["README","LICENSE"]),                
               ]
 
 setup(
         name = 'elograf',
-        version = '0.1.0',
+        version = '0.1.2',
         packages = ['eloGraf'],
         scripts = ['elograf'],
         package_data = {"": ["translations/*.qm"]},
