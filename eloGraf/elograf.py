@@ -11,7 +11,7 @@ import sys
 from PyQt5 import QtGui, QtCore, QtWidgets
 from subprocess import Popen
 import os
-import elograf_rc
+import eloGraf.elograf_rc
 MODEL_BASE_PATH = '/usr/share/vosk-model'
 
 class ConfigPopup (QtWidgets.QDialog):
@@ -25,7 +25,7 @@ class ConfigPopup (QtWidgets.QDialog):
         self.table = QtWidgets.QTableWidget(numberModels, 5, self)
         precommandlayout = QtWidgets.QHBoxLayout(self)
         layout.addLayout(precommandlayout)
-        label = QtWidgets.QLabel("Precommand:")
+        label = QtWidgets.QLabel(self.tr("Precommand:"))
         self.precommand = QtWidgets.QLineEdit()
         precommandlayout.addWidget(label)
         precommandlayout.addWidget(self.precommand)
@@ -33,7 +33,7 @@ class ConfigPopup (QtWidgets.QDialog):
         layout.addWidget(self.table)
         self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
-        self.table.setHorizontalHeaderLabels(["Language", "Name","Description", "Size","License"])
+        self.table.setHorizontalHeaderLabels([self.tr("Language"), self.tr("Name"), self.tr("Description"), self.tr("Size"), self.tr("License")])
         i = 0
         selectedLine = None
         for dirModel in dirList:
@@ -42,10 +42,10 @@ class ConfigPopup (QtWidgets.QDialog):
                 name, language, description, size, license = self.readDesc(descriptionPath)
             else:
                 name = dirModel
-                language = "Not provided"
-                description = "Not provided"
-                size = "Not provided"
-                license = "Not provided"
+                language = self.tr("Not provided")
+                description = self.tr("Not provided")
+                size = self.tr("Not provided")
+                license = self.tr("Not provided")
             item = QtWidgets.QTableWidgetItem(language)
             self.table.setItem(i, 0,item)
             item = QtWidgets.QTableWidgetItem(name)
@@ -100,8 +100,8 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
     def __init__(self, icon, parent=None):
        QtWidgets.QSystemTrayIcon.__init__(self, icon, parent)
        menu = QtWidgets.QMenu(parent)
-       exitAction = menu.addAction("Exit")
-       configAction = menu.addAction("Configuration")
+       exitAction = menu.addAction(self.tr("Exit"))
+       configAction = menu.addAction(self.tr("Configuration"))
        self.setContextMenu(menu)
        exitAction.triggered.connect(self.exit)
        configAction.triggered.connect(self.config)
@@ -172,7 +172,17 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
+    # don't close application when closing setting window)
     app.setQuitOnLastWindowClosed(False)
+    LOCAL_DIR = os.path.dirname(os.path.realpath(__file__))
+    print(LOCAL_DIR)
+    locale = QtCore.QLocale.system().name()
+    qtTranslator = QtCore.QTranslator()
+    if qtTranslator.load("qt_" + locale, QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.TranslationsPath)):
+        app.installTranslator(qtTranslator)
+    appTranslator = QtCore.QTranslator()
+    if appTranslator.load("elograf_" + locale, os.path.join(LOCAL_DIR,"translations")):
+        app.installTranslator(appTranslator)
 
     w = QtWidgets.QWidget()
     trayIcon = SystemTrayIcon(QtGui.QIcon(":/icons/elograf/24/nomicro.png"), w)
