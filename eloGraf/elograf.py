@@ -15,8 +15,9 @@ import eloGraf.elograf_rc
 MODEL_BASE_PATH = '/usr/share/vosk-model'
 
 class ConfigPopup (QtWidgets.QDialog):
-    def __init__(self, currentModel, precommand, parent=None):
+    def __init__(self, currentModel, settings, parent=None):
         super(ConfigPopup, self).__init__(parent)
+        self.settings = settings
         self.setWindowTitle("Elograf")
         self.setWindowIcon(QtGui.QIcon(":/icons/elograf/24/micro.png"))
         layout = QtWidgets.QVBoxLayout(self)
@@ -29,7 +30,13 @@ class ConfigPopup (QtWidgets.QDialog):
         self.precommand = QtWidgets.QLineEdit()
         precommandlayout.addWidget(label)
         precommandlayout.addWidget(self.precommand)
-        self.precommand.setText(precommand)
+        self.precommand.setText(settings.value("Precommand"))
+        customLayout = QtWidgets.QHBoxLayout(self)
+        self.customCB = QtWidgets.QCheckBox(self.tr("Use custom model location"))
+        self.customFilepicker = QtWidgets.QPushButton(self.tr("Select directory"))
+        customLayout.addWidget(self.customCB)
+        customLayout.addWidget(self.customFilepicker)
+        layout.addLayout(customLayout)
         layout.addWidget(self.table)
         self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
@@ -62,8 +69,13 @@ class ConfigPopup (QtWidgets.QDialog):
             i += 1
         buttonBox = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Save | QtWidgets.QDialogButtonBox.Cancel)
         layout.addWidget(buttonBox)
+        
+        #Events
         buttonBox.accepted.connect(self.accept)
         buttonBox.rejected.connect(self.close)
+        self.customFilepicker.clicked.connect(self.selectCustom)
+        self.customCB.stateChanged.connect(self.customCBchanged)
+        
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding,QtWidgets.QSizePolicy.Expanding)
         self.table.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.table.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -73,7 +85,17 @@ class ConfigPopup (QtWidgets.QDialog):
                     self.precommand.sizeHint().height() +
                     self.table.verticalHeader().length() +
                     self.table.horizontalHeader().sizeHint().height() +
-                    buttonBox.sizeHint().height()  + 40)
+                    buttonBox.sizeHint().height()  +
+                    customLayout.sizeHint().height() 
+                    + 40)
+        # Custom model location
+        if settings.contains("Model/UseCustom"):
+            if settings.value("Model/UseCustom") == "True":
+                self.customCB.setCheckState(QtCore.Qt.Checked)
+                if settings.contains("Model/CustomPath"):
+                    self.customFilepicker.setText(settings.value("Model/CustomPath"))
+            else:
+                self.customFilepicker.setEnabled(False)
         self.returnValue = None
 
     def readDesc(self, path):
@@ -95,6 +117,27 @@ class ConfigPopup (QtWidgets.QDialog):
 
     def cancel(self):
         self.close()
+        
+    def selectCustom(self):
+        if os.path.isdir(self.customFilepicker.text()):
+            path = QtCore.QUrl(QtCore.QDir(self.customFilepicker.text()))
+        else:
+            path = QtCore.QUrl(QtCore.QDir.homePath())
+        url = QtWidgets.QFileDialog.getExistingDirectoryUrl(self, self.tr("Select the model path"), path)
+        if url:
+            self.settings.setValue("Model/CustomPath", url.toLocalFile())
+            self.settings.setValue("Model/UseCustom", "True")
+            self.customFilepicker.setText(url.toLocalFile())
+        else:
+            self.settings.setValue("Model/UseCustom", "False")
+
+    def customCBchanged(self):
+        if self.customCB.isChecked():
+            self.customFilepicker.setEnabled(True)
+            self.settings.setValue("Model/UseCustom", "True")
+        else:
+            self.customFilepicker.setEnabled(False)
+            self.settings.setValue("Model/UseCustom", "False")
 
 class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
     def __init__(self, icon, parent=None):
@@ -111,18 +154,25 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
        self.dictating = False
 
        self.settings = QtCore.QSettings("Elograf","Elograf")
-       if self.settings.contains("Model/name"):
-            self.currentModel = self.settings.value("Model/name")
-       else:
-           self.currentModel = None
+
+    def currentModel(self):
+        model = None
+        if self.settings.contains("Model/name") or self.settings.contains("Model/UseCustom"):
+           if self.settings.contains("Model/UseCustom"):
+                if self.settings.value("Model/UseCustom") == "True":
+                    model = self.settings.value("Model/CustomPath")
+                else:
+                     if self.settings.contains("Model/name"):
+                         model = os.path.join(MODEL_BASE_PATH, self.settings.value("Model/name") )
+        return model
 
     def exit(self):
         self.stop_dictate()
         QtCore.QCoreApplication.exit()
 
     def dictate(self):
-        while not self.currentModel :
-            dialog = ConfigPopup("", self.settings.value("Precommand"))
+        while not self.currentModel() :
+            dialog = ConfigPopup("", self.settings)
             dialog.exec_()
             if dialog.returnValue:
                 self.currentModel = dialog.returnValue[0]
@@ -133,10 +183,9 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
                     self.settings.setValue("Precommand", precommand)
         if self.settings.contains("Precommand"):
             Popen(self.settings.value("Precommand").split())
-
         Popen(['nerd-dictation',
                         'begin',
-                       f"--vosk-model-dir={os.path.join(MODEL_BASE_PATH, self.currentModel)}",
+                        f"--vosk-model-dir={self.currentModel()}",
                         '--full-sentence',
                         '--punctuate-from-previous-timeout=10'])
         self.setIcon(self.micro)
@@ -153,7 +202,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.dictating = not self.dictating
 
     def config(self):
-        dialog = ConfigPopup(self.currentModel, self.settings.value("Precommand"))
+        dialog = ConfigPopup(os.path.basename(self.currentModel()), self.settings)
         dialog.exec_()
         if dialog.returnValue:
             self.setModel(dialog.returnValue[0])
@@ -164,7 +213,6 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
                 self.settings.setValue("Precommand", precommand)
 
     def setModel(self, model):
-        self.currentModel = model
         self.settings.setValue("Model/name", model)
         if self.dictating:
             self.stop_dictate()
@@ -175,7 +223,6 @@ def main():
     # don't close application when closing setting window)
     app.setQuitOnLastWindowClosed(False)
     LOCAL_DIR = os.path.dirname(os.path.realpath(__file__))
-    print(LOCAL_DIR)
     locale = QtCore.QLocale.system().name()
     qtTranslator = QtCore.QTranslator()
     if qtTranslator.load("qt_" + locale, QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.TranslationsPath)):
