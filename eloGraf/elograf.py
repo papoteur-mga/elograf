@@ -31,6 +31,13 @@ class ConfigPopup (QtWidgets.QDialog):
         precommandlayout.addWidget(label)
         precommandlayout.addWidget(self.precommand)
         self.precommand.setText(settings.value("Precommand"))
+        postcommandlayout = QtWidgets.QHBoxLayout(self)
+        layout.addLayout(postcommandlayout)
+        label = QtWidgets.QLabel(self.tr("postcommand:"))
+        self.postcommand = QtWidgets.QLineEdit()
+        postcommandlayout.addWidget(label)
+        postcommandlayout.addWidget(self.postcommand)
+        self.postcommand.setText(settings.value("Postcommand"))
         customLayout = QtWidgets.QHBoxLayout(self)
         self.customCB = QtWidgets.QCheckBox(self.tr("Use custom model location"))
         self.customFilepicker = QtWidgets.QPushButton(self.tr("Select directory"))
@@ -83,6 +90,7 @@ class ConfigPopup (QtWidgets.QDialog):
         self.table.verticalHeader().hide()
         self.resize(self.table.horizontalHeader().length() + 24,
                     self.precommand.sizeHint().height() +
+                    self.postcommand.sizeHint().height() +
                     self.table.verticalHeader().length() +
                     self.table.horizontalHeader().sizeHint().height() +
                     buttonBox.sizeHint().height()  +
@@ -109,10 +117,13 @@ class ConfigPopup (QtWidgets.QDialog):
 
     def accept(self):
         i = 0
+        modelName = ""
         for item in self.table.selectedItems():
             if item.text() and i == 1:
-                self.returnValue = [item.text(), self.precommand.text()]
+                modelname = item.text()
+                break
             i += 1
+        self.returnValue = [modelName, self.precommand.text(), self.postcommand.text()]
         self.close()
 
     def cancel(self):
@@ -193,6 +204,8 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
     def stop_dictate(self):
         Popen(['nerd-dictation','end',])
         self.setIcon(self.nomicro)
+        if self.settings.contains("Postcommand"):
+            Popen(self.settings.value("Postcommand").split())
 
     def commute(self):
         if self.dictating:
@@ -207,10 +220,15 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         if dialog.returnValue:
             self.setModel(dialog.returnValue[0])
             precommand = dialog.returnValue[1]
+            postcommand = dialog.returnValue[2]
             if precommand == "":
                 self.settings.remove("Precommand")
             else:
                 self.settings.setValue("Precommand", precommand)
+            if postcommand == "":
+                self.settings.remove("Postcommand")
+            else:
+                self.settings.setValue("Postcommand", postcommand)
 
     def setModel(self, model):
         self.settings.setValue("Model/name", model)
