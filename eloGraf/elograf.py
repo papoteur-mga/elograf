@@ -33,7 +33,7 @@ class ConfigPopup (QtWidgets.QDialog):
         self.precommand.setText(settings.value("Precommand"))
         postcommandlayout = QtWidgets.QHBoxLayout(self)
         layout.addLayout(postcommandlayout)
-        label = QtWidgets.QLabel(self.tr("postcommand:"))
+        label = QtWidgets.QLabel(self.tr("Postcommand:"))
         self.postcommand = QtWidgets.QLineEdit()
         postcommandlayout.addWidget(label)
         postcommandlayout.addWidget(self.postcommand)
@@ -123,7 +123,15 @@ class ConfigPopup (QtWidgets.QDialog):
                 modelname = item.text()
                 break
             i += 1
-        self.returnValue = [modelName, self.precommand.text(), self.postcommand.text()]
+        if self.precommand.text() == "":
+            self.settings.remove("Precommand")
+        else:
+            self.settings.setValue("Precommand", self.precommand.text())
+        if self.postcommand.text() == "":
+            self.settings.remove("Postcommand")
+        else:
+            self.settings.setValue("Postcommand", self.postcommand.text() )
+        self.returnValue = [modelName]
         self.close()
 
     def cancel(self):
@@ -187,11 +195,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             dialog.exec_()
             if dialog.returnValue:
                 self.currentModel = dialog.returnValue[0]
-                precommand = dialog.returnValue[1]
-                if precommand == "":
-                    self.settings.remove("Precommand")
-                else:
-                    self.settings.setValue("Precommand", precommand)
+                precommand = self.settings.value["Precommand"]
         if self.settings.contains("Precommand"):
             Popen(self.settings.value("Precommand").split())
         Popen(['nerd-dictation',
@@ -219,16 +223,6 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         dialog.exec_()
         if dialog.returnValue:
             self.setModel(dialog.returnValue[0])
-            precommand = dialog.returnValue[1]
-            postcommand = dialog.returnValue[2]
-            if precommand == "":
-                self.settings.remove("Precommand")
-            else:
-                self.settings.setValue("Precommand", precommand)
-            if postcommand == "":
-                self.settings.remove("Postcommand")
-            else:
-                self.settings.setValue("Postcommand", postcommand)
 
     def setModel(self, model):
         self.settings.setValue("Model/name", model)
