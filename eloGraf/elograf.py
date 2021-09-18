@@ -167,8 +167,13 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
        self.setContextMenu(menu)
        exitAction.triggered.connect(self.exit)
        configAction.triggered.connect(self.config)
-       self.nomicro = QtGui.QIcon(":/icons/elograf/24/nomicro.png")
-       self.micro = QtGui.QIcon(":/icons/elograf/24/micro.png")
+       self.nomicro = QtGui.QIcon.fromTheme("microphone-sensitivity-muted")
+       if not self.nomicro:
+            self.nomicro = QtGui.QIcon(":/icons/elograf/24/nomicro.png")
+       self.micro = QtGui.QIcon.fromTheme("audio-input-microphone")
+       if not self.micro:
+            self.micro = QtGui.QIcon(":/icons/elograf/24/micro.png")
+       self.setIcon(self.nomicro)
        self.activated.connect(self.commute)
        self.dictating = False
 
