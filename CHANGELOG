@@ -1,0 +1,10 @@
+EloGraf
+----------
+
+* 0.1.3
+    - Use icons from theme
+    - Add post command
+    - Add option to configure usage of a a custom model
+    
+* 0.1.0
+    - First release

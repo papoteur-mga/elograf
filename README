@@ -9,7 +9,7 @@ It is intended to be launched at start of the desktop environnement to display a
 The icon when pressed launches nerd-dictation. A new press stops it. The icon reflects the state.
 
 With right click, the utility can be exited or configured.
-The configuration contains a line for an optionnal precommand which is launched before nerd-dictation itself.
+The configuration contains a line for an optionnal precommand which is launched before nerd-dictation itself. A other line is for optionnal postcommand which is launched after nerd-dictation is stopped.
 A table list all models which are installed on the system and which can be selected.
 You can also select a directory where a custom model is stored.
 The configuration dialog is displayed if no model has been set previously.
