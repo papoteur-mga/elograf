@@ -12,12 +12,17 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from subprocess import Popen
 import os
 import eloGraf.elograf_rc
-
+# Types.
+from typing import (
+    Tuple,
+    List,
+    Optional,
+)
 MODEL_BASE_PATH = "/usr/share/vosk-model"
 
 
 class ConfigPopup(QtWidgets.QDialog):
-    def __init__(self, currentModel, settings, parent=None):
+    def __init__(self, currentModel: str, settings: QtCore.QSettings, parent=None) ->None:
         super(ConfigPopup, self).__init__(parent)
         self.settings = settings
         self.setWindowTitle("Elograf")
@@ -124,9 +129,9 @@ class ConfigPopup(QtWidgets.QDialog):
                     self.customFilepicker.setText(settings.value("Model/CustomPath"))
             else:
                 self.customFilepicker.setEnabled(False)
-        self.returnValue = None
+        self.returnValue: List[str] = []
 
-    def readDesc(self, path):
+    def readDesc(self, path: str) -> Tuple[str, str, str, str, str]:
         with open(path, "r") as f:
             name = f.readline().rstrip()
             language = f.readline().rstrip()
@@ -135,7 +140,7 @@ class ConfigPopup(QtWidgets.QDialog):
             license = f.readline().rstrip()
             return name, language, description, size, license
 
-    def accept(self):
+    def accept(self) -> None:
         i = 0
         modelName = ""
         for item in self.table.selectedItems():
@@ -154,10 +159,10 @@ class ConfigPopup(QtWidgets.QDialog):
         self.returnValue = [modelName]
         self.close()
 
-    def cancel(self):
+    def cancel(self) -> None:
         self.close()
 
-    def selectCustom(self):
+    def selectCustom(self) -> None:
         if os.path.isdir(self.customFilepicker.text()):
             path = QtCore.QUrl(QtCore.QDir(self.customFilepicker.text()))
         else:
@@ -172,7 +177,7 @@ class ConfigPopup(QtWidgets.QDialog):
         else:
             self.settings.setValue("Model/UseCustom", "False")
 
-    def customCBchanged(self):
+    def customCBchanged(self) -> None:
         if self.customCB.isChecked():
             self.customFilepicker.setEnabled(True)
             self.settings.setValue("Model/UseCustom", "True")
@@ -182,7 +187,7 @@ class ConfigPopup(QtWidgets.QDialog):
 
 
 class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
-    def __init__(self, icon, parent=None):
+    def __init__(self, icon: QtGui.QIcon, parent=None) -> None:
         QtWidgets.QSystemTrayIcon.__init__(self, icon, parent)
         menu = QtWidgets.QMenu(parent)
         exitAction = menu.addAction(self.tr("Exit"))
@@ -202,8 +207,8 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
 
         self.settings = QtCore.QSettings("Elograf", "Elograf")
 
-    def currentModel(self):
-        model = None
+    def currentModel(self) -> str:
+        model: str = ""
         if self.settings.contains("Model/name") or self.settings.contains(
             "Model/UseCustom"
         ):
@@ -217,17 +222,16 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
                         )
         return model
 
-    def exit(self):
+    def exit(self) -> None:
         self.stop_dictate()
         QtCore.QCoreApplication.exit()
 
-    def dictate(self):
+    def dictate(self) -> None:
         while not self.currentModel():
             dialog = ConfigPopup("", self.settings)
             dialog.exec_()
             if dialog.returnValue:
-                self.currentModel = dialog.returnValue[0]
-                precommand = self.settings.value["Precommand"]
+                self.setModel(dialog.returnValue[0])
         if self.settings.contains("Precommand"):
             Popen(self.settings.value("Precommand").split())
         Popen(
@@ -241,7 +245,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         )
         self.setIcon(self.micro)
 
-    def stop_dictate(self):
+    def stop_dictate(self) -> None:
         Popen(
             [
                 "nerd-dictation",
@@ -252,27 +256,27 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         if self.settings.contains("Postcommand"):
             Popen(self.settings.value("Postcommand").split())
 
-    def commute(self):
+    def commute(self) -> None:
         if self.dictating:
             self.stop_dictate()
         else:
             self.dictate()
         self.dictating = not self.dictating
 
-    def config(self):
+    def config(self) -> None:
         dialog = ConfigPopup(os.path.basename(self.currentModel()), self.settings)
         dialog.exec_()
         if dialog.returnValue:
             self.setModel(dialog.returnValue[0])
 
-    def setModel(self, model):
+    def setModel(self, model: str) -> None:
         self.settings.setValue("Model/name", model)
         if self.dictating:
             self.stop_dictate()
             self.dictate()
 
 
-def main():
+def main() -> None:
     app = QtWidgets.QApplication(sys.argv)
     # don't close application when closing setting window)
     app.setQuitOnLastWindowClosed(False)
