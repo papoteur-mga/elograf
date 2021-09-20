@@ -1,6 +1,11 @@
 EloGraf
 ----------
 
+* 0.1.4
+    - Fix building translations in setup
+    - cells in configuration table are not editable
+    - add typing for check with mypy
+
 * 0.1.3
     - Use icons from theme
     - Add post command
