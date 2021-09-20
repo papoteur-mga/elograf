@@ -12,17 +12,21 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from subprocess import Popen
 import os
 import eloGraf.elograf_rc
+
 # Types.
 from typing import (
     Tuple,
     List,
     Optional,
 )
+
 MODEL_BASE_PATH = "/usr/share/vosk-model"
 
 
 class ConfigPopup(QtWidgets.QDialog):
-    def __init__(self, currentModel: str, settings: QtCore.QSettings, parent=None) ->None:
+    def __init__(
+        self, currentModel: str, settings: QtCore.QSettings, parent=None
+    ) -> None:
         super(ConfigPopup, self).__init__(parent)
         self.settings = settings
         self.setWindowTitle("Elograf")
@@ -81,14 +85,19 @@ class ConfigPopup(QtWidgets.QDialog):
                 license = self.tr("Not provided")
             item = QtWidgets.QTableWidgetItem(language)
             self.table.setItem(i, 0, item)
+            item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
             item = QtWidgets.QTableWidgetItem(name)
             self.table.setItem(i, 1, item)
+            item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
             item = QtWidgets.QTableWidgetItem(description)
             self.table.setItem(i, 2, item)
+            item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
             item = QtWidgets.QTableWidgetItem(size)
             self.table.setItem(i, 3, item)
+            item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
             item = QtWidgets.QTableWidgetItem(license)
             self.table.setItem(i, 4, item)
+            item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
             if currentModel == name:
                 selectedLine = i
                 self.table.setCurrentItem(item)
