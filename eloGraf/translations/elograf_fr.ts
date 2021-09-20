@@ -3,67 +3,72 @@
 <context>
     <name>ConfigPopup</name>
     <message>
-        <location filename="../elograf.py" line="29"/>
+        <location filename="../elograf.py" line="39"/>
         <source>Precommand:</source>
-        <translation type="unfinished">Commande préliminaire :</translation>
+        <translation>Commande préliminaire :</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="43"/>
+        <location filename="../elograf.py" line="60"/>
         <source>Language</source>
-        <translation type="unfinished">Langue</translation>
+        <translation>Langue</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="43"/>
+        <location filename="../elograf.py" line="60"/>
         <source>Name</source>
-        <translation type="unfinished">Nom</translation>
+        <translation>Nom</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="43"/>
+        <location filename="../elograf.py" line="60"/>
         <source>Description</source>
-        <translation type="unfinished">Description</translation>
+        <translation>Description</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="43"/>
+        <location filename="../elograf.py" line="60"/>
         <source>Size</source>
-        <translation type="unfinished">Taille</translation>
+        <translation>Taille</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="43"/>
+        <location filename="../elograf.py" line="60"/>
         <source>License</source>
-        <translation type="unfinished">Licence</translation>
+        <translation>Licence</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="55"/>
+        <location filename="../elograf.py" line="82"/>
         <source>Not provided</source>
-        <translation type="unfinished">Non précisé</translation>
+        <translation>Non précisé</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="35"/>
+        <location filename="../elograf.py" line="52"/>
         <source>Use custom model location</source>
-        <translation type="unfinished"></translation>
+        <translation>Uriliser un emplacement personnel de modèle</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="36"/>
+        <location filename="../elograf.py" line="53"/>
         <source>Select directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionner un répertoire</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="126"/>
+        <location filename="../elograf.py" line="176"/>
         <source>Select the model path</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionner le chemin du modèle</translation>
+    </message>
+    <message>
+        <location filename="../elograf.py" line="46"/>
+        <source>Postcommand:</source>
+        <translation>Commande postliminaire :</translation>
     </message>
 </context>
 <context>
     <name>SystemTrayIcon</name>
     <message>
-        <location filename="../elograf.py" line="146"/>
+        <location filename="../elograf.py" line="199"/>
         <source>Exit</source>
-        <translation type="unfinished">Quitter</translation>
+        <translation>Quitter</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="147"/>
+        <location filename="../elograf.py" line="200"/>
         <source>Configuration</source>
-        <translation type="unfinished">Configuration</translation>
+        <translation>Configuration</translation>
     </message>
 </context>
 </TS>
