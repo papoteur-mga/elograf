@@ -83,7 +83,7 @@ class ConfigPopup(QtWidgets.QDialog):
                 description = self.tr("Not provided")
                 size = self.tr("Not provided")
                 license = self.tr("Not provided")
-            item = QtWidgets.QTableWidgetItem(language)
+            item = QtWidgets.QTableWidgetItem(self.tr(language))
             self.table.setItem(i, 0, item)
             item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
             item = QtWidgets.QTableWidgetItem(name)
@@ -226,9 +226,11 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
                     model = self.settings.value("Model/CustomPath")
                 else:
                     if self.settings.contains("Model/name"):
-                        model = os.path.join(
-                            MODEL_BASE_PATH, self.settings.value("Model/name")
-                        )
+                        model = self.settings.value("Model/name")
+                        if model != "":
+                            model = os.path.join(
+                                MODEL_BASE_PATH, model
+                            )
         return model
 
     def exit(self) -> None:
@@ -236,7 +238,8 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         QtCore.QCoreApplication.exit()
 
     def dictate(self) -> None:
-        while not self.currentModel():
+        print(self.currentModel())
+        while self.currentModel() == "":
             dialog = ConfigPopup("", self.settings)
             dialog.exec_()
             if dialog.returnValue:
