@@ -134,10 +134,10 @@ class ConfigPopup(QtWidgets.QDialog):
         if settings.contains("Model/UseCustom"):
             if settings.value("Model/UseCustom") == "True":
                 self.customCB.setCheckState(QtCore.Qt.Checked)
-                if settings.contains("Model/CustomPath"):
-                    self.customFilepicker.setText(settings.value("Model/CustomPath"))
             else:
                 self.customFilepicker.setEnabled(False)
+        if settings.contains("Model/CustomPath"):
+            self.customFilepicker.setText(settings.value("Model/CustomPath"))
         self.returnValue: List[str] = []
 
     def readDesc(self, path: str) -> Tuple[str, str, str, str, str]:
@@ -151,10 +151,10 @@ class ConfigPopup(QtWidgets.QDialog):
 
     def accept(self) -> None:
         i = 0
-        modelName = ""
+        modelName: str = ""
         for item in self.table.selectedItems():
             if item.text() and i == 1:
-                modelname = item.text()
+                modelName = item.text()
                 break
             i += 1
         if self.precommand.text() == "":
