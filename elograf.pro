@@ -13,7 +13,8 @@ TEMPLATE = app
 
 
 SOURCES += eloGraf/elograf.py \
-            eloGraf/elograf_rc.py
+            eloGraf/elograf_rc.py\
+            eloGraf/languages.py
 
 HEADERS  +=
 
