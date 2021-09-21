@@ -15,6 +15,10 @@ data_files = [
         ["icons/elograf/scalable/micro.svg", "icons/elograf/scalable/nomicro.svg"],
     ),
     ("share/doc/elograf/", ["README", "LICENSE"]),
+    (
+        "share/applications/",
+        ["elograf.desktop", ],
+    ),
 ]
 
 setup(

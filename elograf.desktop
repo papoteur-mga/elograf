@@ -1,0 +1,12 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Name=Elograf
+GenericName=Tool to launch voice dictation
+Comment=Tool in systray to launch voice dictation
+Exec=elograf
+Icon=microphone
+Terminal=false
+Type=Application
+Categories=Accessibility;Office;
+Name[fr_FR]=Elograf
+Comment[fr_FR]=Outil pour lancer la dictée depuis la boîte à miniatures
