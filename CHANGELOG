@@ -1,5 +1,10 @@
 EloGraf
 ----------
+* 0.1.5
+    - Fix saving model selected in configuration table
+    - Add internationalization of languages
+    - Fix test when no model is selected in configuration
+    - Add desktop launcher
 
 * 0.1.4
     - Fix building translations in setup
