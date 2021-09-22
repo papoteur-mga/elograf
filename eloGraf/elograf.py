@@ -224,13 +224,10 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             if self.settings.contains("Model/UseCustom"):
                 if self.settings.value("Model/UseCustom") == "True":
                     model = self.settings.value("Model/CustomPath")
-                else:
-                    if self.settings.contains("Model/name"):
-                        model = self.settings.value("Model/name")
-                        if model != "":
-                            model = os.path.join(
-                                MODEL_BASE_PATH, model
-                            )
+            elif self.settings.contains("Model/name"):
+                model = self.settings.value("Model/name")
+                if model != "":
+                    model = os.path.join(MODEL_BASE_PATH, model)
         return model
 
     def exit(self) -> None:
@@ -238,7 +235,6 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         QtCore.QCoreApplication.exit()
 
     def dictate(self) -> None:
-        print(self.currentModel())
         while self.currentModel() == "":
             dialog = ConfigPopup("", self.settings)
             dialog.exec_()
