@@ -1,5 +1,9 @@
 EloGraf
 ----------
+
+* 0.1.6
+    - Fix model not returned if custom option is not defined.
+
 * 0.1.5
     - Fix saving model selected in configuration table
     - Add internationalization of languages
