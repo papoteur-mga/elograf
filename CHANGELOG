@@ -1,6 +1,7 @@
 EloGraf
 ----------
 
+* 0.1.7
 * 0.1.6
     - Fix model not returned if custom option is not defined.
 
