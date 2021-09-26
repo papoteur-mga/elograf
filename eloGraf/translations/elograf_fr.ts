@@ -143,7 +143,7 @@
     <message>
         <location filename="../elograf.py" line="55"/>
         <source>Use custom model location</source>
-        <translation>Uriliser un emplacement personnel de modèle</translation>
+        <translation>Utiliser un emplacement personnel de modèle</translation>
     </message>
     <message>
         <location filename="../elograf.py" line="56"/>
