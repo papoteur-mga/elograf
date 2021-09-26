@@ -165,6 +165,9 @@ class ConfigPopup(QtWidgets.QDialog):
             self.settings.remove("Postcommand")
         else:
             self.settings.setValue("Postcommand", self.postcommand.text())
+
+            self.settings.setValue("Model/CustomPath", self.customFilepicker.text())
+            self.settings.setValue("Model/UseCustom", "True")
         self.returnValue = [modelName]
         self.close()
 
@@ -221,9 +224,11 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         if self.settings.contains("Model/name") or self.settings.contains(
             "Model/UseCustom"
         ):
-            if self.settings.contains("Model/UseCustom"):
-                if self.settings.value("Model/UseCustom") == "True":
-                    model = self.settings.value("Model/CustomPath")
+            if (
+                self.settings.contains("Model/UseCustom")
+                and self.settings.value("Model/UseCustom") == "True"
+            ):
+                model = self.settings.value("Model/CustomPath")
             elif self.settings.contains("Model/name"):
                 model = self.settings.value("Model/name")
                 if model != "":
