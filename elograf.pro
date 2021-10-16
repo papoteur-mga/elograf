@@ -18,7 +18,8 @@ SOURCES += eloGraf/elograf.py \
 
 HEADERS  +=
 
-FORMS    += 
+FORMS    +=  \
+    eloGraf/advanced.ui
 
 TRANSLATIONS     += eloGraf/translations/elograf_fr.ts
 
