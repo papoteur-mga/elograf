@@ -9,9 +9,11 @@ Created on Wed Jun 16 08:15:47 2021
 
 import sys
 from PyQt5 import QtGui, QtCore, QtWidgets
-from subprocess import Popen
+from subprocess import Popen, run
 import os
+import re
 import eloGraf.elograf_rc
+from advanced import Ui_Dialog
 
 # Types.
 from typing import (
@@ -21,6 +23,109 @@ from typing import (
 )
 
 MODEL_BASE_PATH = "/usr/share/vosk-model"
+
+
+class Settings(QtCore.QSettings):
+    def __init__(self):
+        super(QtCore.QSettings, self).__init__("Elograf", "Elograf")
+
+    def load(self):
+        if self.contains("Precommand"):
+            self.precommand: str = self.value("Precommand", type=str)
+        else:
+            self.precommand: str = ""
+        if self.contains("Postcommand"):
+            self.postcommand = self.value("Postcommand", type=str)
+        else:
+            self.postcommand: str = ""
+        if self.contains("SampleRate"):
+            self.sampleRate: int = self.value("SampleRate", type=int)
+        else:
+            self.sampleRate: int = 44100
+        if self.contains("Timeout"):
+            self.timeout = self.value("Timeout", type=int)
+        else:
+            self.timeout: int = 0
+        if self.contains("IdleTime"):
+            self.idleTime = self.value("IdleTime", type=int)
+        else:
+            self.idleTime: int = 100
+        if self.contains("Punctuate"):
+            self.punctuate = self.value("Punctuate", type=int)
+        else:
+            self.punctuate: int = 0
+        if self.contains("FullSentence"):
+            self.fullSentence = self.value("FullSentence", type=bool)
+        else:
+            self.fullSentence: bool = False
+        if self.contains("Digits"):
+            self.digits: bool = self.value("Digits", type=bool)
+        else:
+            self.digits: bool = False
+        if self.contains("UseSeparator"):
+            self.useSeparator = self.value("UseSeparator", type=bool)
+        else:
+            self.useSeparator: bool = False
+        if self.contains("FreeCommand"):
+            self.freeCommand = self.value("FreeCommand", type=str)
+        else:
+            self.freeCommand: str = ""
+        if self.contains("DeviceName"):
+            self.deviceName = self.value("DeviceName", type=str)
+        else:
+            self.deviceName: str = "default"
+
+    def save(self):
+        if self.precommand == "":
+            self.remove("Precommand")
+        else:
+            self.setValue("Precommand", self.precommand)
+        if self.postcommand == "":
+            self.remove("Postcommand")
+        else:
+            self.setValue("Postcommand", self.postcommand)
+        if self.timeout == 0:
+            self.remove("Timeout")
+        else:
+            self.setValue("Timeout", self.timeout)
+        if self.idleTime == 100:
+            self.remove("IdleTime")
+        else:
+            self.setValue("IdleTime", self.idleTime)
+        if self.punctuate == 0:
+            self.remove("Punctuate")
+        else:
+            self.setValue("Punctuate", self.punctuate)
+        self.setValue("FullSentence", int(self.fullSentence))
+        self.setValue("Digits", int(self.digits))
+        self.setValue("UseSeparator", int(self.useSeparator))
+        if self.freeCommand == "":
+            self.remove("FreeCommand")
+        else:
+            self.setValue("FreeCommand", self.freeCommand)
+        if self.deviceName == "default":
+            self.remove("DeviceName")
+        else:
+            self.setValue("DeviceName", self.deviceName)
+
+
+class AdvancedUI(QtWidgets.QDialog):
+    def __init__(self):
+        super(QtWidgets.QDialog, self).__init__()
+        self.ui = Ui_Dialog()
+        self.ui.setupUi(self)
+        self.ui.timeout.valueChanged.connect(self.timeoutChanged)
+        self.ui.idleTime.valueChanged.connect(self.idleChanged)
+        self.ui.punctuate.valueChanged.connect(self.punctuateChanged)
+
+    def timeoutChanged(self, num: int):
+        self.ui.timeoutDisplay.setText(str(num))
+
+    def idleChanged(self, num: int):
+        self.ui.idleDisplay.setText(str(num))
+
+    def punctuateChanged(self, num: int):
+        self.ui.punctuateDisplay.setText(str(num))
 
 
 class ConfigPopup(QtWidgets.QDialog):
@@ -39,18 +144,6 @@ class ConfigPopup(QtWidgets.QDialog):
         self.table = QtWidgets.QTableWidget(numberModels, 5, self)
         precommandlayout = QtWidgets.QHBoxLayout(self)
         layout.addLayout(precommandlayout)
-        label = QtWidgets.QLabel(self.tr("Precommand:"))
-        self.precommand = QtWidgets.QLineEdit()
-        precommandlayout.addWidget(label)
-        precommandlayout.addWidget(self.precommand)
-        self.precommand.setText(settings.value("Precommand"))
-        postcommandlayout = QtWidgets.QHBoxLayout(self)
-        layout.addLayout(postcommandlayout)
-        label = QtWidgets.QLabel(self.tr("Postcommand:"))
-        self.postcommand = QtWidgets.QLineEdit()
-        postcommandlayout.addWidget(label)
-        postcommandlayout.addWidget(self.postcommand)
-        self.postcommand.setText(settings.value("Postcommand"))
         customLayout = QtWidgets.QHBoxLayout(self)
         self.customCB = QtWidgets.QCheckBox(self.tr("Use custom model location"))
         self.customFilepicker = QtWidgets.QPushButton(self.tr("Select directory"))
@@ -105,6 +198,8 @@ class ConfigPopup(QtWidgets.QDialog):
         buttonBox = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.Save | QtWidgets.QDialogButtonBox.Cancel
         )
+        advancedButton = QtWidgets.QPushButton(self.tr("Advanced"))
+        buttonBox.addButton(advancedButton, QtWidgets.QDialogButtonBox.ActionRole)
         layout.addWidget(buttonBox)
 
         # Events
@@ -112,6 +207,7 @@ class ConfigPopup(QtWidgets.QDialog):
         buttonBox.rejected.connect(self.close)
         self.customFilepicker.clicked.connect(self.selectCustom)
         self.customCB.stateChanged.connect(self.customCBchanged)
+        advancedButton.clicked.connect(self.advanced)
 
         self.setSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
@@ -122,17 +218,16 @@ class ConfigPopup(QtWidgets.QDialog):
         self.table.verticalHeader().hide()
         self.resize(
             self.table.horizontalHeader().length() + 24,
-            self.precommand.sizeHint().height()
-            + self.postcommand.sizeHint().height()
-            + self.table.verticalHeader().length()
+            +self.table.verticalHeader().length()
             + self.table.horizontalHeader().sizeHint().height()
             + buttonBox.sizeHint().height()
             + customLayout.sizeHint().height()
+            + advancedButton.sizeHint().height()
             + 40,
         )
-        # Custom model location
+        self.settings.load()
         if settings.contains("Model/UseCustom"):
-            if settings.value("Model/UseCustom") == "True":
+            if settings.value("Model/UseCustom", type=bool):
                 self.customCB.setCheckState(QtCore.Qt.Checked)
             else:
                 self.customFilepicker.setEnabled(False)
@@ -157,17 +252,12 @@ class ConfigPopup(QtWidgets.QDialog):
                 modelName = item.text()
                 break
             i += 1
-        if self.precommand.text() == "":
-            self.settings.remove("Precommand")
-        else:
-            self.settings.setValue("Precommand", self.precommand.text())
-        if self.postcommand.text() == "":
-            self.settings.remove("Postcommand")
-        else:
-            self.settings.setValue("Postcommand", self.postcommand.text())
-
+        self.settings.save()
+        if self.customCB.isChecked():
             self.settings.setValue("Model/CustomPath", self.customFilepicker.text())
-            self.settings.setValue("Model/UseCustom", "True")
+            self.settings.setValue("Model/UseCustom", True)
+        else:
+            self.settings.setValue("Model/UseCustom", False)
         self.returnValue = [modelName]
         self.close()
 
@@ -176,26 +266,76 @@ class ConfigPopup(QtWidgets.QDialog):
 
     def selectCustom(self) -> None:
         if os.path.isdir(self.customFilepicker.text()):
-            path = QtCore.QUrl(QtCore.QDir(self.customFilepicker.text()))
+            path = self.customFilepicker.text()
         else:
-            path = QtCore.QUrl(QtCore.QDir.homePath())
-        url = QtWidgets.QFileDialog.getExistingDirectoryUrl(
+            path = QtCore.QDir.homePath()
+        newPath = QtWidgets.QFileDialog.getExistingDirectory(
             self, self.tr("Select the model path"), path
         )
-        if url:
-            self.settings.setValue("Model/CustomPath", url.toLocalFile())
-            self.settings.setValue("Model/UseCustom", "True")
-            self.customFilepicker.setText(url.toLocalFile())
+        if newPath:
+            self.settings.setValue("Model/CustomPath", newPath)
+            self.settings.setValue("Model/UseCustom", True)
+            self.customFilepicker.setText(newPath)
         else:
-            self.settings.setValue("Model/UseCustom", "False")
+            self.settings.setValue("Model/UseCustom", False)
 
     def customCBchanged(self) -> None:
         if self.customCB.isChecked():
             self.customFilepicker.setEnabled(True)
-            self.settings.setValue("Model/UseCustom", "True")
+            self.settings.setValue("Model/UseCustom", True)
         else:
             self.customFilepicker.setEnabled(False)
-            self.settings.setValue("Model/UseCustom", "False")
+            self.settings.setValue("Model/UseCustom", False)
+
+    def advanced(self):
+        advWindow = AdvancedUI()
+        advWindow.ui.precommand.setText(self.settings.precommand)
+        advWindow.ui.postcommand.setText(self.settings.postcommand)
+        advWindow.ui.sampleRate.setText(str(self.settings.sampleRate))
+        advWindow.ui.timeout.setValue(self.settings.timeout)
+        advWindow.ui.idleTime.setValue(self.settings.idleTime)
+        advWindow.ui.timeoutDisplay.setText(str(self.settings.timeout))
+        advWindow.ui.idleDisplay.setText(str(self.settings.idleTime))
+        advWindow.ui.punctuateDisplay.setText(str(self.settings.punctuate))
+        advWindow.ui.punctuate.setValue(self.settings.punctuate)
+        if self.settings.fullSentence:
+            advWindow.ui.fullSentence.setChecked(True)
+        if self.settings.digits:
+            advWindow.ui.digits.setChecked(True)
+        if self.settings.useSeparator:
+            advWindow.ui.useSeparator.setChecked(True)
+        advWindow.ui.deviceName.addItem(self.tr("Default"), "default")
+        i = 1
+        chenv = os.environ.copy()
+        chenv["LC_ALL"] = "C"
+        p = run(["pactl", "list", "sources"], capture_output=True, text=True, env=chenv)
+        sortie = p.stdout
+        for m in re.finditer(
+            "Name: (?P<name>.*)\n\s*Description: (?P<description>.*)", sortie
+        ):
+            advWindow.ui.deviceName.addItem(m.group("description"), m.group("name"))
+            if self.settings.deviceName == m.group("name"):
+                advWindow.ui.deviceName.setCurrentIndex(i)
+            i += 1
+        rc = advWindow.exec()
+        if rc:
+            # Save the values
+            # precommand
+            self.settings.precommand = advWindow.ui.precommand.text()
+            # postcommand
+            self.settings.postcommand = advWindow.ui.postcommand.text()
+            # samplerate
+            self.settings.sampleRate = int(advWindow.ui.sampleRate.text())
+            # timeout
+            self.settings.timeout = advWindow.ui.timeout.value()
+            # idle time
+            self.settings.idleTime = advWindow.ui.idleTime.value()
+            # punctuate from previous timeout
+            self.settings.punctuate = advWindow.ui.punctuate.value()
+            self.settings.fullSentence = advWindow.ui.fullSentence.isChecked()
+            self.settings.digits = advWindow.ui.digits.isChecked()
+            self.settings.useSeparator = advWindow.ui.useSeparator.isChecked()
+            self.settings.deviceName = advWindow.ui.deviceName.currentData()
 
 
 class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
@@ -217,16 +357,15 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.activated.connect(self.commute)
         self.dictating = False
 
-        self.settings = QtCore.QSettings("Elograf", "Elograf")
+        self.settings = Settings()
 
     def currentModel(self) -> str:
         model: str = ""
         if self.settings.contains("Model/name") or self.settings.contains(
             "Model/UseCustom"
         ):
-            if (
-                self.settings.contains("Model/UseCustom")
-                and self.settings.value("Model/UseCustom") == "True"
+            if self.settings.contains("Model/UseCustom") and self.settings.value(
+                "Model/UseCustom", type=bool
             ):
                 model = self.settings.value("Model/CustomPath")
             elif self.settings.contains("Model/name"):
@@ -245,17 +384,35 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             dialog.exec_()
             if dialog.returnValue:
                 self.setModel(dialog.returnValue[0])
-        if self.settings.contains("Precommand"):
-            Popen(self.settings.value("Precommand").split())
-        Popen(
-            [
-                "nerd-dictation",
-                "begin",
-                f"--vosk-model-dir={self.currentModel()}",
-                "--full-sentence",
-                "--punctuate-from-previous-timeout=10",
-            ]
-        )
+        self.settings.load()
+        if self.settings.precommand != "":
+            Popen(self.settings.precommand.split())
+        cmd = [
+            "nerd-dictation",
+            "begin",
+            f"--vosk-model-dir={self.currentModel()}",
+        ]
+        if self.settings.sampleRate != 0:
+            cmd += f"--sample-rate={self.settings.sampleRate}"
+        if self.settings.timeout != 0:
+            cmd += f"--timeout={self.settings.timeout}"
+            # idle time
+        if self.settings.idleTime != 0:
+            cmd += f"--idle-time={self.settings.idleTime}"
+        if self.settings.fullSentence:
+            cmd += "--full-sentence"
+        if self.settings.punctuate != 0:
+            cmd += f"--punctuate-from-previous-timeout={self.settings.punctuate}"
+        if self.settings.digits:
+            cmd += "--numbers-as-digits"
+        if self.settings.useSeparator:
+            cmd += "--numbers-use-separator"
+        if self.settings.freeCommand != "":
+            cmd += self.settings.freeCommand
+        if self.settings.deviceName != "default":
+            print(self.settings.deviceName)
+            cmd += f"--pulse-device-name={self.settings.deviceName}"
+        Popen(cmd)
         self.setIcon(self.micro)
 
     def stop_dictate(self) -> None:
@@ -266,8 +423,8 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             ]
         )
         self.setIcon(self.nomicro)
-        if self.settings.contains("Postcommand"):
-            Popen(self.settings.value("Postcommand").split())
+        if self.settings.postcommand:
+            Popen(self.settings.postcommand.split())
 
     def commute(self) -> None:
         if self.dictating:
