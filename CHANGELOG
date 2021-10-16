@@ -1,7 +1,13 @@
 EloGraf
 ----------
 
+* 0.2.0
+    - Add a advanced settings dialogue
+
 * 0.1.7
+    - Use audio-input-microphone icon also for launcher
+    - Fix again model returned from settings
+    
 * 0.1.6
     - Fix model not returned if custom option is not defined.
 
