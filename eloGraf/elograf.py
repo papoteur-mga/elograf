@@ -13,7 +13,7 @@ from subprocess import Popen, run
 import os
 import re
 import eloGraf.elograf_rc
-from advanced import Ui_Dialog
+from eloGraf.advanced import Ui_Dialog
 
 # Types.
 from typing import (
