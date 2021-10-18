@@ -398,25 +398,26 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             f"--vosk-model-dir={self.currentModel()}",
         ]
         if self.settings.sampleRate != DEFAULT_RATE:
-            cmd += f"--sample-rate={self.settings.sampleRate}"
+            cmd.append(f"--sample-rate={self.settings.sampleRate}")
         if self.settings.timeout != 0:
-            cmd += f"--timeout={self.settings.timeout}"
+            cmd.append(f"--timeout={self.settings.timeout}")
             # idle time
         if self.settings.idleTime != 0:
-            cmd += f"--idle-time={self.settings.idleTime}"
+            cmd.append(f"--idle-time={self.settings.idleTime}")
         if self.settings.fullSentence:
-            cmd += "--full-sentence"
+            cmd.append("--full-sentence")
         if self.settings.punctuate != 0:
-            cmd += f"--punctuate-from-previous-timeout={self.settings.punctuate}"
+            cmd.append(f"--punctuate-from-previous-timeout={self.settings.punctuate}")
         if self.settings.digits:
-            cmd += "--numbers-as-digits"
+            cmd.append("--numbers-as-digits")
         if self.settings.useSeparator:
-            cmd += "--numbers-use-separator"
+            cmd.append("--numbers-use-separator")
         if self.settings.freeCommand != "":
-            cmd += self.settings.freeCommand
+            cmd.append(self.settings.freeCommand)
         if self.settings.deviceName != "default":
             print(self.settings.deviceName)
-            cmd += f"--pulse-device-name={self.settings.deviceName}"
+            cmd.append(f"--pulse-device-name={self.settings.deviceName}")
+        print(cmd)
         Popen(cmd)
         self.setIcon(self.micro)
 
