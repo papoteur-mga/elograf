@@ -23,6 +23,7 @@ from typing import (
 )
 
 MODEL_BASE_PATH = "/usr/share/vosk-model"
+DEFAULT_RATE:int = 44100
 
 
 class Settings(QtCore.QSettings):
@@ -41,7 +42,7 @@ class Settings(QtCore.QSettings):
         if self.contains("SampleRate"):
             self.sampleRate: int = self.value("SampleRate", type=int)
         else:
-            self.sampleRate: int = 44100
+            self.sampleRate: int = DEFAULT_RATE
         if self.contains("Timeout"):
             self.timeout = self.value("Timeout", type=int)
         else:
@@ -88,6 +89,10 @@ class Settings(QtCore.QSettings):
             self.remove("Timeout")
         else:
             self.setValue("Timeout", self.timeout)
+        if self.sampleRate == DEFAULT_RATE:
+            self.remove("SampleRate")
+        else:
+            self.setValue("SampleRate", self.sampleRate)
         if self.idleTime == 100:
             self.remove("IdleTime")
         else:
@@ -392,7 +397,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             "begin",
             f"--vosk-model-dir={self.currentModel()}",
         ]
-        if self.settings.sampleRate != 0:
+        if self.settings.sampleRate != DEFAULT_RATE:
             cmd += f"--sample-rate={self.settings.sampleRate}"
         if self.settings.timeout != 0:
             cmd += f"--timeout={self.settings.timeout}"
