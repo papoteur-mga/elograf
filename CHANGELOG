@@ -1,5 +1,8 @@
 EloGraf
 ----------
+* 0.2.2
+    - Fix passing option to nerd-dictation
+    - Fix saving samplerate and freecommand
 
 * 0.2.1
     - Fix import advenced module
