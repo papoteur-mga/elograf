@@ -303,6 +303,7 @@ class ConfigPopup(QtWidgets.QDialog):
         advWindow.ui.idleDisplay.setText(str(self.settings.idleTime))
         advWindow.ui.punctuateDisplay.setText(str(self.settings.punctuate))
         advWindow.ui.punctuate.setValue(self.settings.punctuate)
+        advWindow.ui.freecommand.setText(self.settings.freeCommand)
         if self.settings.fullSentence:
             advWindow.ui.fullSentence.setChecked(True)
         if self.settings.digits:
@@ -341,6 +342,7 @@ class ConfigPopup(QtWidgets.QDialog):
             self.settings.digits = advWindow.ui.digits.isChecked()
             self.settings.useSeparator = advWindow.ui.useSeparator.isChecked()
             self.settings.deviceName = advWindow.ui.deviceName.currentData()
+            self.settings.freeCommand = advWindow.ui.freecommand.text()
 
 
 class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
