@@ -12,8 +12,10 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from subprocess import Popen, run
 import os
 import re
+import multiprocessing
 import eloGraf.elograf_rc
 from eloGraf.advanced import Ui_Dialog
+import  nd
 
 # Types.
 from typing import (
@@ -25,6 +27,9 @@ from typing import (
 MODEL_BASE_PATH = "/usr/share/vosk-model"
 DEFAULT_RATE:int = 44100
 
+
+def _dictate(**kwargs):                
+	nd.main_begin(**kwargs)
 
 class Settings(QtCore.QSettings):
     def __init__(self):
@@ -365,6 +370,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.dictating = False
 
         self.settings = Settings()
+        self.thread = None
 
     def currentModel(self) -> str:
         model: str = ""
@@ -394,42 +400,47 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.settings.load()
         if self.settings.precommand != "":
             Popen(self.settings.precommand.split())
-        cmd = [
-            "nerd-dictation",
-            "begin",
-            f"--vosk-model-dir={self.currentModel()}",
-        ]
+        args:dict = {}
         if self.settings.sampleRate != DEFAULT_RATE:
-            cmd.append(f"--sample-rate={self.settings.sampleRate}")
+            args['sample_rate']=self.settings.sampleRate
         if self.settings.timeout != 0:
-            cmd.append(f"--timeout={self.settings.timeout}")
+            args["timeout"] = self.settings.timeout
             # idle time
         if self.settings.idleTime != 0:
-            cmd.append(f"--idle-time={self.settings.idleTime}")
+            args["idle_time"] = float(self.settings.idleTime)/ 1000
         if self.settings.fullSentence:
-            cmd.append("--full-sentence")
+            args["full_sentence"] = True
         if self.settings.punctuate != 0:
-            cmd.append(f"--punctuate-from-previous-timeout={self.settings.punctuate}")
+            args["punctuate_from_previous_timeout"] = self.settings.punctuate
         if self.settings.digits:
-            cmd.append("--numbers-as-digits")
+            args["numbers_as_digits"] = True
         if self.settings.useSeparator:
-            cmd.append("--numbers-use-separator")
-        if self.settings.freeCommand != "":
-            cmd.append(self.settings.freeCommand)
+            args["numbers_use_separator"] = True
         if self.settings.deviceName != "default":
-            print(self.settings.deviceName)
-            cmd.append(f"--pulse-device-name={self.settings.deviceName}")
-        print(cmd)
-        Popen(cmd)
+            args["pulse_device_name"] = self.settings.deviceName
+        #Popen(cmd)
+        args['vosk_model_dir'] = self.currentModel()
+        args["output"] = "SIMULATE_INPUT"
+        args['progressive'] = True
+        if os.name != "posix":
+            args['input_method'] = "pynput"
+        self.thread = multiprocessing.Process(target=_dictate, kwargs=args)
+        self.thread.start()
         self.setIcon(self.micro)
+        # A timer to watch the state of the thread and update the icon 
+        self.processWatch = QtCore.QTimer()
+        self.processWatch.timeout.connect(self.watch)
+        self.processWatch.start(3000)
 
+    def watch(self):
+        if not self.thread.is_alive():
+            self.stop_dictate()
+            self.dictating = False
+            self.processWatch.stop()
+            
     def stop_dictate(self) -> None:
-        Popen(
-            [
-                "nerd-dictation",
-                "end",
-            ]
-        )
+        if self.thread and self.thread.is_alive():
+            self.thread.terminate()
         self.setIcon(self.nomicro)
         if self.settings.postcommand:
             Popen(self.settings.postcommand.split())
