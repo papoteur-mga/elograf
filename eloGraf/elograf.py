@@ -366,7 +366,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         if self.micro.isNull():
             self.micro = QtGui.QIcon(":/icons/elograf/24/micro.png")
         self.setIcon(self.nomicro)
-        self.activated.connect(self.commute)
+        self.activated.connect(lambda r: self.commute(r))
         self.dictating = False
 
         self.settings = Settings()
@@ -446,12 +446,13 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             if self.settings.postcommand:
                 Popen(self.settings.postcommand.split())
 
-    def commute(self) -> None:
-        if self.dictating:
-            self.stop_dictate()
-        else:
-            self.dictate()
-        self.dictating = not self.dictating
+    def commute(self, reason) -> None:
+        if reason != QtWidgets.QSystemTrayIcon.Context:
+            if self.dictating:
+                self.stop_dictate()
+            else:
+                self.dictate()
+            self.dictating = not self.dictating
 
     def config(self) -> None:
         dialog = ConfigPopup(os.path.basename(self.currentModel()), self.settings)
