@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="fr">
+<!DOCTYPE TS><TS version="2.0" language="fr" sourcelanguage="">
 <context>
     <name>@default</name>
     <message>
@@ -112,47 +111,47 @@
         <translation type="obsolete">Commande préliminaire :</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="156"/>
+        <location filename="../elograf.py" line="161"/>
         <source>Language</source>
         <translation>Langue</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="156"/>
+        <location filename="../elograf.py" line="161"/>
         <source>Name</source>
         <translation>Nom</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="156"/>
+        <location filename="../elograf.py" line="161"/>
         <source>Description</source>
         <translation>Description</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="156"/>
+        <location filename="../elograf.py" line="161"/>
         <source>Size</source>
         <translation>Taille</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="156"/>
+        <location filename="../elograf.py" line="161"/>
         <source>License</source>
         <translation>Licence</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="178"/>
+        <location filename="../elograf.py" line="183"/>
         <source>Not provided</source>
         <translation>Non précisé</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="148"/>
+        <location filename="../elograf.py" line="153"/>
         <source>Use custom model location</source>
         <translation>Utiliser un emplacement personnel de modèle</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="149"/>
+        <location filename="../elograf.py" line="154"/>
         <source>Select directory</source>
         <translation>Sélectionner un répertoire</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="272"/>
+        <location filename="../elograf.py" line="277"/>
         <source>Select the model path</source>
         <translation>Sélectionner le chemin du modèle</translation>
     </message>
@@ -162,12 +161,12 @@
         <translation type="obsolete">Commande postliminaire :</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="201"/>
+        <location filename="../elograf.py" line="206"/>
         <source>Advanced</source>
         <translation>Avancé</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="307"/>
+        <location filename="../elograf.py" line="313"/>
         <source>Default</source>
         <translation>Par défaut</translation>
     </message>
@@ -314,12 +313,12 @@ Ceci est aussi utilisé pour un soit mettre une virgule, soit mettre en arrêt l
 <context>
     <name>SystemTrayIcon</name>
     <message>
-        <location filename="../elograf.py" line="345"/>
+        <location filename="../elograf.py" line="352"/>
         <source>Exit</source>
         <translation>Quitter</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="346"/>
+        <location filename="../elograf.py" line="353"/>
         <source>Configuration</source>
         <translation>Configuration</translation>
     </message>
