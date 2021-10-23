@@ -442,8 +442,9 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         if self.thread and self.thread.is_alive():
             self.thread.terminate()
         self.setIcon(self.nomicro)
-        if self.settings.postcommand:
-            Popen(self.settings.postcommand.split())
+        if hasattr(self.settings, 'postcommand'):
+            if self.settings.postcommand:
+                Popen(self.settings.postcommand.split())
 
     def commute(self) -> None:
         if self.dictating:
