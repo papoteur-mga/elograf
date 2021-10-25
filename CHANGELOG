@@ -1,5 +1,12 @@
 EloGraf
 ----------
+* 0.3.0
+    - use nerd-dictation as a module
+    - detect if nerd-dictation is running and adjust icon according to test
+    - default to pynput if not launched from Posix
+    - Fix detecting if icon is loaded from theme
+    - Fix: avoid error when closing and when postcommand doesn't exist
+    
 * 0.2.2
     - Fix passing option to nerd-dictation
     - Fix saving samplerate and freecommand

@@ -23,7 +23,7 @@ data_files = [
 
 setup(
     name="elograf",
-    version="0.2.2",
+    version="0.3.0",
     packages=["eloGraf"],
     scripts=["elograf"],
     package_data={"": ["translations/*.qm"]},
