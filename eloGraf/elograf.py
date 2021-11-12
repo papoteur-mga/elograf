@@ -12,10 +12,8 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from subprocess import Popen, run
 import os
 import re
-import multiprocessing
 import eloGraf.elograf_rc
 from eloGraf.advanced import Ui_Dialog
-import  nd
 
 # Types.
 from typing import (
@@ -400,32 +398,33 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.settings.load()
         if self.settings.precommand != "":
             Popen(self.settings.precommand.split())
-        args:dict = {}
+        cmd = ['nerd-dictation','begin']
         if self.settings.sampleRate != DEFAULT_RATE:
-            args['sample_rate']=self.settings.sampleRate
+            cmd.append(f'sample-rate={self.settings.sampleRate}')
         if self.settings.timeout != 0:
-            args["timeout"] = self.settings.timeout
+            cmd.append(f"--timeout={self.settings.timeout}")
             # idle time
         if self.settings.idleTime != 0:
-            args["idle_time"] = float(self.settings.idleTime)/ 1000
+            cmd.append(f"--idle-time={float(self.settings.idleTime)/ 1000}")
         if self.settings.fullSentence:
-            args["full_sentence"] = True
+            cmd.append("--full-sentence")
         if self.settings.punctuate != 0:
-            args["punctuate_from_previous_timeout"] = self.settings.punctuate
+            cmd.append(f"--punctuate-from-previous-timeout={self.settings.punctuate}")
         if self.settings.digits:
-            args["numbers_as_digits"] = True
+            cmd.append("--numbers-as-digits")
         if self.settings.useSeparator:
-            args["numbers_use_separator"] = True
+            cmd.append("--numbers-use-separator")
         if self.settings.deviceName != "default":
-            args["pulse_device_name"] = self.settings.deviceName
+            cmd.append(f"--pulse-device-name={self.settings.deviceName}")
         #Popen(cmd)
-        args['vosk_model_dir'] = self.currentModel()
-        args["output"] = "SIMULATE_INPUT"
-        args['progressive'] = True
+        cmd.append(f'--vosk-model-dir={ self.currentModel()}')
+        cmd.append("--output=SIMULATE_INPUT")
+        cmd.append('--continuous')
         if os.name != "posix":
-            args['input_method'] = "pynput"
-        self.thread = multiprocessing.Process(target=_dictate, kwargs=args)
-        self.thread.start()
+            cmd.append("--input-method=pynput")
+        #self.thread = multiprocessing.Process(target=_dictate, kwargs=args)
+        #self.thread.start()
+        self.dictate_process = Popen(cmd)
         self.setIcon(self.micro)
         # A timer to watch the state of the thread and update the icon 
         self.processWatch = QtCore.QTimer()
@@ -433,7 +432,8 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.processWatch.start(3000)
 
     def watch(self):
-        if not self.thread.is_alive():
+        poll = self.dictate_process.poll()
+        if poll != None:
             self.stop_dictate()
             self.dictating = False
             self.processWatch.stop()
