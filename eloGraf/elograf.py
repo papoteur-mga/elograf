@@ -439,8 +439,14 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             self.processWatch.stop()
             
     def stop_dictate(self) -> None:
-        if self.thread and self.thread.is_alive():
-            self.thread.terminate()
+        #if self.thread and self.thread.is_alive():
+            #self.thread.terminate()
+        Popen(
+            [
+                "nerd-dictation",
+                "end",
+            ]
+        )
         self.setIcon(self.nomicro)
         if hasattr(self.settings, 'postcommand'):
             if self.settings.postcommand:
