@@ -14,6 +14,10 @@ A table list all models which are installed on the system and which can be selec
 You can also select a directory where a custom model is stored.
 The configuration dialog is displayed if no model has been set previously.
 
+Installation
+In command line:
+python3 setup.py install
+
 Under the hood
 
 This tool is written in Python 3 and use Qt5.
