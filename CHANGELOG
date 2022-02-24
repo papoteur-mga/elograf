@@ -1,5 +1,10 @@
 EloGraf
 ----------
+
+* 0.3.1
+    - revert use nerd-dictation as a module
+    - fix closing
+    
 * 0.3.0
     - use nerd-dictation as a module
     - detect if nerd-dictation is running and adjust icon according to test
