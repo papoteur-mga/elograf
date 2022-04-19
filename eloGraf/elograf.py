@@ -145,9 +145,12 @@ class ConfigPopup(QtWidgets.QDialog):
         self.setWindowTitle("Elograf")
         self.setWindowIcon(QtGui.QIcon(":/icons/elograf/24/micro.png"))
         layout = QtWidgets.QVBoxLayout(self)
-        dirList = [
-            name for name in os.listdir(MODEL_BASE_PATH) if not os.path.isfile(name)
-        ]
+        if os.path.exists(MODEL_BASE_PATH):
+            dirList = [
+                name for name in os.listdir(MODEL_BASE_PATH) if not os.path.isfile(name)
+            ]
+        else:
+            dirList = []
         numberModels = len(dirList)
         self.table = QtWidgets.QTableWidget(numberModels, 5, self)
         precommandlayout = QtWidgets.QHBoxLayout(self)
