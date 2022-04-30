@@ -7,6 +7,6 @@ Exec=elograf
 Icon=audio-input-microphone
 Terminal=false
 Type=Application
-Categories=Accessibility;Office;
+Categories=Accessibility;Utility;
 Name[fr_FR]=Elograf
 Comment[fr_FR]=Outil pour lancer la dictée depuis la boîte à miniatures
