@@ -1,5 +1,7 @@
 EloGraf
 ----------
+* 0.3.2
+    - fix crash when /urs/share/models/ doesn't exist
 
 * 0.3.1
     - revert use nerd-dictation as a module
