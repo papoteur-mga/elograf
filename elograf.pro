@@ -19,7 +19,9 @@ SOURCES += eloGraf/elograf.py \
 HEADERS  +=
 
 FORMS    +=  \
-    eloGraf/advanced.ui
+    confirm.ui \
+    eloGraf/advanced.ui \
+    eloGraf/custom.ui
 
 TRANSLATIONS     += eloGraf/translations/elograf_fr.ts
 

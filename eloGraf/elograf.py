@@ -8,30 +8,100 @@ Created on Wed Jun 16 08:15:47 2021
 """
 
 import sys
-from PyQt5 import QtGui, QtCore, QtWidgets
-from subprocess import Popen, run
 import os
 import re
-import eloGraf.elograf_rc
-from eloGraf.advanced import Ui_Dialog
+import ujson
+import urllib.request, urllib.error
+from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
+from PyQt5.QtCore import (
+    QCoreApplication,
+    QDir,
+    QLibraryInfo,
+    QLocale,
+    QModelIndex,
+    QSettings,
+    QSize,
+    Qt,
+    QTranslator,
+    QTimer,
+)
+from PyQt5.QtWidgets import (
+    QAbstractItemView,
+    QApplication,
+    QCheckBox,
+    QDialog,
+    QDialogButtonBox,
+    QFileDialog,
+    QHBoxLayout,
+    QMenu,
+    QProgressBar,
+    QPushButton,
+    QSizePolicy,
+    QSystemTrayIcon,
+    QTableWidget,
+    QVBoxLayout,
+    QWidget,
+    QTableView,
+)
+from subprocess import Popen, run
+from zipfile import ZipFile
+import eloGraf.elograf_rc  # type: ignore
+import eloGraf.advanced as advanced  # type: ignore
+import eloGraf.confirm as confirm  # type: ignore
+import eloGraf.custom as custom  # type: ignore
 
 # Types.
 from typing import (
+    Any,
     Tuple,
     List,
+    Dict,
     Optional,
 )
 
-MODEL_BASE_PATH = "/usr/share/vosk-model"
-DEFAULT_RATE:int = 44100
+MODEL_USER_PATH = os.path.expanduser("~/.config/vosk-models")
+MODEL_GLOBAL_PATH = "/usr/share/vosk-model"
+MODEL_LIST = "model-list.json"
+MODELS_URL = "https://alphacephei.com/vosk/models"
+
+DEFAULT_RATE: int = 44100
 
 
-def _dictate(**kwargs):                
-	nd.main_begin(**kwargs)
+def get_size(start_path=".") -> Tuple[float, str]:
+    total_size: int = 0
+    for dirpath, dirnames, filenames in os.walk(start_path):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            # skip if it is symbolic link
+            if not os.path.islink(fp):
+                total_size += os.path.getsize(fp)
+    total: float = float(total_size)
+    for unit in ("B", "Kb", "Mb", "Gb", "Tb"):
+        if total < 1024:
+            break
+        total /= 1024
+    return total, unit
 
-class Settings(QtCore.QSettings):
+
+class Models(QStandardItemModel):
     def __init__(self):
-        super(QtCore.QSettings, self).__init__("Elograf", "Elograf")
+        QStandardItemModel.__init__(self, 0, 5)
+        headers = [
+            self.tr("Language"),
+            self.tr("Name"),
+            self.tr("Version"),
+            self.tr("Size"),
+            self.tr("Class"),
+        ]
+        i: int = 0
+        for label in headers:
+            self.setHeaderData(i, Qt.Horizontal, label)
+            i += 1
+
+
+class Settings(QSettings):
+    def __init__(self):
+        super(QSettings, self).__init__("Elograf", "Elograf")
 
     def load(self):
         if self.contains("Precommand"):
@@ -117,10 +187,10 @@ class Settings(QtCore.QSettings):
             self.setValue("DeviceName", self.deviceName)
 
 
-class AdvancedUI(QtWidgets.QDialog):
+class AdvancedUI(QDialog):
     def __init__(self):
-        super(QtWidgets.QDialog, self).__init__()
-        self.ui = Ui_Dialog()
+        super(QDialog, self).__init__()
+        self.ui = advanced.Ui_Dialog()
         self.ui.setupUi(self)
         self.ui.timeout.valueChanged.connect(self.timeoutChanged)
         self.ui.idleTime.valueChanged.connect(self.idleChanged)
@@ -136,169 +206,385 @@ class AdvancedUI(QtWidgets.QDialog):
         self.ui.punctuateDisplay.setText(str(num))
 
 
-class ConfigPopup(QtWidgets.QDialog):
-    def __init__(
-        self, currentModel: str, settings: QtCore.QSettings, parent=None
-    ) -> None:
-        super(ConfigPopup, self).__init__(parent)
+class ConfirmDownloadUI(QDialog):
+    def __init__(self, text: str) -> None:
+        super(QDialog, self).__init__()
+        self.ui = confirm.Ui_Dialog()
+        self.ui.setupUi(self)
+        self.ui.message.setText(text)
+
+
+class CustomUI(QDialog):
+    def __init__(self, settings):
+        super(QDialog, self).__init__()
+        self.settings = settings
+        self.ui = custom.Ui_Dialog()
+        self.ui.setupUi(self)
+        self.ui.filePicker.clicked.connect(self.selectCustom)
+
+    def selectCustom(self) -> None:
+        if os.path.isdir(self.ui.filePicker.text()):
+            path: str = self.ui.filePicker.text()
+        else:
+            path = QDir.homePath()
+        newPath: str = QFileDialog.getExistingDirectory(
+            self, self.tr("Select the model path"), path
+        )
+        if newPath:
+            self.ui.filePicker.setText(newPath)
+            self.ui.nameLineEdit.setText(os.path.basename(newPath))
+            size, unit = get_size(newPath)
+            unit = self.tr(unit)
+            self.ui.sizeLineEdit.setText(f"{size:.2f} {unit}")
+
+    def accept(self) -> None:
+        name: str = self.ui.nameLineEdit.text()
+        language: str = self.ui.languageLineEdit.text()
+        if language == "":
+            self.ui.languageLineEdit.setStyleSheet("border: 3px solid red")
+            QTimer.singleShot(1000, lambda: self.ui.languageLineEdit.setStyleSheet(""))
+            return
+        if name == "":
+            self.ui.nameLineEdit.setStyleSheet("border: 3px solid red")
+            QTimer.singleShot(1000, lambda: self.ui.nameLineEdit.setStyleSheet(""))
+            return
+        new_path: str = self.ui.filePicker.text()
+        if os.path.exists(new_path):
+            n: int = self.settings.beginReadArray("Models")
+            self.settings.endArray()
+            self.settings.beginWriteArray("Models")
+            self.settings.setArrayIndex(n)
+            self.settings.setValue("language", language)
+            self.settings.setValue("name", name)
+            self.settings.setValue("version", self.ui.versionLineEdit.text())
+            self.settings.setValue("size", self.ui.sizeLineEdit.text())
+            self.settings.setValue("type", self.ui.classLineEdit.text())
+            self.settings.setValue("location", new_path)
+            self.settings.endArray()
+            self.close()
+
+
+class DownloadPopup(QDialog):
+    def __init__(self, settings: QSettings, installed: List[str], parent=None) -> None:
+        super(QDialog, self).__init__(parent)
         self.settings = settings
         self.setWindowTitle("Elograf")
-        self.setWindowIcon(QtGui.QIcon(":/icons/elograf/24/micro.png"))
-        layout = QtWidgets.QVBoxLayout(self)
-        if os.path.exists(MODEL_BASE_PATH):
-            dirList = [
-                name for name in os.listdir(MODEL_BASE_PATH) if not os.path.isfile(name)
-            ]
-        else:
-            dirList = []
-        numberModels = len(dirList)
-        self.table = QtWidgets.QTableWidget(numberModels, 5, self)
-        precommandlayout = QtWidgets.QHBoxLayout(self)
-        layout.addLayout(precommandlayout)
-        customLayout = QtWidgets.QHBoxLayout(self)
-        self.customCB = QtWidgets.QCheckBox(self.tr("Use custom model location"))
-        self.customFilepicker = QtWidgets.QPushButton(self.tr("Select directory"))
-        customLayout.addWidget(self.customCB)
-        customLayout.addWidget(self.customFilepicker)
-        layout.addLayout(customLayout)
-        layout.addWidget(self.table)
-        self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-        self.table.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
-        self.table.setHorizontalHeaderLabels(
-            [
-                self.tr("Language"),
-                self.tr("Name"),
-                self.tr("Description"),
-                self.tr("Size"),
-                self.tr("License"),
-            ]
-        )
-        i = 0
-        selectedLine = None
-        for dirModel in dirList:
-            descriptionPath = os.path.join(MODEL_BASE_PATH, dirModel, "description.txt")
-            if os.path.isfile(descriptionPath):
-                name, language, description, size, license = self.readDesc(
-                    descriptionPath
+        self.setWindowIcon(QIcon(":/icons/elograf/24/micro.png"))
+        self.list = Models()
+        with open(os.path.join(MODEL_USER_PATH, MODEL_LIST)) as remote_list:
+            self.remote_models: Dict = ujson.loads(remote_list.read())
+        for model_data in sorted(
+            self.remote_models, key=lambda item: item["lang_text"]
+        ):
+            if (
+                model_data["name"] not in [u for u in installed]
+                and model_data["obsolete"] != "true"
+            ):
+                language_item = QStandardItem(model_data["lang_text"])
+                name_item = QStandardItem(model_data["name"])
+                size_item = QStandardItem(model_data["size_text"])
+                version_item = QStandardItem(model_data["version"])
+                class_item = QStandardItem(model_data["type"])
+                self.list.appendRow(
+                    [
+                        language_item,
+                        name_item,
+                        version_item,
+                        size_item,
+                        class_item,
+                    ]
                 )
-            else:
-                name = dirModel
-                language = self.tr("Not provided")
-                description = self.tr("Not provided")
-                size = self.tr("Not provided")
-                license = self.tr("Not provided")
-            item = QtWidgets.QTableWidgetItem(self.tr(language))
-            self.table.setItem(i, 0, item)
-            item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
-            item = QtWidgets.QTableWidgetItem(name)
-            self.table.setItem(i, 1, item)
-            item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
-            item = QtWidgets.QTableWidgetItem(description)
-            self.table.setItem(i, 2, item)
-            item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
-            item = QtWidgets.QTableWidgetItem(size)
-            self.table.setItem(i, 3, item)
-            item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
-            item = QtWidgets.QTableWidgetItem(license)
-            self.table.setItem(i, 4, item)
-            item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
-            if currentModel == name:
-                selectedLine = i
-                self.table.setCurrentItem(item)
-            i += 1
-        buttonBox = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Save | QtWidgets.QDialogButtonBox.Cancel
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        vbox = QVBoxLayout()
+        self.table = QTableView()
+        self.table.setModel(self.list)
+        vbox.addWidget(self.table)
+        self.setLayout(vbox)
+        self.table.resizeColumnsToContents()
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.bar = QProgressBar()
+        self.bar.setMaximum(100)
+        self.bar.setMinimum(0)
+        vbox.addWidget(self.bar)
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Close)
+        systemButton = QPushButton(self.tr("Import system wide"))
+        buttonBox.addButton(systemButton, QDialogButtonBox.ActionRole)
+        userButton = QPushButton(self.tr("Import in user space"))
+        buttonBox.addButton(userButton, QDialogButtonBox.ActionRole)
+        vbox.addWidget(buttonBox)
+        systemButton.clicked.connect(self.system)
+        userButton.clicked.connect(self.user)
+        buttonBox.rejected.connect(self.close)
+
+    def sizeHint(self) -> QSize:
+        width = 0
+        for i in range(self.list.columnCount()):
+            width += self.table.columnWidth(i)
+        width += self.table.verticalHeader().sizeHint().width()
+        width += self.table.verticalScrollBar().sizeHint().width()
+        width += self.table.frameWidth() * 2
+        return QSize(width, self.height())
+
+    def user(self):
+        # Import and extract the imported model to local space
+        rc, temp_file, name = self.import_model()
+        if rc:
+            try:
+                with ZipFile(temp_file) as z:
+                    z.extractall(MODEL_USER_PATH)
+            except:
+                print("Invalid file")
+            self.register(os.path.join(MODEL_USER_PATH, name))
+            self.close()
+
+    def system(self):
+        # Import and extract the imported model to system space
+        rc, temp_file, name = self.import_model()
+        if rc:
+            if not os.path.exists(MODEL_GLOBAL_PATH):
+                Popen(["pkexec", "mkdir", "-f", MODEL_GLOBAL_PATH])
+            Popen(["pkexec", "unzip", temp_file, "-d", MODEL_GLOBAL_PATH])
+            self.register(os.path.join(MODEL_GLOBAL_PATH, name))
+            self.close()
+
+    def progress(self, n: int, size: int, total: int) -> None:
+        if total is not None:
+            self.bar.setValue(n * size * 100 // total)
+        else:
+            self.bar.setMaximum(0)
+            self.bar.setValue(n)
+        self.bar.repaint()
+        QCoreApplication.processEvents()
+
+    def import_model(self) -> Tuple[bool, str, str]:
+        # download the selected model
+        # model designated by the selected line in "table"
+        selection = self.table.selectionModel().selectedRows()  # liste de QModelIndex
+        if len(selection) == 0:
+            print("No selected model")
+            return False, "", ""
+        size = self.list.data(self.list.index(selection[0].row(), 3))
+        self.name = self.list.data(self.list.index(selection[0].row(), 1))
+        self.confirm_dl = ConfirmDownloadUI(
+            self.tr(
+                "We will download the model {} of {} from {}. Do you agree?".format(
+                    self.name, size, MODELS_URL
+                )
+            )
         )
-        advancedButton = QtWidgets.QPushButton(self.tr("Advanced"))
-        buttonBox.addButton(advancedButton, QtWidgets.QDialogButtonBox.ActionRole)
+        rc = self.confirm_dl.exec()
+        if rc:
+            url = ""
+            for model in self.remote_models:
+                if model["name"] == self.name:
+                    url = model["url"]
+                    break
+            if url != "":
+                try:
+                    temp_file, _ = urllib.request.urlretrieve(
+                        url,
+                        reporthook=self.progress,
+                    )
+                except urllib.error.URLError:
+                    print("Network unavailable or bad URL")
+                    return False, "", ""
+                return True, temp_file, self.name
+            else:
+                print("The model has no url provided")
+        return False, "", ""
+
+    def register(self, location):
+        # Check if the model is already registred
+        n = self.settings.beginReadArray("Models")
+        model_registred = False
+        for i in range(0, n):
+            self.settings.setArrayIndex(i)
+            if self.name == self.settings.value("name"):
+                model_registred = True
+                break
+        self.settings.endArray()
+        if not model_registred:
+            selection = self.table.selectionModel().selectedRows()
+            row = selection[0].row()
+            self.settings.beginWriteArray("Models")
+            self.settings.setArrayIndex(n)
+            self.settings.setValue("language", self.list.data(self.list.index(row, 0)))
+            self.settings.setValue("name", self.name)
+            self.settings.setValue("version", self.list.data(self.list.index(row, 2)))
+            self.settings.setValue("size", self.list.data(self.list.index(row, 3)))
+            self.settings.setValue("type", self.list.data(self.list.index(row, 4)))
+            self.settings.setValue("location", location)
+            self.settings.endArray()
+
+
+class ConfigPopup(QDialog):
+    def __init__(self, currentModel: str, settings, parent=None) -> None:
+        super(ConfigPopup, self).__init__(parent)
+        self.settings = settings
+        self.currentModel = currentModel
+        self.setWindowTitle("Elograf")
+        self.setWindowIcon(QIcon(":/icons/elograf/24/micro.png"))
+        layout = QVBoxLayout(self)
+        if not os.path.exists(MODEL_USER_PATH):
+            os.makedirs(MODEL_USER_PATH, exist_ok=True)
+        self.table = QTableView()
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setSelectionMode(QAbstractItemView.SingleSelection)
+        layout.addWidget(self.table)
+        # read models data from settings
+        self.list, selected = self.get_list()
+        self.table.setModel(self.list)
+        if selected is not None:
+            self.table.selectRow(selected)
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
+        remoteButton = QPushButton(self.tr("Import remote model"))
+        buttonBox.addButton(remoteButton, QDialogButtonBox.ActionRole)
+        localButton = QPushButton(self.tr("Import local model"))
+        buttonBox.addButton(localButton, QDialogButtonBox.ActionRole)
+        advancedButton = QPushButton(self.tr("Advanced"))
+        buttonBox.addButton(advancedButton, QDialogButtonBox.ActionRole)
         layout.addWidget(buttonBox)
 
         # Events
         buttonBox.accepted.connect(self.accept)
         buttonBox.rejected.connect(self.close)
-        self.customFilepicker.clicked.connect(self.selectCustom)
-        self.customCB.stateChanged.connect(self.customCBchanged)
         advancedButton.clicked.connect(self.advanced)
+        localButton.clicked.connect(self.local)
+        remoteButton.clicked.connect(self.remote)
 
-        self.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
-        )
-        self.table.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.table.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.table.resizeColumnsToContents()
         self.table.verticalHeader().hide()
-        self.resize(
-            self.table.horizontalHeader().length() + 24,
-            +self.table.verticalHeader().length()
-            + self.table.horizontalHeader().sizeHint().height()
-            + buttonBox.sizeHint().height()
-            + customLayout.sizeHint().height()
-            + advancedButton.sizeHint().height()
-            + 40,
-        )
+        self.button_height = buttonBox.sizeHint().height()
         self.settings.load()
-        if settings.contains("Model/UseCustom"):
-            if settings.value("Model/UseCustom", type=bool):
-                self.customCB.setCheckState(QtCore.Qt.Checked)
-            else:
-                self.customFilepicker.setEnabled(False)
-        if settings.contains("Model/CustomPath"):
-            self.customFilepicker.setText(settings.value("Model/CustomPath"))
         self.returnValue: List[str] = []
 
-    def readDesc(self, path: str) -> Tuple[str, str, str, str, str]:
-        with open(path, "r") as f:
-            name = f.readline().rstrip()
-            language = f.readline().rstrip()
-            description = f.readline().rstrip()
-            size = f.readline().rstrip()
-            license = f.readline().rstrip()
-            return name, language, description, size, license
+    def sizeHint(self) -> QSize:
+        height = self.table.verticalHeader().length() \
+            + self.table.horizontalHeader().sizeHint().height() \
+            + self.button_height \
+            + 40
+        return QSize(self.width(), height)
+
+    def get_single(self, i: int):
+        # Provide items for the model in settings at range i
+        # items are for including in model list for viewing
+        self.settings.setArrayIndex(i)
+        name = self.settings.value("name")
+        language = self.settings.value("language")
+        size = self.settings.value("size")
+        type = self.settings.value("type")
+        version = self.settings.value("version")
+        language_item = QStandardItem(self.tr(language))
+        language_item.setFlags(language_item.flags() & ~Qt.ItemIsEditable)
+        name_item = QStandardItem(name)
+        name_item.setFlags(name_item.flags() & ~Qt.ItemIsEditable)
+        size_item = QStandardItem(size)
+        size_item.setFlags(size_item.flags() & ~Qt.ItemIsEditable)
+        version_item = QStandardItem(version)
+        version_item.setFlags(version_item.flags() & ~Qt.ItemIsEditable)
+        class_item = QStandardItem(type)
+        class_item.setFlags(class_item.flags() & ~Qt.ItemIsEditable)
+        return language_item, name_item, size_item, version_item, class_item
+
+    def update_list(self) -> int:
+        selected: Optional[int] = None
+        n = self.settings.beginReadArray("Models")
+        previous_names_list = [self.list.data(self.list.index(i, 1)) for i in range(0, n)]
+        self.list.layoutAboutToBeChanged.emit()
+        for i in range(0, n):
+            language_item, name_item, size_item, version_item, class_item = self.get_single(i)
+            if name_item.text() not in previous_names_list:
+                self.list.beginInsertRows(QModelIndex(), n, n)
+                self.list.appendRow(
+                    [
+                        language_item,
+                        name_item,
+                        version_item,
+                        size_item,
+                        class_item,
+                    ]
+                )
+                self.list.endInsertRows()
+            if self.currentModel == name_item.text():
+                selected = i
+        self.settings.endArray()
+        self.list.layoutChanged.emit()
+        if selected is not None:
+            self.table.selectRow(selected)
+        
+    def get_list(self):
+        model_list = Models()  # type: ignore
+        to_select = None
+        n = self.settings.beginReadArray("Models")
+        for i in range(0, n):
+            language_item, name_item, size_item, version_item, class_item = self.get_single(i)
+            model_list.appendRow(
+                [
+                    language_item,
+                    name_item,
+                    version_item,
+                    size_item,
+                    class_item,
+                ]
+            )
+            if self.currentModel == name_item.text():
+                to_select: int = i
+        self.settings.endArray()
+        return model_list, to_select
 
     def accept(self) -> None:
         i = 0
         modelName: str = ""
-        for item in self.table.selectedItems():
-            if item.text() and i == 1:
-                modelName = item.text()
-                break
-            i += 1
+        for index in self.table.selectedIndexes():
+            modelName = self.list.data(self.list.index(index.row(), 1))
         self.settings.save()
-        if self.customCB.isChecked():
-            self.settings.setValue("Model/CustomPath", self.customFilepicker.text())
-            self.settings.setValue("Model/UseCustom", True)
-        else:
-            self.settings.setValue("Model/UseCustom", False)
         self.returnValue = [modelName]
-        self.close()
 
-    def cancel(self) -> None:
-        self.close()
+    def local(self) -> None:
+        dialog = CustomUI(self.settings)
+        dialog.exec_()
+        self.update_list()
 
-    def selectCustom(self) -> None:
-        if os.path.isdir(self.customFilepicker.text()):
-            path = self.customFilepicker.text()
-        else:
-            path = QtCore.QDir.homePath()
-        newPath = QtWidgets.QFileDialog.getExistingDirectory(
-            self, self.tr("Select the model path"), path
-        )
-        if newPath:
-            self.settings.setValue("Model/CustomPath", newPath)
-            self.settings.setValue("Model/UseCustom", True)
-            self.customFilepicker.setText(newPath)
-        else:
-            self.settings.setValue("Model/UseCustom", False)
+    def remote(self) -> None:
+        if not os.path.exists(os.path.join(MODEL_USER_PATH, MODEL_LIST)):
+            # We have to download the model list
+            self.confirm_dl = ConfirmDownloadUI(
+                self.tr(
+                    "We will download the list of models from {}. Do you agree?".format(
+                        MODELS_URL
+                    )
+                )
+            )
+            rc = self.confirm_dl.exec()
+            if rc:
+                url = os.path.join(MODELS_URL, MODEL_LIST)
+                try:
+                    urllib.request.urlretrieve(
+                        url,
+                        os.path.join(MODEL_USER_PATH, MODEL_LIST),
+                    )
+                except urllib.error.URLError:
+                    print("Network unavailable or bad URL")
+                    return
+            else:
+                return
+        installed: List[str] = []
+        n: int = self.settings.beginReadArray("Models")
+        model_registred = False
+        for i in range(0, n):
+            self.settings.setArrayIndex(i)
+            installed.append(self.settings.value("name"))
+        self.settings.endArray()
+        dialog = DownloadPopup(self.settings, installed)
+        dialog.exec_()
+        self.update_list()
 
-    def customCBchanged(self) -> None:
-        if self.customCB.isChecked():
-            self.customFilepicker.setEnabled(True)
-            self.settings.setValue("Model/UseCustom", True)
-        else:
-            self.customFilepicker.setEnabled(False)
-            self.settings.setValue("Model/UseCustom", False)
-
-    def advanced(self):
+    def advanced(self) -> None:
+        # Display dialog for advanced settings
         advWindow = AdvancedUI()
         advWindow.ui.precommand.setText(self.settings.precommand)
         advWindow.ui.postcommand.setText(self.settings.postcommand)
@@ -317,8 +603,8 @@ class ConfigPopup(QtWidgets.QDialog):
         if self.settings.useSeparator:
             advWindow.ui.useSeparator.setChecked(True)
         advWindow.ui.deviceName.addItem(self.tr("Default"), "default")
-        i = 1
-        chenv = os.environ.copy()
+        i: int = 1
+        chenv: Dict = os.environ.copy()
         chenv["LC_ALL"] = "C"
         p = run(["pactl", "list", "sources"], capture_output=True, text=True, env=chenv)
         sortie = p.stdout
@@ -351,59 +637,59 @@ class ConfigPopup(QtWidgets.QDialog):
             self.settings.freeCommand = advWindow.ui.freecommand.text()
 
 
-class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
-    def __init__(self, icon: QtGui.QIcon, parent=None) -> None:
-        QtWidgets.QSystemTrayIcon.__init__(self, icon, parent)
-        menu = QtWidgets.QMenu(parent)
+class SystemTrayIcon(QSystemTrayIcon):
+    def __init__(self, icon: QIcon, parent=None) -> None:
+        QSystemTrayIcon.__init__(self, icon, parent)
+        menu = QMenu(parent)
         exitAction = menu.addAction(self.tr("Exit"))
         configAction = menu.addAction(self.tr("Configuration"))
         self.setContextMenu(menu)
         exitAction.triggered.connect(self.exit)
         configAction.triggered.connect(self.config)
-        self.nomicro = QtGui.QIcon.fromTheme("microphone-sensitivity-muted")
+        self.nomicro = QIcon.fromTheme("microphone-sensitivity-muted")
         if self.nomicro.isNull():
-            self.nomicro = QtGui.QIcon(":/icons/elograf/24/nomicro.png")
-        self.micro = QtGui.QIcon.fromTheme("audio-input-microphone")
+            self.nomicro = QIcon(":/icons/elograf/24/nomicro.png")
+        self.micro = QIcon.fromTheme("audio-input-microphone")
         if self.micro.isNull():
-            self.micro = QtGui.QIcon(":/icons/elograf/24/micro.png")
+            self.micro = QIcon(":/icons/elograf/24/micro.png")
         self.setIcon(self.nomicro)
         self.activated.connect(lambda r: self.commute(r))
         self.dictating = False
 
         self.settings = Settings()
-        self.thread = None
 
-    def currentModel(self) -> str:
+    def currentModel(self) -> List[str]:
         model: str = ""
-        if self.settings.contains("Model/name") or self.settings.contains(
-            "Model/UseCustom"
-        ):
-            if self.settings.contains("Model/UseCustom") and self.settings.value(
-                "Model/UseCustom", type=bool
-            ):
-                model = self.settings.value("Model/CustomPath")
-            elif self.settings.contains("Model/name"):
-                model = self.settings.value("Model/name")
-                if model != "":
-                    model = os.path.join(MODEL_BASE_PATH, model)
-        return model
+        location: str = ""
+        if self.settings.contains("Model/name"):
+            model = self.settings.value("Model/name")
+            n = self.settings.beginReadArray("Models")
+            for i in range(0, n):
+                self.settings.setArrayIndex(i)
+                if self.settings.value("name") == model:
+                    location = self.settings.value("location")
+                    break
+            self.settings.endArray()
+        return model, location
 
     def exit(self) -> None:
         self.stop_dictate()
-        QtCore.QCoreApplication.exit()
+        QCoreApplication.exit()
 
     def dictate(self) -> None:
-        while self.currentModel() == "":
+        model, location = self.currentModel()
+        while model == "":
             dialog = ConfigPopup("", self.settings)
             dialog.exec_()
             if dialog.returnValue:
                 self.setModel(dialog.returnValue[0])
+                model, location = self.currentModel()
         self.settings.load()
         if self.settings.precommand != "":
             Popen(self.settings.precommand.split())
-        cmd = ['nerd-dictation','begin']
+        cmd = ["nerd-dictation", "begin"]
         if self.settings.sampleRate != DEFAULT_RATE:
-            cmd.append(f'sample-rate={self.settings.sampleRate}')
+            cmd.append(f"sample-rate={self.settings.sampleRate}")
         if self.settings.timeout != 0:
             cmd.append(f"--timeout={self.settings.timeout}")
             # idle time
@@ -419,18 +705,16 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             cmd.append("--numbers-use-separator")
         if self.settings.deviceName != "default":
             cmd.append(f"--pulse-device-name={self.settings.deviceName}")
-        #Popen(cmd)
-        cmd.append(f'--vosk-model-dir={ self.currentModel()}')
+        cmd.append(f"--vosk-model-dir={location}")
         cmd.append("--output=SIMULATE_INPUT")
-        cmd.append('--continuous')
+        cmd.append("--continuous")
+        print(cmd)
         if os.name != "posix":
             cmd.append("--input-method=pynput")
-        #self.thread = multiprocessing.Process(target=_dictate, kwargs=args)
-        #self.thread.start()
         self.dictate_process = Popen(cmd)
         self.setIcon(self.micro)
-        # A timer to watch the state of the thread and update the icon 
-        self.processWatch = QtCore.QTimer()
+        # A timer to watch the state of the process and update the icon
+        self.processWatch = QTimer()
         self.processWatch.timeout.connect(self.watch)
         self.processWatch.start(3000)
 
@@ -440,10 +724,8 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             self.stop_dictate()
             self.dictating = False
             self.processWatch.stop()
-            
+
     def stop_dictate(self) -> None:
-        #if self.thread and self.thread.is_alive():
-            #self.thread.terminate()
         Popen(
             [
                 "nerd-dictation",
@@ -451,12 +733,12 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             ]
         )
         self.setIcon(self.nomicro)
-        if hasattr(self.settings, 'postcommand'):
+        if hasattr(self.settings, "postcommand"):
             if self.settings.postcommand:
                 Popen(self.settings.postcommand.split())
 
     def commute(self, reason) -> None:
-        if reason != QtWidgets.QSystemTrayIcon.Context:
+        if reason != QSystemTrayIcon.Context:
             if self.dictating:
                 self.stop_dictate()
             else:
@@ -464,7 +746,8 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             self.dictating = not self.dictating
 
     def config(self) -> None:
-        dialog = ConfigPopup(os.path.basename(self.currentModel()), self.settings)
+        model, _ = self.currentModel()
+        dialog = ConfigPopup(os.path.basename(model), self.settings)
         dialog.exec_()
         if dialog.returnValue:
             self.setModel(dialog.returnValue[0])
@@ -477,23 +760,23 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
 
 
 def main() -> None:
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     # don't close application when closing setting window)
     app.setQuitOnLastWindowClosed(False)
     LOCAL_DIR = os.path.dirname(os.path.realpath(__file__))
-    locale = QtCore.QLocale.system().name()
-    qtTranslator = QtCore.QTranslator()
+    locale = QLocale.system().name()
+    qtTranslator = QTranslator()
     if qtTranslator.load(
         "qt_" + locale,
-        QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.TranslationsPath),
+        QLibraryInfo.location(QLibraryInfo.TranslationsPath),
     ):
         app.installTranslator(qtTranslator)
-    appTranslator = QtCore.QTranslator()
+    appTranslator = QTranslator()
     if appTranslator.load("elograf_" + locale, os.path.join(LOCAL_DIR, "translations")):
         app.installTranslator(appTranslator)
 
-    w = QtWidgets.QWidget()
-    trayIcon = SystemTrayIcon(QtGui.QIcon(":/icons/elograf/24/nomicro.png"), w)
+    w = QWidget()
+    trayIcon = SystemTrayIcon(QIcon(":/icons/elograf/24/nomicro.png"), w)
 
     trayIcon.show()
     exit(app.exec_())

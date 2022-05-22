@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="fr" sourcelanguage="">
+<!DOCTYPE TS>
+<TS version="2.1" language="fr">
 <context>
     <name>@default</name>
     <message>
@@ -113,47 +114,47 @@
     <message>
         <location filename="../elograf.py" line="161"/>
         <source>Language</source>
-        <translation>Langue</translation>
+        <translation type="obsolete">Langue</translation>
     </message>
     <message>
         <location filename="../elograf.py" line="161"/>
         <source>Name</source>
-        <translation>Nom</translation>
+        <translation type="obsolete">Nom</translation>
     </message>
     <message>
         <location filename="../elograf.py" line="161"/>
         <source>Description</source>
-        <translation>Description</translation>
+        <translation type="obsolete">Description</translation>
     </message>
     <message>
         <location filename="../elograf.py" line="161"/>
         <source>Size</source>
-        <translation>Taille</translation>
+        <translation type="obsolete">Taille</translation>
     </message>
     <message>
         <location filename="../elograf.py" line="161"/>
         <source>License</source>
-        <translation>Licence</translation>
+        <translation type="obsolete">Licence</translation>
     </message>
     <message>
         <location filename="../elograf.py" line="183"/>
         <source>Not provided</source>
-        <translation>Non précisé</translation>
+        <translation type="obsolete">Non précisé</translation>
     </message>
     <message>
         <location filename="../elograf.py" line="153"/>
         <source>Use custom model location</source>
-        <translation>Utiliser un emplacement personnel de modèle</translation>
+        <translation type="obsolete">Utiliser un emplacement personnel de modèle</translation>
     </message>
     <message>
         <location filename="../elograf.py" line="154"/>
         <source>Select directory</source>
-        <translation>Sélectionner un répertoire</translation>
+        <translation type="obsolete">Sélectionner un répertoire</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="277"/>
+        <location filename="../elograf.py" line="500"/>
         <source>Select the model path</source>
-        <translation>Sélectionner le chemin du modèle</translation>
+        <translation type="obsolete">Sélectionner le chemin du modèle</translation>
     </message>
     <message>
         <location filename="../elograf.py" line="49"/>
@@ -161,14 +162,37 @@
         <translation type="obsolete">Commande postliminaire :</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="206"/>
+        <location filename="../elograf.py" line="407"/>
         <source>Advanced</source>
         <translation>Avancé</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="313"/>
+        <location filename="../elograf.py" line="551"/>
         <source>Default</source>
         <translation>Par défaut</translation>
+    </message>
+    <message>
+        <location filename="../elograf.py" line="403"/>
+        <source>Import remote model</source>
+        <translation>Télécharger un modèle</translation>
+    </message>
+    <message>
+        <location filename="../elograf.py" line="405"/>
+        <source>Import local model</source>
+        <translation>Utiliser un modèle local</translation>
+    </message>
+    <message>
+        <location filename="../elograf.py" line="509"/>
+        <source>We will download the list of models from {}. Do you agree?</source>
+        <translation>La liste des modèles va être téléchargée depuis {}. Êtes-vous d&apos;accord ?</translation>
+    </message>
+</context>
+<context>
+    <name>CustomUI</name>
+    <message>
+        <location filename="../elograf.py" line="200"/>
+        <source>Select the model path</source>
+        <translation>Sélectionner le chemin du modèle</translation>
     </message>
 </context>
 <context>
@@ -309,16 +333,122 @@ Ceci est aussi utilisé pour un soit mettre une virgule, soit mettre en arrêt l
         <source>TextLabel</source>
         <translation></translation>
     </message>
+    <message>
+        <location filename="../custom.ui" line="34"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select a custom model&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Selection d&apos;un modèle personalisé&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../custom.ui" line="46"/>
+        <source>Path</source>
+        <translation>Chemin</translation>
+    </message>
+    <message>
+        <location filename="../custom.ui" line="53"/>
+        <source>Select the path of your model</source>
+        <translation>Sélectionnez le chemin vers le modèle</translation>
+    </message>
+    <message>
+        <location filename="../custom.ui" line="60"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Give a name to your model&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Donnez un nom au modèle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../custom.ui" line="63"/>
+        <source>Name</source>
+        <translation>Nom</translation>
+    </message>
+    <message>
+        <location filename="../custom.ui" line="73"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indicate a class to your model like small, medium or big&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indiquez une classe au modèle, telle que petit, moyen ou grand&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../custom.ui" line="76"/>
+        <source>Class</source>
+        <translation>Classe</translation>
+    </message>
+    <message>
+        <location filename="../custom.ui" line="86"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Give a version number to your model&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Donnez un numéro de version au modèle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../custom.ui" line="89"/>
+        <source>Version</source>
+        <translation>Version</translation>
+    </message>
+    <message>
+        <location filename="../custom.ui" line="99"/>
+        <source>Size</source>
+        <translation>Taille</translation>
+    </message>
+    <message>
+        <location filename="../custom.ui" line="14"/>
+        <source>Select a custom model</source>
+        <translation>Sélection d&apos;un modèle personnalisé</translation>
+    </message>
+    <message>
+        <location filename="../custom.ui" line="122"/>
+        <source>Language</source>
+        <translation>Langue</translation>
+    </message>
+</context>
+<context>
+    <name>DownloadPopup</name>
+    <message>
+        <location filename="../elograf.py" line="282"/>
+        <source>Import system wide</source>
+        <translation>Importer dans l&apos;espace système</translation>
+    </message>
+    <message>
+        <location filename="../elograf.py" line="284"/>
+        <source>Import in user space</source>
+        <translation>Importer dans l&apos;espace utilisateur</translation>
+    </message>
+    <message>
+        <location filename="../elograf.py" line="334"/>
+        <source>We will download the model {} of {} from {}.                    Do you agree?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Models</name>
+    <message>
+        <location filename="../elograf.py" line="61"/>
+        <source>Language</source>
+        <translation>Langue</translation>
+    </message>
+    <message>
+        <location filename="../elograf.py" line="63"/>
+        <source>Version</source>
+        <translation>Version</translation>
+    </message>
+    <message>
+        <location filename="../elograf.py" line="64"/>
+        <source>Size</source>
+        <translation>Taille</translation>
+    </message>
+    <message>
+        <location filename="../elograf.py" line="65"/>
+        <source>Class</source>
+        <translation>Classe</translation>
+    </message>
+    <message>
+        <location filename="../elograf.py" line="62"/>
+        <source>Name</source>
+        <translation>Nom</translation>
+    </message>
 </context>
 <context>
     <name>SystemTrayIcon</name>
     <message>
-        <location filename="../elograf.py" line="352"/>
+        <location filename="../elograf.py" line="590"/>
         <source>Exit</source>
         <translation>Quitter</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="353"/>
+        <location filename="../elograf.py" line="591"/>
         <source>Configuration</source>
         <translation>Configuration</translation>
     </message>
