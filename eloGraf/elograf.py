@@ -265,6 +265,11 @@ class CustomUI(QDialog):
 
 
 class DownloadPopup(QDialog):
+    """
+    Dialog class for displaying a list of models available on Vosk website
+    and choosing one to download.
+    The model can be saved in local user space or in system space.
+    """
     def __init__(self, settings: QSettings, installed: List[str], parent=None) -> None:
         super(QDialog, self).__init__(parent)
         self.settings = settings
@@ -490,7 +495,7 @@ class ConfigPopup(QDialog):
         class_item.setFlags(class_item.flags() & ~Qt.ItemIsEditable)
         return language_item, name_item, size_item, version_item, class_item
 
-    def update_list(self) -> int:
+    def update_list(self) -> None:
         selected: Optional[int] = None
         n = self.settings.beginReadArray("Models")
         previous_names_list = [self.list.data(self.list.index(i, 1)) for i in range(0, n)]
@@ -658,7 +663,8 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         self.settings = Settings()
 
-    def currentModel(self) -> List[str]:
+    def currentModel(self) -> Tuple[str, str]:
+        # Return the model name selected in settings and its location path
         model: str = ""
         location: str = ""
         if self.settings.contains("Model/name"):
@@ -708,7 +714,6 @@ class SystemTrayIcon(QSystemTrayIcon):
         cmd.append(f"--vosk-model-dir={location}")
         cmd.append("--output=SIMULATE_INPUT")
         cmd.append("--continuous")
-        print(cmd)
         if os.name != "posix":
             cmd.append("--input-method=pynput")
         self.dictate_process = Popen(cmd)
