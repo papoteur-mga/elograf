@@ -10,24 +10,25 @@ The icon when pressed launches nerd-dictation. A new press stops it. The icon re
 
 With right click, the utility can be exited or configured.
 The configuration dialogue contains a table list of all models which are installed on the system and which can be selected.
-You can also select a directory where a custom model is stored.
+Models can be directly downloaded from alphacei website and stored either in the user or system space. For storing in the system space, root credentials are asked through polkit mechanism.
+You can also select a directory where a model resides. You have to give it a unique name.
 The configuration dialog is displayed if no model has been set previously.
 In Advanced dialogue, you can set an optionnal precommand which is launched before nerd-dictation itself. Another line is for optionnal postcommand which is launched after nerd-dictation is stopped.
 You can also select or define some options which are passed to nerd-dictation.
 
 Installation
 In command line:
+- for system wide installation, as root:
 python3 setup.py install
+- for user only installation
+python3 setup.py install --prefix=~/.local
+In this case be sure that ~/.local/bin is in the PATH variable.
+nerd-dictation is not included and needs to be installed separately.
 
 Under the hood
 
 This tool is written in Python 3 and use Qt5.
-Models are expected to be installed in /usr/share/vosk-model/
-Each subdirectory is listed. Information from a file description.txt is read line by line to populate the fields, in this order:
-- Language
-- Name
-- Description
-- Size
-- License
-
+Configuration file is ~/.config/Elograf/Elograf.conf
+In user space, models are stored in ~/.config/vosk-models
+In system space, models are stored in /usr/share/vosk-models
 Translations files are expected in /usr/share/elograf/translations
