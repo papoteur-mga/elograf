@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="fr">
+<!DOCTYPE TS><TS version="2.0" language="fr" sourcelanguage="">
 <context>
     <name>@default</name>
     <message>
@@ -162,27 +161,27 @@
         <translation type="obsolete">Commande postliminaire :</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="407"/>
+        <location filename="../elograf.py" line="451"/>
         <source>Advanced</source>
         <translation>Avancé</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="551"/>
+        <location filename="../elograf.py" line="610"/>
         <source>Default</source>
         <translation>Par défaut</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="403"/>
+        <location filename="../elograf.py" line="447"/>
         <source>Import remote model</source>
         <translation>Télécharger un modèle</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="405"/>
+        <location filename="../elograf.py" line="449"/>
         <source>Import local model</source>
         <translation>Utiliser un modèle local</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="509"/>
+        <location filename="../elograf.py" line="560"/>
         <source>We will download the list of models from {}. Do you agree?</source>
         <translation>La liste des modèles va être téléchargée depuis {}. Êtes-vous d&apos;accord ?</translation>
     </message>
@@ -190,7 +189,7 @@
 <context>
     <name>CustomUI</name>
     <message>
-        <location filename="../elograf.py" line="200"/>
+        <location filename="../elograf.py" line="230"/>
         <source>Select the model path</source>
         <translation>Sélectionner le chemin du modèle</translation>
     </message>
@@ -393,49 +392,54 @@ Ceci est aussi utilisé pour un soit mettre une virgule, soit mettre en arrêt l
         <source>Language</source>
         <translation>Langue</translation>
     </message>
+    <message>
+        <location filename="../confirm.ui" line="20"/>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DownloadPopup</name>
     <message>
-        <location filename="../elograf.py" line="282"/>
+        <location filename="../elograf.py" line="317"/>
         <source>Import system wide</source>
         <translation>Importer dans l&apos;espace système</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="284"/>
+        <location filename="../elograf.py" line="319"/>
         <source>Import in user space</source>
         <translation>Importer dans l&apos;espace utilisateur</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="334"/>
-        <source>We will download the model {} of {} from {}.                    Do you agree?</source>
+        <location filename="../elograf.py" line="375"/>
+        <source>We will download the model {} of {} from {}. Do you agree?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>Models</name>
     <message>
-        <location filename="../elograf.py" line="61"/>
+        <location filename="../elograf.py" line="90"/>
         <source>Language</source>
         <translation>Langue</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="63"/>
+        <location filename="../elograf.py" line="92"/>
         <source>Version</source>
         <translation>Version</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="64"/>
+        <location filename="../elograf.py" line="93"/>
         <source>Size</source>
         <translation>Taille</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="65"/>
+        <location filename="../elograf.py" line="94"/>
         <source>Class</source>
         <translation>Classe</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="62"/>
+        <location filename="../elograf.py" line="91"/>
         <source>Name</source>
         <translation>Nom</translation>
     </message>
@@ -443,12 +447,12 @@ Ceci est aussi utilisé pour un soit mettre une virgule, soit mettre en arrêt l
 <context>
     <name>SystemTrayIcon</name>
     <message>
-        <location filename="../elograf.py" line="590"/>
+        <location filename="../elograf.py" line="649"/>
         <source>Exit</source>
         <translation>Quitter</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="591"/>
+        <location filename="../elograf.py" line="650"/>
         <source>Configuration</source>
         <translation>Configuration</translation>
     </message>
