@@ -19,7 +19,7 @@ SOURCES += eloGraf/elograf.py \
 HEADERS  +=
 
 FORMS    +=  \
-    confirm.ui \
+    eloGraf/confirm.ui \
     eloGraf/advanced.ui \
     eloGraf/custom.ui
 
