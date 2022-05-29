@@ -1,5 +1,9 @@
 EloGraf
 ----------
+* 0.4.0
+    - Add feature for downloading model
+    - convert setup to setuptools
+
 * 0.3.2
     - fix crash when /urs/share/models/ doesn't exist
 
