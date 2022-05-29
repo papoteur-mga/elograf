@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 from distutils.command.build import build
 import os, glob
 
@@ -22,18 +22,7 @@ data_files = [
 ]
 
 setup(
-    name="elograf",
-    version="0.3.2",
-    packages=["eloGraf"],
-    scripts=["elograf"],
     package_data={"": ["translations/*.qm"]},
-    license="GNU General Public License v3 (GPLv3)",
-    url="https://github.com/papoteur-mga/elograf/",
-    description="Utility for launching and configuring nerd-dictation for voice recognition.",
-    long_description="To be launched at start of the desktop environnement to display an icon in the icons tray.",
-    platforms=["Linux"],
-    author="Papoteur",
-    author_email="papoteur@mageia.org",
     data_files=data_files,
     cmdclass={
         "build_qm": BuildQm,
