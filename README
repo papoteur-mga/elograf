@@ -24,6 +24,8 @@ python3 setup.py install
 python3 setup.py install --prefix=~/.local
 In this case be sure that ~/.local/bin is in the PATH variable.
 nerd-dictation is not included and needs to be installed separately.
+Python modules requirements:
+- ujson
 
 Under the hood
 
