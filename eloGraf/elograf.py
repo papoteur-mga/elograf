@@ -458,6 +458,7 @@ class ConfigPopup(QDialog):
         advancedButton.clicked.connect(self.advanced)
         localButton.clicked.connect(self.local)
         remoteButton.clicked.connect(self.remote)
+        self.table.doubleClicked.connect(self.edit)
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -588,6 +589,26 @@ class ConfigPopup(QDialog):
         dialog.exec_()
         self.update_list()
 
+    def edit(self):
+        for index in self.table.selectedIndexes():
+            n: int = self.settings.beginReadArray("Models")
+            for i in range(0, n):
+                self.settings.setArrayIndex(i)
+                if self.settings.value("name") == self.list.index(index.row(), 1):
+                    break
+            print(i)
+            if i != n:
+                self.settings.setArrayIndex(i)
+                dialog = CustomUI(self.settings)
+                dialog.ui.filePicker.setText(self.settings.value('location'))
+                dialog.ui.languageLineEdit.setText(self.settings.value('language'))
+                dialog.ui.nameLineEdit.setText(self.settings.value('name'))
+                dialog.ui.sizeLineEdit.setText(self.settings.value('size'))
+                dialog.ui.classLineEdit.setText(self.settings.value('type'))
+                dialog.ui.versionLineEdit.setText(self.settings.value('version'))
+                dialog.exec_()
+            self.settings.endArray()
+        
     def advanced(self) -> None:
         # Display dialog for advanced settings
         advWindow = AdvancedUI()
