@@ -742,7 +742,8 @@ class SystemTrayIcon(QSystemTrayIcon):
         if os.name != "posix":
             cmd.append("--input-method=pynput")
         logging.debug("Starting nerd-dictation with the command {}".format(" ".join(cmd)))
-        self.dictate_process = Popen(cmd)
+        env: Dict = os.environ.copy()
+        self.dictate_process = Popen(cmd, env=env)
         self.setIcon(self.micro)
         # A timer to watch the state of the process and update the icon
         self.processWatch = QTimer()
