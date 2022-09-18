@@ -12,6 +12,8 @@ import os
 import re
 import ujson
 import urllib.request, urllib.error
+import logging
+import argparse
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from PyQt5.QtCore import (
     QCoreApplication,
@@ -739,6 +741,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         cmd.append("--continuous")
         if os.name != "posix":
             cmd.append("--input-method=pynput")
+        logging.debug("Starting nerd-dictation with the command {}".format(" ".join(cmd)))
         self.dictate_process = Popen(cmd)
         self.setIcon(self.micro)
         # A timer to watch the state of the process and update the icon
@@ -754,6 +757,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.processWatch.stop()
 
     def stop_dictate(self) -> None:
+        logging.debug("Stopping nerd-dictation")
         Popen(
             [
                 "nerd-dictation",
@@ -788,6 +792,16 @@ class SystemTrayIcon(QSystemTrayIcon):
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description='Place an icon in systray to launch offline speech recognition.')
+    parser.add_argument('-l', '--log', help='specify the log level ', dest="loglevel")
+    args = parser.parse_args()
+    if args.loglevel is not None:
+        numeric_level = getattr(logging, args.loglevel.upper(), None)
+    else:
+        numeric_level = logging.INFO
+    if not isinstance(numeric_level, int):
+        raise ValueError('Invalid log level: %s' % args.loglevel)
+    logging.basicConfig(level=numeric_level)
     app = QApplication(sys.argv)
     # don't close application when closing setting window)
     app.setQuitOnLastWindowClosed(False)
