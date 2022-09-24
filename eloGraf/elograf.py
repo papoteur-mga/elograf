@@ -728,7 +728,7 @@ class SystemTrayIcon(QSystemTrayIcon):
     def dictate(self) -> None:
         model, location = self.currentModel()
         if model == "":
-            dialog = ConfigPopup("", self.settings)
+            dialog = ConfigPopup("")
             dialog.exec_()
             if dialog.returnValue:
                 self.setModel(dialog.returnValue[0])
