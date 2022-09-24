@@ -621,6 +621,8 @@ class ConfigPopup(QDialog):
                 dialog.ui.versionLineEdit.setText(self.settings.value('version'))
                 dialog.exec_()
             self.settings.endArray()
+            # edit only one time, selected indexes contents all celle in the row
+            break
         
     def advanced(self) -> None:
         # Display dialog for advanced settings
