@@ -217,12 +217,17 @@ class ConfirmDownloadUI(QDialog):
 
 
 class CustomUI(QDialog):
-    def __init__(self, settings):
+    def __init__(self, index, settings):
+        '''
+        Dialog for creating or editing properties of a model
+        index is set to -1 for creation, else to the index in the Models in settings
+        '''
         super(QDialog, self).__init__()
         self.settings = settings
         self.ui = custom.Ui_Dialog()
         self.ui.setupUi(self)
         self.ui.filePicker.clicked.connect(self.selectCustom)
+        self.index: int = index
 
     def selectCustom(self) -> None:
         if os.path.isdir(self.ui.filePicker.text()):
@@ -252,10 +257,13 @@ class CustomUI(QDialog):
             return
         new_path: str = self.ui.filePicker.text()
         if os.path.exists(new_path):
+            logging.debug(f"Accepted ")
             n: int = self.settings.beginReadArray("Models")
             self.settings.endArray()
             self.settings.beginWriteArray("Models")
-            self.settings.setArrayIndex(n)
+            if self.index == -1:
+                self.index = n
+            self.settings.setArrayIndex(self.index)
             self.settings.setValue("language", language)
             self.settings.setValue("name", name)
             self.settings.setValue("version", self.ui.versionLineEdit.text())
@@ -430,6 +438,7 @@ class DownloadPopup(QDialog):
                 break
         self.settings.endArray()
         if not model_registred:
+            logging.debug(f"Registered {n}")
             selection = self.table.selectionModel().selectedRows()
             row = selection[0].row()
             self.settings.beginWriteArray("Models")
@@ -537,6 +546,7 @@ class ConfigPopup(QDialog):
             if self.currentModel == name_item.text():
                 selected = i
         self.settings.endArray()
+        self.table.resizeColumnsToContents()
         self.list.layoutChanged.emit()
         if selected is not None:
             self.table.selectRow(selected)
@@ -571,7 +581,7 @@ class ConfigPopup(QDialog):
         self.close()
 
     def local(self) -> None:
-        dialog = CustomUI(self.settings)
+        dialog = CustomUI(-1, self.settings)
         dialog.exec_()
         self.update_list()
 
@@ -614,21 +624,26 @@ class ConfigPopup(QDialog):
             n: int = self.settings.beginReadArray("Models")
             for i in range(0, n):
                 self.settings.setArrayIndex(i)
-                if self.settings.value("name") == self.list.index(index.row(), 1):
+                if self.settings.value("name") == self.list.data(self.list.index(index.row(), 1)):
                     break
             if i != n:
+                logging.debug(f"Found {i} for {self.list.data(self.list.index(index.row(), 1))}")
                 self.settings.setArrayIndex(i)
-                dialog = CustomUI(self.settings)
+                dialog = CustomUI(i, self.settings)
                 dialog.ui.filePicker.setText(self.settings.value('location'))
                 dialog.ui.languageLineEdit.setText(self.settings.value('language'))
                 dialog.ui.nameLineEdit.setText(self.settings.value('name'))
                 dialog.ui.sizeLineEdit.setText(self.settings.value('size'))
                 dialog.ui.classLineEdit.setText(self.settings.value('type'))
                 dialog.ui.versionLineEdit.setText(self.settings.value('version'))
+                self.settings.endArray()
                 dialog.exec_()
-            self.settings.endArray()
-            # edit only one time, selected indexes contents all celle in the row
+            else:
+                logging.debug(f"Not found index for {self.list.data(self.list.index(index.row(), 1))}")
+                self.settings.endArray()
+            # edit only one time, selected indexes contents all cells in the row
             break
+        self.update_list()
         
     def advanced(self) -> None:
         # Display dialog for advanced settings
