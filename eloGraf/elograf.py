@@ -260,7 +260,7 @@ class CustomUI(QDialog):
             logging.debug(f"Accepted ")
             n: int = self.settings.beginReadArray("Models")
             self.settings.endArray()
-            self.settings.beginWriteArray("Models")
+            self.settings.beginWriteArray("Models", n)
             if self.index == -1:
                 self.index = n
             self.settings.setArrayIndex(self.index)
@@ -524,27 +524,25 @@ class ConfigPopup(QDialog):
         class_item.setFlags(class_item.flags() & ~Qt.ItemIsEditable)
         return language_item, name_item, size_item, version_item, class_item
 
-    def update_list(self) -> None:
-        selected: Optional[int] = None
+    def update_list(self, selected: int) -> None:
         n = self.settings.beginReadArray("Models")
-        previous_names_list = [self.list.data(self.list.index(i, 1)) for i in range(0, n)]
+        logging.debug(f"Updating table with {n} models")
+        #previous_names_list = [self.list.data(self.list.index(i, 1)) for i in range(0, n)]
         self.list.layoutAboutToBeChanged.emit()
+        self.list.removeRows(0, self.list.rowCount())
         for i in range(0, n):
             language_item, name_item, size_item, version_item, class_item = self.get_single(i)
-            if name_item.text() not in previous_names_list:
-                self.list.beginInsertRows(QModelIndex(), n, n)
-                self.list.appendRow(
-                    [
-                        language_item,
-                        name_item,
-                        version_item,
-                        size_item,
-                        class_item,
-                    ]
-                )
-                self.list.endInsertRows()
-            if self.currentModel == name_item.text():
-                selected = i
+            self.list.beginInsertRows(QModelIndex(), n, n)
+            self.list.appendRow(
+                [
+                    language_item,
+                    name_item,
+                    version_item,
+                    size_item,
+                    class_item,
+                ]
+            )
+            self.list.endInsertRows()
         self.settings.endArray()
         self.table.resizeColumnsToContents()
         self.list.layoutChanged.emit()
@@ -582,8 +580,11 @@ class ConfigPopup(QDialog):
 
     def local(self) -> None:
         dialog = CustomUI(-1, self.settings)
-        dialog.exec_()
-        self.update_list()
+        rc = dialog.exec_()
+        n: int = self.settings.beginReadArray("Models")
+        self.settings.endArray()
+        if rc:
+            self.update_list(n-1)
 
     def remote(self) -> None:
         if not os.path.exists(os.path.join(MODEL_USER_PATH, MODEL_LIST)):
@@ -616,8 +617,9 @@ class ConfigPopup(QDialog):
             installed.append(self.settings.value("name"))
         self.settings.endArray()
         dialog = DownloadPopup(self.settings, installed)
-        dialog.exec_()
-        self.update_list()
+        rc = dialog.exec_()
+        if rc:
+            self.update_list(n-1)
 
     def edit(self):
         for index in self.table.selectedIndexes():
@@ -643,7 +645,7 @@ class ConfigPopup(QDialog):
                 self.settings.endArray()
             # edit only one time, selected indexes contents all cells in the row
             break
-        self.update_list()
+        self.update_list(i)
         
     def advanced(self) -> None:
         # Display dialog for advanced settings
