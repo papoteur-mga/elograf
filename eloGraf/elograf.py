@@ -350,10 +350,21 @@ class DownloadPopup(QDialog):
         # Import and extract the imported model to system space
         rc, temp_file, name = self.import_model()
         if rc:
-            if not os.path.exists(MODEL_GLOBAL_PATH):
-                Popen(["pkexec", "mkdir", "-f", MODEL_GLOBAL_PATH])
-            Popen(["pkexec", "unzip", temp_file, "-d", MODEL_GLOBAL_PATH])
-            self.register(os.path.join(MODEL_GLOBAL_PATH, name))
+            while not os.path.exists(MODEL_GLOBAL_PATH):
+                p = Popen(["pkexec", "mkdir", "-p", MODEL_GLOBAL_PATH])
+                returncode = p.wait()
+                if returncode != 0:
+                    self.retry = ConfirmDownloadUI(
+                        self.tr(
+                            "The application failed to save the model. Do you want to retry?")
+                    )
+                    rc = self.retry.exec()
+                    if not rc:
+                        break
+            p = Popen(["pkexec", "unzip", temp_file, "-d", MODEL_GLOBAL_PATH])
+            returncode = p.wait()
+            if returncode == 0:
+                self.register(os.path.join(MODEL_GLOBAL_PATH, name))
             self.close()
 
     def progress(self, n: int, size: int, total: int) -> None:
@@ -376,9 +387,8 @@ class DownloadPopup(QDialog):
         self.name = self.list.data(self.list.index(selection[0].row(), 1))
         self.confirm_dl = ConfirmDownloadUI(
             self.tr(
-                "We will download the model {} of {} from {}. Do you agree?".format(
+                "We will download the model {} of {} from {}. Do you agree?").format(
                     self.name, size, MODELS_URL
-                )
             )
         )
         rc = self.confirm_dl.exec()
@@ -445,7 +455,7 @@ class ConfigPopup(QDialog):
         self.table.setModel(self.list)
         if selected is not None:
             self.table.selectRow(selected)
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Close)
         remoteButton = QPushButton(self.tr("Import remote model"))
         buttonBox.addButton(remoteButton, QDialogButtonBox.ActionRole)
         localButton = QPushButton(self.tr("Import local model"))
@@ -455,7 +465,7 @@ class ConfigPopup(QDialog):
         layout.addWidget(buttonBox)
 
         # Events
-        buttonBox.accepted.connect(self.accept)
+        buttonBox.accepted.connect(self.c)
         buttonBox.rejected.connect(self.close)
         advancedButton.clicked.connect(self.advanced)
         localButton.clicked.connect(self.local)
