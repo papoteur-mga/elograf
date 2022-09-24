@@ -465,8 +465,8 @@ class ConfigPopup(QDialog):
         layout.addWidget(buttonBox)
 
         # Events
-        buttonBox.accepted.connect(self.c)
-        buttonBox.rejected.connect(self.close)
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.accept)
         advancedButton.clicked.connect(self.advanced)
         localButton.clicked.connect(self.local)
         remoteButton.clicked.connect(self.remote)
@@ -561,6 +561,7 @@ class ConfigPopup(QDialog):
             modelName = self.list.data(self.list.index(index.row(), 1))
         self.settings.save()
         self.returnValue = [modelName]
+        self.close()
 
     def local(self) -> None:
         dialog = CustomUI(self.settings)
@@ -798,6 +799,7 @@ class SystemTrayIcon(QSystemTrayIcon):
     def setModel(self, model: str) -> None:
         self.settings.setValue("Model/name", model)
         if self.dictating:
+            logging.debug("Reload dictate process")
             self.stop_dictate()
             self.dictate()
 
