@@ -342,7 +342,7 @@ class DownloadPopup(QDialog):
                 with ZipFile(temp_file) as z:
                     z.extractall(MODEL_USER_PATH)
             except:
-                print("Invalid file")
+                logging.warning("Invalid file")
             self.register(os.path.join(MODEL_USER_PATH, name))
             self.close()
 
@@ -388,7 +388,7 @@ class DownloadPopup(QDialog):
         # model designated by the selected line in "table"
         selection = self.table.selectionModel().selectedRows()  # liste de QModelIndex
         if len(selection) == 0:
-            print("No selected model")
+            logging.warning("No selected model")
             return False, "", ""
         size = self.list.data(self.list.index(selection[0].row(), 3))
         self.name = self.list.data(self.list.index(selection[0].row(), 1))
@@ -412,11 +412,11 @@ class DownloadPopup(QDialog):
                         reporthook=self.progress,
                     )
                 except urllib.error.URLError:
-                    print("Network unavailable or bad URL")
+                    logging.warning("Network unavailable or bad URL")
                     return False, "", ""
                 return True, temp_file, self.name
             else:
-                print("The model has no url provided")
+                logging.warning("The model has no url provided")
         return False, "", ""
 
     def register(self, location):
@@ -444,9 +444,9 @@ class DownloadPopup(QDialog):
 
 
 class ConfigPopup(QDialog):
-    def __init__(self, currentModel: str, settings, parent=None) -> None:
+    def __init__(self, currentModel: str, parent=None) -> None:
         super(ConfigPopup, self).__init__(parent)
-        self.settings = settings
+        self.settings = Settings()
         self.currentModel = currentModel
         self.setWindowTitle("Elograf")
         self.setWindowIcon(QIcon(":/icons/elograf/24/micro.png"))
@@ -594,7 +594,7 @@ class ConfigPopup(QDialog):
                         os.path.join(MODEL_USER_PATH, MODEL_LIST),
                     )
                 except urllib.error.URLError:
-                    print("Network unavailable or bad URL")
+                    logging.warning("Network unavailable or bad URL")
                     return
             else:
                 return
@@ -616,7 +616,6 @@ class ConfigPopup(QDialog):
                 self.settings.setArrayIndex(i)
                 if self.settings.value("name") == self.list.index(index.row(), 1):
                     break
-            print(i)
             if i != n:
                 self.settings.setArrayIndex(i)
                 dialog = CustomUI(self.settings)
@@ -734,7 +733,9 @@ class SystemTrayIcon(QSystemTrayIcon):
                 self.setModel(dialog.returnValue[0])
                 model, location = self.currentModel()
             else:
+                logging.info("No model selected")
                 return
+        logging.debug(f"Start dictation with model {model} located in {location}")
         self.settings.load()
         if self.settings.precommand != "":
             Popen(self.settings.precommand.split())
@@ -800,7 +801,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def config(self) -> None:
         model, _ = self.currentModel()
-        dialog = ConfigPopup(os.path.basename(model), self.settings)
+        dialog = ConfigPopup(os.path.basename(model))
         dialog.exec_()
         if dialog.returnValue:
             self.setModel(dialog.returnValue[0])
