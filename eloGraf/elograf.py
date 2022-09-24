@@ -62,7 +62,7 @@ from typing import (
 )
 
 MODEL_USER_PATH = os.path.expanduser("~/.config/vosk-models")
-MODEL_GLOBAL_PATH = "/usr/share/vosk-model"
+MODEL_GLOBAL_PATH = "/opt/vosk-models"
 MODEL_LIST = "model-list.json"
 MODELS_URL = "https://alphacephei.com/vosk/models"
 
@@ -351,7 +351,7 @@ class DownloadPopup(QDialog):
         rc, temp_file, name = self.import_model()
         if rc:
             while not os.path.exists(MODEL_GLOBAL_PATH):
-                p = Popen(["pkexec", "mkdir", "-p", MODEL_GLOBAL_PATH])
+                p = Popen(["pkexec", "mkdir", "-p", "-m=777", MODEL_GLOBAL_PATH])
                 returncode = p.wait()
                 if returncode != 0:
                     self.retry = ConfirmDownloadUI(
@@ -361,10 +361,17 @@ class DownloadPopup(QDialog):
                     rc = self.retry.exec()
                     if not rc:
                         break
-            p = Popen(["pkexec", "unzip", temp_file, "-d", MODEL_GLOBAL_PATH])
+            p = Popen(["unzip", "-q", temp_file, "-d", MODEL_GLOBAL_PATH])
             returncode = p.wait()
             if returncode == 0:
                 self.register(os.path.join(MODEL_GLOBAL_PATH, name))
+            else:
+                warning = ConfirmDownloadUI(
+                    self.tr(
+                        "The model can't be saved. Check for space available or credentials for {}"
+                        ).format(MODEL_GLOBAL_PATH)
+                )
+                warning.exec()                
             self.close()
 
     def progress(self, n: int, size: int, total: int) -> None:
