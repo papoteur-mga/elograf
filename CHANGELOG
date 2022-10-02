@@ -1,5 +1,11 @@
 EloGraf
 ----------
+* 0.4.2
+    - Add interface for model edition
+    - add logging information
+    - save system model in /opt 
+    - remove the Save button in configuration window
+
 * 0.4.1
     - Fix installation requirement
     - Avoid a loop when exiting configuration without selected model
