@@ -809,6 +809,7 @@ class SystemTrayIcon(QSystemTrayIcon):
                 Popen(self.settings.postcommand.split())
 
     def commute(self, reason) -> None:
+        logging.debug(f"Commute dictation {'off' if self.dictating else 'on'}")
         if reason != QSystemTrayIcon.Context:
             if self.dictating:
                 self.stop_dictate()
