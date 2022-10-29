@@ -150,6 +150,10 @@ class Settings(QSettings):
             self.deviceName = self.value("DeviceName", type=str)
         else:
             self.deviceName: str = "default"
+        if self.contains("DirectClick"):
+            self.directClick = self.value("DirectClick", type=bool)
+        else:
+            self.directClick: bool = False
 
     def save(self):
         if self.precommand == "":
@@ -179,6 +183,7 @@ class Settings(QSettings):
         self.setValue("FullSentence", int(self.fullSentence))
         self.setValue("Digits", int(self.digits))
         self.setValue("UseSeparator", int(self.useSeparator))
+        self.setValue("DirectClick", int(self.directClick))
         if self.freeCommand == "":
             self.remove("FreeCommand")
         else:
@@ -471,6 +476,8 @@ class ConfigPopup(QDialog):
         self.table.setModel(self.list)
         if selected is not None:
             self.table.selectRow(selected)
+        self.interfaceCB = QCheckBox(self.tr("Active direct click on icon"))
+        layout.addWidget(self.interfaceCB)
         buttonBox = QDialogButtonBox(QDialogButtonBox.Close)
         remoteButton = QPushButton(self.tr("Import remote model"))
         buttonBox.addButton(remoteButton, QDialogButtonBox.ActionRole)
@@ -487,6 +494,7 @@ class ConfigPopup(QDialog):
         localButton.clicked.connect(self.local)
         remoteButton.clicked.connect(self.remote)
         self.table.doubleClicked.connect(self.edit)
+        self.interfaceCB.clicked.connect(self.interface)
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -494,6 +502,8 @@ class ConfigPopup(QDialog):
         self.table.verticalHeader().hide()
         self.button_height = buttonBox.sizeHint().height()
         self.settings.load()
+        if self.settings.directClick:
+            self.interfaceCB.setChecked(True)
         self.returnValue: List[str] = []
 
     def sizeHint(self) -> QSize:
@@ -568,6 +578,12 @@ class ConfigPopup(QDialog):
                 to_select: int = i
         self.settings.endArray()
         return model_list, to_select
+
+    def interface(self):
+        if self.interfaceCB.isChecked():
+            self.settings.directClick = True
+        else:
+            self.settings.directClick = False
 
     def accept(self) -> None:
         i = 0
@@ -704,9 +720,20 @@ class ConfigPopup(QDialog):
 class SystemTrayIcon(QSystemTrayIcon):
     def __init__(self, icon: QIcon, parent=None) -> None:
         QSystemTrayIcon.__init__(self, icon, parent)
+        self.settings = Settings()
         menu = QMenu(parent)
-        exitAction = menu.addAction(self.tr("Exit"))
+        # single left click doesn't work in some environments. https://bugreports.qt.io/browse/QTBUG-55911
+        # Thus by default we don't enable it, but add Start/Stop menu entries
+        self.settings.load()
+        if self.settings.directClick:
+            self.activated.connect(lambda r: self.commute(r))
+        else:
+            startAction = menu.addAction(self.tr("Start dictation"))
+            stopAction = menu.addAction(self.tr("Stop dictation"))
+            startAction.triggered.connect(self.start)
+            stopAction.triggered.connect(self.stop)
         configAction = menu.addAction(self.tr("Configuration"))
+        exitAction = menu.addAction(self.tr("Exit"))
         self.setContextMenu(menu)
         exitAction.triggered.connect(self.exit)
         configAction.triggered.connect(self.config)
@@ -717,10 +744,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         if self.micro.isNull():
             self.micro = QIcon(":/icons/elograf/24/micro.png")
         self.setIcon(self.nomicro)
-        self.activated.connect(lambda r: self.commute(r))
         self.dictating = False
-
-        self.settings = Settings()
 
     def currentModel(self) -> Tuple[str, str]:
         # Return the model name selected in settings and its location path
@@ -817,12 +841,28 @@ class SystemTrayIcon(QSystemTrayIcon):
                 self.dictate()
             self.dictating = not self.dictating
 
+    def start(self) -> None:
+        logging.debug(f"Start dictation")
+        if not self.dictating:
+            self.dictate()
+            self.dictating = True
+        else:
+            print("Dictation already started")
+
+    def stop(self) -> None:
+        logging.debug(f"Stop dictation")
+        self.stop_dictate()
+        self.dictating = False
+
     def config(self) -> None:
         model, _ = self.currentModel()
         dialog = ConfigPopup(os.path.basename(model))
         dialog.exec_()
         if dialog.returnValue:
             self.setModel(dialog.returnValue[0])
+        self.settings.load()
+        if self.settings.directClick:
+            self.activated.connect(lambda r: self.commute(r))
 
     def setModel(self, model: str) -> None:
         self.settings.setValue("Model/name", model)
