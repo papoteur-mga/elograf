@@ -1,5 +1,9 @@
 EloGraf
 ----------
+* 0.4.3
+    - Add option to enable direct click on icon
+    - Add start and stop menu entries
+
 * 0.4.2
     - Add interface for model edition
     - add logging information
