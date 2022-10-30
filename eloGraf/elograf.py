@@ -462,7 +462,9 @@ class ConfigPopup(QDialog):
         super(ConfigPopup, self).__init__(parent)
         self.settings = Settings()
         self.currentModel = currentModel
-        self.setWindowTitle("Elograf")
+        import importlib.metadata
+        print()
+        self.setWindowTitle("Elograf " + importlib.metadata.version('eloGraf'))
         self.setWindowIcon(QIcon(":/icons/elograf/24/micro.png"))
         layout = QVBoxLayout(self)
         if not os.path.exists(MODEL_USER_PATH):
