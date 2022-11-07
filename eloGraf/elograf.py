@@ -727,9 +727,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         # single left click doesn't work in some environments. https://bugreports.qt.io/browse/QTBUG-55911
         # Thus by default we don't enable it, but add Start/Stop menu entries
         self.settings.load()
-        if self.settings.directClick:
-            self.activated.connect(lambda r: self.commute(r))
-        else:
+        if not self.settings.directClick:
             startAction = menu.addAction(self.tr("Start dictation"))
             stopAction = menu.addAction(self.tr("Stop dictation"))
             startAction.triggered.connect(self.start)
@@ -747,6 +745,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.micro = QIcon(":/icons/elograf/24/micro.png")
         self.setIcon(self.nomicro)
         self.dictating = False
+        self.activated.connect(lambda r: self.commute(r))
 
     def currentModel(self) -> Tuple[str, str]:
         # Return the model name selected in settings and its location path
@@ -839,15 +838,16 @@ class SystemTrayIcon(QSystemTrayIcon):
         if reason != QSystemTrayIcon.Context:
             if self.dictating:
                 self.stop_dictate()
+                self.dictating = False
             else:
+                self.dictating = True
                 self.dictate()
-            self.dictating = not self.dictating
 
     def start(self) -> None:
         logging.debug(f"Start dictation")
         if not self.dictating:
-            self.dictate()
             self.dictating = True
+            self.dictate()
         else:
             print("Dictation already started")
 
@@ -863,8 +863,6 @@ class SystemTrayIcon(QSystemTrayIcon):
         if dialog.returnValue:
             self.setModel(dialog.returnValue[0])
         self.settings.load()
-        if self.settings.directClick:
-            self.activated.connect(lambda r: self.commute(r))
 
     def setModel(self, model: str) -> None:
         self.settings.setValue("Model/name", model)
