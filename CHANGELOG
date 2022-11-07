@@ -1,5 +1,8 @@
 EloGraf
 ----------
+* 0.5.2
+    - fix signal of commutation, launched only one time
+
 * 0.5.1
     - Add version number in configuration window title
 
