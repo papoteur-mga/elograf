@@ -154,6 +154,20 @@ class Settings(QSettings):
             self.directClick = self.value("DirectClick", type=bool)
         else:
             self.directClick: bool = False
+        self.models =[]
+        to_select = None
+        n = self.beginReadArray("Models")
+        for i in range(0, n):
+            self.setArrayIndex(i)
+            entry = {}
+            entry['name'] = self.value("name")
+            entry['language'] = self.value("language")
+            entry['size'] = self.value("size")
+            entry['type'] = self.value("type")
+            entry['version'] = self.value("version")
+            entry['location'] = self.value("location")
+            self.models.append(entry)
+        self.endArray()
 
     def save(self):
         if self.precommand == "":
@@ -193,6 +207,42 @@ class Settings(QSettings):
         else:
             self.setValue("DeviceName", self.deviceName)
 
+    def add_model(self, language, name, version, size, mclass, location):
+        entry = {}
+        entry['name'] = name
+        entry['language'] = language
+        entry['size'] = size
+        entry['type'] = mclass
+        entry['version'] = version
+        entry['location'] = location
+        self.models.append(entry)
+        self.write_models()
+        
+    def remove_model(self, index):
+        del self.models[index]
+        self.write_models()
+
+    def write_models(self):
+        # clean config file
+        n = self.beginReadArray("Models")
+        self.endArray()
+        self.beginWriteArray("Models")
+        for i in range(0, n):
+            self.setArrayIndex(i)
+            self.remove(str(i))
+        self.endArray()
+        # write the list
+        n = len(self.models)
+        self.beginWriteArray("Models")
+        for i in range(0, n):
+            self.setArrayIndex(i)
+            self.setValue("language", self.models[i]['language'])
+            self.setValue("name", self.models[i]['name'])
+            self.setValue("version",self.models[i]['version'])
+            self.setValue("size", self.models[i]['size'])
+            self.setValue("type", self.models[i]['type'])
+            self.setValue("location", self.models[i]['location'])
+        self.endArray()    
 
 class AdvancedUI(QDialog):
     def __init__(self):
@@ -263,20 +313,25 @@ class CustomUI(QDialog):
         new_path: str = self.ui.filePicker.text()
         if os.path.exists(new_path):
             logging.debug(f"Accepted ")
-            n: int = self.settings.beginReadArray("Models")
-            self.settings.endArray()
-            self.settings.beginWriteArray("Models", n)
             if self.index == -1:
-                self.index = n
-            self.settings.setArrayIndex(self.index)
-            self.settings.setValue("language", language)
-            self.settings.setValue("name", name)
-            self.settings.setValue("version", self.ui.versionLineEdit.text())
-            self.settings.setValue("size", self.ui.sizeLineEdit.text())
-            self.settings.setValue("type", self.ui.classLineEdit.text())
-            self.settings.setValue("location", new_path)
-            self.settings.endArray()
-            self.close()
+                self.settings.add_model(
+                    language,
+                    name,
+                    self.ui.versionLineEdit.text(), 
+                    self.ui.sizeLineEdit.text(), 
+                    self.ui.classLineEdit.text(), 
+                    new_path,
+                    )
+                self.index = len(self.settings.models)
+            else:
+                # update existing values
+                self.settings.models[self.index]['language'] = language
+                self.settings.models[self.index]['name'] = name
+                self.settings.models[self.index]['version'] = self.ui.versionLineEdit.text()
+                self.settings.models[self.index]['size'] = self.ui.sizeLineEdit.text()
+                self.settings.models[self.index]['type'] = self.ui.classLineEdit.text()
+                self.settings.models[self.index]['location'] = new_path
+            self.done(self.index)
 
 
 class DownloadPopup(QDialog):
@@ -357,7 +412,7 @@ class DownloadPopup(QDialog):
             except:
                 logging.warning("Invalid file")
             self.register(os.path.join(MODEL_USER_PATH, name))
-            self.close()
+            self.done(1)
 
     def system(self):
         # Import and extract the imported model to system space
@@ -374,18 +429,18 @@ class DownloadPopup(QDialog):
                     rc = self.retry.exec()
                     if not rc:
                         break
-            p = Popen(["unzip", "-q", temp_file, "-d", MODEL_GLOBAL_PATH])
-            returncode = p.wait()
-            if returncode == 0:
-                self.register(os.path.join(MODEL_GLOBAL_PATH, name))
-            else:
+            try:
+                with ZipFile(temp_file) as z:
+                    z.extractall(MODEL_GLOBAL_PATH)
+                    self.register(os.path.join(MODEL_GLOBAL_PATH, name))
+            except:
                 warning = ConfirmDownloadUI(
                     self.tr(
                         "The model can't be saved. Check for space available or credentials for {}"
                         ).format(MODEL_GLOBAL_PATH)
                 )
                 warning.exec()                
-            self.close()
+            self.done(1)
 
     def progress(self, n: int, size: int, total: int) -> None:
         if total is not None:
@@ -433,28 +488,26 @@ class DownloadPopup(QDialog):
         return False, "", ""
 
     def register(self, location):
-        # Check if the model is already registred
-        n = self.settings.beginReadArray("Models")
+        # Check if the model is already registred, based on the name
+        n = len(self.settings.models)
         model_registred = False
         for i in range(0, n):
-            self.settings.setArrayIndex(i)
-            if self.name == self.settings.value("name"):
+            if self.name == self.settings.models[i]["name"]:
                 model_registred = True
                 break
-        self.settings.endArray()
         if not model_registred:
-            logging.debug(f"Registered {n}")
+            logging.debug(f"Registered {n + 1}")
             selection = self.table.selectionModel().selectedRows()
             row = selection[0].row()
-            self.settings.beginWriteArray("Models")
-            self.settings.setArrayIndex(n)
-            self.settings.setValue("language", self.list.data(self.list.index(row, 0)))
-            self.settings.setValue("name", self.name)
-            self.settings.setValue("version", self.list.data(self.list.index(row, 2)))
-            self.settings.setValue("size", self.list.data(self.list.index(row, 3)))
-            self.settings.setValue("type", self.list.data(self.list.index(row, 4)))
-            self.settings.setValue("location", location)
-            self.settings.endArray()
+            newmodel = {}
+            self.settings.add_model(
+                self.list.data(self.list.index(row, 0)),
+                self.name,
+                self.list.data(self.list.index(row, 2)),
+                self.list.data(self.list.index(row, 3)),
+                self.list.data(self.list.index(row, 4)),
+                location,
+                )
 
 
 class ConfigPopup(QDialog):
@@ -474,6 +527,7 @@ class ConfigPopup(QDialog):
         self.table.setSelectionMode(QAbstractItemView.SingleSelection)
         layout.addWidget(self.table)
         # read models data from settings
+        self.settings.load()
         self.list, selected = self.get_list()
         self.table.setModel(self.list)
         if selected is not None:
@@ -503,7 +557,6 @@ class ConfigPopup(QDialog):
         self.table.resizeColumnsToContents()
         self.table.verticalHeader().hide()
         self.button_height = buttonBox.sizeHint().height()
-        self.settings.load()
         if self.settings.directClick:
             self.interfaceCB.setChecked(True)
         self.returnValue: List[str] = []
@@ -512,18 +565,18 @@ class ConfigPopup(QDialog):
         height = self.table.verticalHeader().length() \
             + self.table.horizontalHeader().sizeHint().height() \
             + self.button_height \
+            + self.interfaceCB.height() \
             + 40
         return QSize(self.width(), height)
 
     def get_single(self, i: int):
         # Provide items for the model in settings at range i
         # items are for including in model list for viewing
-        self.settings.setArrayIndex(i)
-        name = self.settings.value("name")
-        language = self.settings.value("language")
-        size = self.settings.value("size")
-        type = self.settings.value("type")
-        version = self.settings.value("version")
+        name = self.settings.models[i]["name"]
+        language = self.settings.models[i]["language"]
+        size = self.settings.models[i]["size"]
+        mclass = self.settings.models[i]["type"]
+        version = self.settings.models[i]["version"]
         language_item = QStandardItem(self.tr(language))
         language_item.setFlags(language_item.flags() & ~Qt.ItemIsEditable)
         name_item = QStandardItem(name)
@@ -532,12 +585,12 @@ class ConfigPopup(QDialog):
         size_item.setFlags(size_item.flags() & ~Qt.ItemIsEditable)
         version_item = QStandardItem(version)
         version_item.setFlags(version_item.flags() & ~Qt.ItemIsEditable)
-        class_item = QStandardItem(type)
+        class_item = QStandardItem(mclass)
         class_item.setFlags(class_item.flags() & ~Qt.ItemIsEditable)
         return language_item, name_item, size_item, version_item, class_item
 
     def update_list(self, selected: int) -> None:
-        n = self.settings.beginReadArray("Models")
+        n = len(self.settings.models)
         logging.debug(f"Updating table with {n} models")
         #previous_names_list = [self.list.data(self.list.index(i, 1)) for i in range(0, n)]
         self.list.layoutAboutToBeChanged.emit()
@@ -555,7 +608,6 @@ class ConfigPopup(QDialog):
                 ]
             )
             self.list.endInsertRows()
-        self.settings.endArray()
         self.table.resizeColumnsToContents()
         self.list.layoutChanged.emit()
         if selected is not None:
@@ -564,7 +616,7 @@ class ConfigPopup(QDialog):
     def get_list(self):
         model_list = Models()  # type: ignore
         to_select = None
-        n = self.settings.beginReadArray("Models")
+        n = len(self.settings.models)
         for i in range(0, n):
             language_item, name_item, size_item, version_item, class_item = self.get_single(i)
             model_list.appendRow(
@@ -578,7 +630,6 @@ class ConfigPopup(QDialog):
             )
             if self.currentModel == name_item.text():
                 to_select: int = i
-        self.settings.endArray()
         return model_list, to_select
 
     def interface(self):
@@ -598,18 +649,18 @@ class ConfigPopup(QDialog):
 
     def local(self) -> None:
         dialog = CustomUI(-1, self.settings)
-        rc = dialog.exec_()
-        n: int = self.settings.beginReadArray("Models")
-        self.settings.endArray()
+        # rc contents the index of the edited or newly created model
+        rc: int = dialog.exec_()
         if rc:
-            self.update_list(n-1)
+            logging.debug(f"Model updated {rc}")
+            self.update_list(rc - 1)
 
     def remote(self) -> None:
         if not os.path.exists(os.path.join(MODEL_USER_PATH, MODEL_LIST)):
             # We have to download the model list
             self.confirm_dl = ConfirmDownloadUI(
                 self.tr(
-                    "We will download the list of models from {}. Do you agree?".format(
+                    "We will download the list of models from {}.\nDo you agree?".format(
                         MODELS_URL
                     )
                 )
@@ -628,39 +679,34 @@ class ConfigPopup(QDialog):
             else:
                 return
         installed: List[str] = []
-        n: int = self.settings.beginReadArray("Models")
+        n: int = len(self.settings.models)
         model_registred = False
         for i in range(0, n):
-            self.settings.setArrayIndex(i)
-            installed.append(self.settings.value("name"))
-        self.settings.endArray()
+            installed.append(self.settings.models[i]["name"])
         dialog = DownloadPopup(self.settings, installed)
         rc = dialog.exec_()
         if rc:
+            n: int = len(self.settings.models)
             self.update_list(n-1)
 
     def edit(self):
         for index in self.table.selectedIndexes():
-            n: int = self.settings.beginReadArray("Models")
+            n: int = len(self.settings.models)
             for i in range(0, n):
-                self.settings.setArrayIndex(i)
-                if self.settings.value("name") == self.list.data(self.list.index(index.row(), 1)):
+                if self.settings.models[i]["name"] == self.list.data(self.list.index(index.row(), 1)):
                     break
             if i != n:
                 logging.debug(f"Found {i} for {self.list.data(self.list.index(index.row(), 1))}")
-                self.settings.setArrayIndex(i)
                 dialog = CustomUI(i, self.settings)
-                dialog.ui.filePicker.setText(self.settings.value('location'))
-                dialog.ui.languageLineEdit.setText(self.settings.value('language'))
-                dialog.ui.nameLineEdit.setText(self.settings.value('name'))
-                dialog.ui.sizeLineEdit.setText(self.settings.value('size'))
-                dialog.ui.classLineEdit.setText(self.settings.value('type'))
-                dialog.ui.versionLineEdit.setText(self.settings.value('version'))
-                self.settings.endArray()
+                dialog.ui.filePicker.setText(self.settings.models[i]['location'])
+                dialog.ui.languageLineEdit.setText(self.settings.models[i]['language'])
+                dialog.ui.nameLineEdit.setText(self.settings.models[i]['name'])
+                dialog.ui.sizeLineEdit.setText(self.settings.models[i]['size'])
+                dialog.ui.classLineEdit.setText(self.settings.models[i]['type'])
+                dialog.ui.versionLineEdit.setText(self.settings.models[i]['version'])
                 dialog.exec_()
             else:
                 logging.debug(f"Not found index for {self.list.data(self.list.index(index.row(), 1))}")
-                self.settings.endArray()
             # edit only one time, selected indexes contents all cells in the row
             break
         self.update_list(i)
@@ -753,13 +799,11 @@ class SystemTrayIcon(QSystemTrayIcon):
         location: str = ""
         if self.settings.contains("Model/name"):
             model = self.settings.value("Model/name")
-            n = self.settings.beginReadArray("Models")
+            n = len(self.settings.models)
             for i in range(0, n):
-                self.settings.setArrayIndex(i)
-                if self.settings.value("name") == model:
-                    location = self.settings.value("location")
+                if self.settings.models[i]["name"] == model:
+                    location = self.settings.models[i]["location"]
                     break
-            self.settings.endArray()
         return model, location
 
     def exit(self) -> None:
