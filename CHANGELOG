@@ -1,5 +1,10 @@
 EloGraf
 ----------
+* 0.5.3
+    - avoid loop if no model is selected at first launched
+    - fix management of settings when models are added: use list in memory and save the whole list
+    - use zip module also for system models; without pkexec, unzip command isn't needed
+
 * 0.5.2
     - fix signal of commutation, launched only one time
 
