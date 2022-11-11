@@ -815,11 +815,13 @@ class SystemTrayIcon(QSystemTrayIcon):
         if model == "":
             dialog = ConfigPopup("")
             dialog.exec_()
-            if dialog.returnValue:
-                self.setModel(dialog.returnValue[0])
+            logging.info(f"Return {dialog.returnValue} with {dialog.returnValue[0]}.")
+            if dialog.returnValue and dialog.returnValue[0] != "":
+                self.settings.setValue("Model/name", dialog.returnValue[0])
                 model, location = self.currentModel()
             else:
                 logging.info("No model selected")
+                self.dictating = False
                 return
         logging.debug(f"Start dictation with model {model} located in {location}")
         self.settings.load()
