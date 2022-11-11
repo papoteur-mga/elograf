@@ -705,7 +705,7 @@ class ConfigPopup(QDialog):
         dialog = DownloadPopup(self.settings, installed)
         rc = dialog.exec_()
         if rc:
-            n: int = len(self.settings.models)
+            n = len(self.settings.models)
             self.update_list(n - 1)
 
     def edit(self):
