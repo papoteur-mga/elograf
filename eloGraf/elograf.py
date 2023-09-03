@@ -14,8 +14,8 @@ import ujson
 import urllib.request, urllib.error
 import logging
 import argparse
-from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
-from PyQt5.QtCore import (
+from PyQt6.QtGui import QIcon, QStandardItemModel, QStandardItem
+from PyQt6.QtCore import (
     QCoreApplication,
     QDir,
     QLibraryInfo,
@@ -27,7 +27,7 @@ from PyQt5.QtCore import (
     QTranslator,
     QTimer,
 )
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QAbstractItemView,
     QApplication,
     QCheckBox,
@@ -97,7 +97,7 @@ class Models(QStandardItemModel):
         ]
         i: int = 0
         for label in headers:
-            self.setHeaderData(i, Qt.Horizontal, label)
+            self.setHeaderData(i, Qt.Orientation.Horizontal, label)
             i += 1
 
 
@@ -373,25 +373,25 @@ class DownloadPopup(QDialog):
                         class_item,
                     ]
                 )
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         vbox = QVBoxLayout()
         self.table = QTableView()
         self.table.setModel(self.list)
         vbox.addWidget(self.table)
         self.setLayout(vbox)
         self.table.resizeColumnsToContents()
-        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.table.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.bar = QProgressBar()
         self.bar.setMaximum(100)
         self.bar.setMinimum(0)
         vbox.addWidget(self.bar)
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Close)
+        buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         systemButton = QPushButton(self.tr("Import system wide"))
-        buttonBox.addButton(systemButton, QDialogButtonBox.ActionRole)
+        buttonBox.addButton(systemButton, QDialogButtonBox.ButtonRole.ActionRole)
         userButton = QPushButton(self.tr("Import in user space"))
-        buttonBox.addButton(userButton, QDialogButtonBox.ActionRole)
+        buttonBox.addButton(userButton, QDialogButtonBox.ButtonRole.ActionRole)
         vbox.addWidget(buttonBox)
         systemButton.clicked.connect(self.system)
         userButton.clicked.connect(self.user)
@@ -528,8 +528,8 @@ class ConfigPopup(QDialog):
         if not os.path.exists(MODEL_USER_PATH):
             os.makedirs(MODEL_USER_PATH, exist_ok=True)
         self.table = QTableView()
-        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         layout.addWidget(self.table)
         # read models data from settings
         self.settings.load()
@@ -539,13 +539,13 @@ class ConfigPopup(QDialog):
             self.table.selectRow(selected)
         self.interfaceCB = QCheckBox(self.tr("Active direct click on icon"))
         layout.addWidget(self.interfaceCB)
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Close)
+        buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         remoteButton = QPushButton(self.tr("Import remote model"))
-        buttonBox.addButton(remoteButton, QDialogButtonBox.ActionRole)
+        buttonBox.addButton(remoteButton, QDialogButtonBox.ButtonRole.ActionRole)
         localButton = QPushButton(self.tr("Import local model"))
-        buttonBox.addButton(localButton, QDialogButtonBox.ActionRole)
+        buttonBox.addButton(localButton, QDialogButtonBox.ButtonRole.ActionRole)
         advancedButton = QPushButton(self.tr("Advanced"))
-        buttonBox.addButton(advancedButton, QDialogButtonBox.ActionRole)
+        buttonBox.addButton(advancedButton, QDialogButtonBox.ButtonRole.ActionRole)
         layout.addWidget(buttonBox)
 
         # Events
@@ -557,8 +557,8 @@ class ConfigPopup(QDialog):
         self.table.doubleClicked.connect(self.edit)
         self.interfaceCB.clicked.connect(self.interface)
 
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.table.resizeColumnsToContents()
         self.table.verticalHeader().hide()
         self.button_height = buttonBox.sizeHint().height()
@@ -585,15 +585,15 @@ class ConfigPopup(QDialog):
         mclass = self.settings.models[i]["type"]
         version = self.settings.models[i]["version"]
         language_item = QStandardItem(self.tr(language))
-        language_item.setFlags(language_item.flags() & ~Qt.ItemIsEditable)
+        language_item.setFlags(language_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
         name_item = QStandardItem(name)
-        name_item.setFlags(name_item.flags() & ~Qt.ItemIsEditable)
+        name_item.setFlags(name_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
         size_item = QStandardItem(size)
-        size_item.setFlags(size_item.flags() & ~Qt.ItemIsEditable)
+        size_item.setFlags(size_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
         version_item = QStandardItem(version)
-        version_item.setFlags(version_item.flags() & ~Qt.ItemIsEditable)
+        version_item.setFlags(version_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
         class_item = QStandardItem(mclass)
-        class_item.setFlags(class_item.flags() & ~Qt.ItemIsEditable)
+        class_item.setFlags(class_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
         return language_item, name_item, size_item, version_item, class_item
 
     def update_list(self, selected: int) -> None:
@@ -669,7 +669,7 @@ class ConfigPopup(QDialog):
     def local(self) -> None:
         dialog = CustomUI(-1, self.settings)
         # rc contents the index of the edited or newly created model
-        rc: int = dialog.exec_()
+        rc: int = dialog.exec()
         if rc:
             logging.debug(f"Model updated {rc}")
             self.update_list(rc - 1)
@@ -703,7 +703,7 @@ class ConfigPopup(QDialog):
         for i in range(0, n):
             installed.append(self.settings.models[i]["name"])
         dialog = DownloadPopup(self.settings, installed)
-        rc = dialog.exec_()
+        rc = dialog.exec()
         if rc:
             n = len(self.settings.models)
             self.update_list(n - 1)
@@ -727,7 +727,7 @@ class ConfigPopup(QDialog):
                 dialog.ui.sizeLineEdit.setText(self.settings.models[i]["size"])
                 dialog.ui.classLineEdit.setText(self.settings.models[i]["type"])
                 dialog.ui.versionLineEdit.setText(self.settings.models[i]["version"])
-                dialog.exec_()
+                dialog.exec()
             else:
                 logging.debug(
                     f"Not found index for {self.list.data(self.list.index(index.row(), 1))}"
@@ -839,7 +839,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         model, location = self.currentModel()
         if model == "":
             dialog = ConfigPopup("")
-            dialog.exec_()
+            dialog.exec()
             logging.info(f"Return {dialog.returnValue} with {dialog.returnValue[0]}.")
             if dialog.returnValue and dialog.returnValue[0] != "":
                 self.settings.setValue("Model/name", dialog.returnValue[0])
@@ -908,7 +908,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def commute(self, reason) -> None:
         logging.debug(f"Commute dictation {'off' if self.dictating else 'on'}")
-        if reason != QSystemTrayIcon.Context:
+        if reason != QSystemTrayIcon.ActivationReason.Context:
             if self.dictating:
                 self.stop_dictate()
                 self.dictating = False
@@ -932,7 +932,7 @@ class SystemTrayIcon(QSystemTrayIcon):
     def config(self) -> None:
         model, _ = self.currentModel()
         dialog = ConfigPopup(os.path.basename(model))
-        dialog.exec_()
+        dialog.exec()
         if dialog.returnValue:
             self.setModel(dialog.returnValue[0])
         self.settings.load()
@@ -966,7 +966,7 @@ def main() -> None:
     qtTranslator = QTranslator()
     if qtTranslator.load(
         "qt_" + locale,
-        QLibraryInfo.location(QLibraryInfo.TranslationsPath),
+        QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath),
     ):
         app.installTranslator(qtTranslator)
     appTranslator = QTranslator()
@@ -977,7 +977,7 @@ def main() -> None:
     trayIcon = SystemTrayIcon(QIcon(":/icons/elograf/24/nomicro.png"), w)
 
     trayIcon.show()
-    exit(app.exec_())
+    exit(app.exec())
 
 
 if __name__ == "__main__":
