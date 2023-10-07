@@ -17,19 +17,17 @@ In Advanced dialogue, you can set an optionnal precommand which is launched befo
 You can also select or define some options which are passed to nerd-dictation.
 
 Installation
-In command line:
-- for system wide installation, as root:
-python3 setup.py install
-- for user only installation
-python3 setup.py install --prefix=~/.local
-In this case be sure that ~/.local/bin is in the PATH variable.
+In command line, as root for system wide installation, or as user for a local installation
+pip install .
+In case of local installation, be sure that ~/.local/bin is in the PATH variable.
 nerd-dictation is not included and needs to be installed separately.
 Python modules requirements:
 - ujson
+- Qt6
 
 Under the hood
 
-This tool is written in Python 3 and use Qt5.
+This tool is written in Python 3 and use Qt6.
 Configuration file is ~/.config/Elograf/Elograf.conf
 In user space, models are stored in ~/.config/vosk-models
 In system space, models are stored in /usr/share/vosk-models
