@@ -851,7 +851,9 @@ class SystemTrayIcon(QSystemTrayIcon):
         logging.debug(f"Start dictation with model {model} located in {location}")
         self.settings.load()
         if self.settings.precommand != "":
-            Popen(self.settings.precommand.split())
+            cmd = self.settings.precommand.split()
+            if len(cmd) != 0:
+                Popen(cmd)
         cmd = ["nerd-dictation", "begin"]
         if self.settings.sampleRate != DEFAULT_RATE:
             cmd.append(f"sample-rate={self.settings.sampleRate}")
