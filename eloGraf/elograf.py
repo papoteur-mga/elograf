@@ -870,6 +870,8 @@ class SystemTrayIcon(QSystemTrayIcon):
             cmd.append("--numbers-use-separator")
         if self.settings.deviceName != "default":
             cmd.append(f"--pulse-device-name={self.settings.deviceName}")
+        if self.settings.freeCommand != "":
+            cmd.append(self.settings.freeCommand)
         cmd.append(f"--vosk-model-dir={location}")
         cmd.append("--output=SIMULATE_INPUT")
         cmd.append("--continuous")
