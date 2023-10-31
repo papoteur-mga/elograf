@@ -1,5 +1,8 @@
 EloGraf
 ----------
+* 0.5.4
+    - fix launch of nerd-dictation, really using free command
+
 * 0.5.3
     - avoid loop if no model is selected at first launched
     - fix management of settings when models are added: use list in memory and save the whole list
