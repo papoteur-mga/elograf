@@ -14,7 +14,7 @@ import ujson
 import urllib.request, urllib.error
 import logging
 import argparse
-from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem, QInputMethod
 from PyQt5.QtCore import (
     QCoreApplication,
     QDir,
@@ -146,6 +146,14 @@ class Settings(QSettings):
             self.freeCommand = self.value("FreeCommand", type=str)
         else:
             self.freeCommand: str = ""
+        if self.contains("Tool"):
+            self.tool = self.value("Tool", type=str)
+        else:
+            self.tool: str = ""
+        if self.contains("Env"):
+            self.env = self.value("Env", type=str)
+        else:
+            self.env: str = ""
         if self.contains("DeviceName"):
             self.deviceName = self.value("DeviceName", type=str)
         else:
@@ -198,10 +206,15 @@ class Settings(QSettings):
         self.setValue("Digits", int(self.digits))
         self.setValue("UseSeparator", int(self.useSeparator))
         self.setValue("DirectClick", int(self.directClick))
+        self.setValue("Tool",self.tool)
         if self.freeCommand == "":
             self.remove("FreeCommand")
         else:
             self.setValue("FreeCommand", self.freeCommand)
+        if self.env == "":
+            self.remove("Env")
+        else:
+            self.setValue("Env", self.env)
         if self.deviceName == "default":
             self.remove("DeviceName")
         else:
@@ -521,7 +534,6 @@ class ConfigPopup(QDialog):
         self.currentModel = currentModel
         import importlib.metadata
 
-        print()
         self.setWindowTitle("Elograf " + importlib.metadata.version("eloGraf"))
         self.setWindowIcon(QIcon(":/icons/elograf/24/micro.png"))
         layout = QVBoxLayout(self)
@@ -749,6 +761,8 @@ class ConfigPopup(QDialog):
         advWindow.ui.punctuateDisplay.setText(str(self.settings.punctuate))
         advWindow.ui.punctuate.setValue(self.settings.punctuate)
         advWindow.ui.freecommand.setText(self.settings.freeCommand)
+        advWindow.ui.env.setText(self.settings.env)
+        advWindow.ui.tool_cb.setCurrentIndex(advWindow.ui.tool_cb.findText(self.settings.tool))
         if self.settings.fullSentence:
             advWindow.ui.fullSentence.setChecked(True)
         if self.settings.digits:
@@ -788,6 +802,9 @@ class ConfigPopup(QDialog):
             self.settings.useSeparator = advWindow.ui.useSeparator.isChecked()
             self.settings.deviceName = advWindow.ui.deviceName.currentData()
             self.settings.freeCommand = advWindow.ui.freecommand.text()
+            self.settings.env = advWindow.ui.env.text()
+            self.settings.tool = advWindow.ui.tool_cb.currentText()
+
 
 
 class SystemTrayIcon(QSystemTrayIcon):
@@ -832,7 +849,8 @@ class SystemTrayIcon(QSystemTrayIcon):
         return model, location
 
     def exit(self) -> None:
-        self.stop_dictate()
+        if self.dictating:
+            self.stop_dictate()
         QCoreApplication.exit()
 
     def dictate(self) -> None:
@@ -849,6 +867,7 @@ class SystemTrayIcon(QSystemTrayIcon):
                 self.dictating = False
                 return
         logging.debug(f"Start dictation with model {model} located in {location}")
+        kb_lang, _ = QApplication.inputMethod().locale().name().split("_")
         self.settings.load()
         if self.settings.precommand != "":
             Popen(self.settings.precommand.split())
@@ -872,6 +891,17 @@ class SystemTrayIcon(QSystemTrayIcon):
             cmd.append(f"--pulse-device-name={self.settings.deviceName}")
         if self.settings.freeCommand != "":
             cmd.append(self.settings.freeCommand)
+        env: Dict = os.environ.copy()
+        if self.settings.env != "":
+            try:
+                for variable in self.settings.env.split(" "):
+                    key, value = variable.split("=")
+                    env[key] = value
+            except:
+                logging.warn("Environment variables should be in the form key1=value1 key2=value2")
+        if self.settings.tool == "DOTOOL":
+            kb_lang, _ = QApplication.inputMethod().locale().name().split("_")
+            env["DOTOOL_XKB_LAYOUT"] = kb_lang
         cmd.append(f"--vosk-model-dir={location}")
         cmd.append("--output=SIMULATE_INPUT")
         cmd.append("--continuous")
@@ -880,7 +910,6 @@ class SystemTrayIcon(QSystemTrayIcon):
         logging.debug(
             "Starting nerd-dictation with the command {}".format(" ".join(cmd))
         )
-        env: Dict = os.environ.copy()
         self.dictate_process = Popen(cmd, env=env)
         self.setIcon(self.micro)
         # A timer to watch the state of the process and update the icon
@@ -928,7 +957,8 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def stop(self) -> None:
         logging.debug(f"Stop dictation")
-        self.stop_dictate()
+        if self.dictating:
+            self.stop_dictate()
         self.dictating = False
 
     def config(self) -> None:
