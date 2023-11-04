@@ -6,26 +6,28 @@ Usage
 
 It is intended to be launched at start of the desktop environnement to display an icon in the icons tray. Use your favorite desktop settings manager to add the command 'elograf' launched at start.
 
-The icon when pressed launches nerd-dictation. A new press stops it. The icon reflects the state.
+The icon when pressed has a menu with command to sart and stop the dictation. It has also an entry to configure the model and other options.
 
-With right click, the utility can be exited or configured.
+When selecting the option "Active direct click on icon", and after a restart, a click on the icon launches nerd-dictation. A new press stops it. With right click, the utility can be exited or configured. 
+
+The icon reflects the state of the dictation.
+
 The configuration dialogue contains a table list of all models which are installed on the system and which can be selected.
 Models can be directly downloaded from alphacei website and stored either in the user or system space. For storing in the system space, root credentials are asked through polkit mechanism.
 You can also select a directory where a model resides. You have to give it a unique name.
 The configuration dialog is displayed if no model has been set previously.
 In Advanced dialogue, you can set an optionnal precommand which is launched before nerd-dictation itself. Another line is for optionnal postcommand which is launched after nerd-dictation is stopped.
 You can also select or define some options which are passed to nerd-dictation.
+You can select the input simulation tool in XDOTOOL (used by default) and DOTOOL. DOTOOL should be used for Wayland environment.
 
 Installation
-In command line:
-- for system wide installation, as root:
-python3 setup.py install
-- for user only installation
-python3 setup.py install --prefix=~/.local
-In this case be sure that ~/.local/bin is in the PATH variable.
+In command line, as root or as user:
+pip install .
+In case of installation as user, be sure that ~/.local/bin is in the PATH variable.
 nerd-dictation is not included and needs to be installed separately.
 Python modules requirements:
 - ujson
+- pyqt5 (the name depends of your distribution)
 
 Under the hood
 

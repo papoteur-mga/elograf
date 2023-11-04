@@ -1,0 +1,50 @@
+Elograf
+
+Ce programme est un utilitaire permettant de lancer et de configurer nerd-dictation pour la reconnaissance vocale.
+
+Utilisation
+
+Ce programme est prévu pour être lancé au démarrage de l'environnement de bureau pour afficher une icône dans la barre d'icônes. Utilisez votre gestionnaire de paramètres de bureau préféré pour ajouter le lancement de la commande 'elograf' au démarrage.
+
+L'icône elograf donne accès à un menu avec une entrée pour activer nerd-dictation, une autre pour l'arrêter, une entrée de configuration et une commande pour quitter. L'icône change d'apparence lorsque nerd-dictation est actif.
+
+La configuration comporte une option de clic direct. Quand elle est activée, et après un redémarrage de l'application, un clic sur l'icône lance la dictée. Un nouvel appui sur l'icône arrête nerd-dictation. 
+
+Le dialogue de configuration contient une liste sous forme de tableau de tous les modèles de langue qui sont installés sur le système et qui peuvent être sélectionnés. Celui qui est sélectionné sera utilisé.
+
+Les modèles de langue peuvent être téléchargés directement depuis le site web d'alphacei et stockés soit dans l'espace utilisateur, soit dans l'espace système. Pour le stockage dans l'espace système, les informations d'identification root sont demandées par le mécanisme polkit.
+
+Vous pouvez également sélectionner un répertoire où réside un modèle de langue. Vous devez lui donner un nom unique.
+
+Le dialogue de configuration s'affiche si aucun modèle n'a été défini précédemment.
+
+Dans le dialogue Avancé, vous pouvez définir une précommande optionnelle qui est lancée avant nerd-dictation lui-même. Une autre ligne est pour la post-commande optionnelle qui est lancée après l'arrêt de nerd-dictation.
+
+Vous pouvez également sélectionner ou définir certaines options qui sont passées à nerd-dictation.
+
+Vous pouvez notamment définir l'outil utilisé pour simuler le clavier. XDOTOOL est utilisé par défaut, mais pour l'environnement Wayland, il faut séelectionner DOTOOL.
+
+Installation
+Dans la ligne de commande en tant que root ou en utilisateur selon la destination souhaitée de l'installation :
+pip install .
+(le point à la fin fait partie de la commande)
+
+Dans ce cas d'une installation dans l'espace utilisateur, assurez vous que ~/.local/bin est bien dans votre variable PATH.
+
+nerd-dictation n'est pas inclus et doit être installé séparément.
+
+Modules Python pré-requis: 
+- ujson
+- pyqt5 (le nom dépend de votre distribution)
+
+Aspects techniques
+
+Cet outil est écrit en Python 3 et utilise Qt5.
+
+Le fichier de configuration est ~/.config/Elograf/Elograf.conf
+
+Dans l'espace utilisateur, les modèles sont stockés dans ~/.config/vosk-models.
+
+Dans l'espace système, les modèles sont stockés dans /usr/share/vosk-models.
+
+Les fichiers de traduction sont enregistrés dans /usr/share/elograf/translations.
