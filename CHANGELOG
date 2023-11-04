@@ -1,5 +1,11 @@
 EloGraf
 ----------
+* 0.5.5
+    - Add option to add environment variable    
+    - Add option of the simulate input tool between XDOTOOL and DOTOOL
+    - Detect keyboard layout when using DOTOOL and add env variable for it
+    - Try to not launch stop nerd-dictation when it is already stopped
+
 * 0.5.4
     - fix launch of nerd-dictation, really using free command
 
