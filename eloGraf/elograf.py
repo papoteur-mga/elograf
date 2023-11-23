@@ -902,6 +902,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         if self.settings.tool == "DOTOOL":
             kb_lang, _ = QApplication.inputMethod().locale().name().split("_")
             env["DOTOOL_XKB_LAYOUT"] = kb_lang
+            cmd.append("--simulate-input-tool=DOTOOL")
         cmd.append(f"--vosk-model-dir={location}")
         cmd.append("--output=SIMULATE_INPUT")
         cmd.append("--continuous")
