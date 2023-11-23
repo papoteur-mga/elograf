@@ -920,7 +920,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def watch(self):
         poll = self.dictate_process.poll()
-        if poll != None:
+        if poll != None and self.dictating:
             self.stop_dictate()
             self.dictating = False
             self.processWatch.stop()
