@@ -22,16 +22,40 @@
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout" columnstretch="0,2">
-     <item row="11" column="1">
-      <widget class="QLineEdit" name="freecommand"/>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="precommand"/>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_10">
+     <item row="12" column="1">
+      <widget class="QComboBox" name="tool_cb">
+       <property name="currentText">
+        <string>XDOTOOL</string>
+       </property>
+       <item>
+        <property name="text">
+         <string>XDOTOOL</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>DOTOOL</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QComboBox" name="deviceName">
+       <property name="currentText">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="0">
+      <widget class="QLabel" name="label_8">
        <property name="toolTip">
-        <string>Command to execute before launching the dictation</string>
+        <string>Convert numbers into digits instead of using whole words</string>
        </property>
        <property name="text">
-        <string>Precommand</string>
+        <string>Numbers as digits</string>
        </property>
       </widget>
      </item>
@@ -42,26 +66,6 @@
        </property>
        <property name="text">
         <string>Sample rate (Hz)</string>
-       </property>
-      </widget>
-     </item>
-     <item row="13" column="1">
-      <widget class="QDialogButtonBox" name="buttonBox">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="standardButtons">
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="env"/>
-     </item>
-     <item row="10" column="1">
-      <widget class="QCheckBox" name="useSeparator">
-       <property name="text">
-        <string/>
        </property>
       </widget>
      </item>
@@ -86,136 +90,8 @@
        </item>
       </layout>
      </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="label_6">
-       <property name="toolTip">
-        <string>The time-out in seconds for detecting the state of dictation from the previous recording,
-this can be useful so punctuation it is added before entering the dictation (zero disables)</string>
-       </property>
-       <property name="text">
-        <string>Punctuate from previous timeout (s)</string>
-       </property>
-      </widget>
-     </item>
-     <item row="11" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="toolTip">
-        <string>Add option to add on the comamnd line of the dictation tool</string>
-       </property>
-       <property name="text">
-        <string>Free option</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="precommand"/>
-     </item>
-     <item row="3" column="1">
-      <widget class="QComboBox" name="deviceName">
-       <property name="currentText">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label">
-       <property name="toolTip">
-        <string>The name of the pulse-audio device to use for recording. 
-See the output of &quot;pactl list sources&quot; to find device names (using the identifier following &quot;Name:&quot;)</string>
-       </property>
-       <property name="text">
-        <string>Pulse device name</string>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="0">
-      <widget class="QLabel" name="label_7">
-       <property name="toolTip">
-        <string>Capitalize the first character.
-This is also used to add either a comma or a full stop when dictation is performed according to previous delay</string>
-       </property>
-       <property name="text">
-        <string>Full sentence</string>
-       </property>
-      </widget>
-     </item>
-     <item row="9" column="0">
-      <widget class="QLabel" name="label_8">
-       <property name="toolTip">
-        <string>Convert numbers into digits instead of using whole words</string>
-       </property>
-       <property name="text">
-        <string>Numbers as digits</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="postcommand"/>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_12">
-       <property name="text">
-        <string>Environment variables</string>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="1">
-      <widget class="QCheckBox" name="fullSentence">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="1">
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <item>
-        <widget class="QSlider" name="punctuate">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="punctuateDisplay">
-         <property name="accessibleName">
-          <string notr="true"/>
-         </property>
-         <property name="text">
-          <string>TextLabel</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item row="9" column="1">
-      <widget class="QCheckBox" name="digits">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="0">
-      <widget class="QLabel" name="label_9">
-       <property name="toolTip">
-        <string>Use a comma separators for numbers</string>
-       </property>
-       <property name="text">
-        <string>Use separator for numbers</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_5">
-       <property name="toolTip">
-        <string>Time to idle between processing audio from the recording.
-Setting to zero is the most responsive at the cost of high CPU usage.
-The default value is 0.1 (processing 10 times a second),
-which is quite responsive in practice</string>
-       </property>
-       <property name="text">
-        <string>Idle time (ms)</string>
-       </property>
-      </widget>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="env"/>
      </item>
      <item row="6" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout">
@@ -244,8 +120,104 @@ which is quite responsive in practice</string>
        </item>
       </layout>
      </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="toolTip">
+        <string>The time-out in seconds for detecting the state of dictation from the previous recording,
+this can be useful so punctuation it is added before entering the dictation (zero disables)</string>
+       </property>
+       <property name="text">
+        <string>Punctuate from previous timeout (s)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="toolTip">
+        <string>Time to idle between processing audio from the recording.
+Setting to zero is the most responsive at the cost of high CPU usage.
+The default value is 0.1 (processing 10 times a second),
+which is quite responsive in practice</string>
+       </property>
+       <property name="text">
+        <string>Idle time (ms)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="0">
+      <widget class="QLabel" name="label_9">
+       <property name="toolTip">
+        <string>Use a comma separators for numbers</string>
+       </property>
+       <property name="text">
+        <string>Use separator for numbers</string>
+       </property>
+      </widget>
+     </item>
      <item row="4" column="1">
       <widget class="QLineEdit" name="sampleRate"/>
+     </item>
+     <item row="9" column="1">
+      <widget class="QCheckBox" name="digits">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="1">
+      <widget class="QCheckBox" name="useSeparator">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="12" column="0">
+      <widget class="QLabel" name="label_13">
+       <property name="text">
+        <string>Input simulate tool</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="label_7">
+       <property name="toolTip">
+        <string>Capitalize the first character.
+This is also used to add either a comma or a full stop when dictation is performed according to previous delay</string>
+       </property>
+       <property name="text">
+        <string>Full sentence</string>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="1">
+      <widget class="QLineEdit" name="freecommand"/>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="postcommand"/>
+     </item>
+     <item row="11" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="toolTip">
+        <string>Add option to add on the comamnd line of the dictation tool</string>
+       </property>
+       <property name="text">
+        <string>Free option</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_12">
+       <property name="text">
+        <string>Environment variables</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QCheckBox" name="fullSentence">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_11">
@@ -254,6 +226,37 @@ which is quite responsive in practice</string>
        </property>
        <property name="text">
         <string>Postcommand</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_10">
+       <property name="toolTip">
+        <string>Command to execute before launching the dictation</string>
+       </property>
+       <property name="text">
+        <string>Precommand</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label">
+       <property name="toolTip">
+        <string>The name of the pulse-audio device to use for recording. 
+See the output of &quot;pactl list sources&quot; to find device names (using the identifier following &quot;Name:&quot;)</string>
+       </property>
+       <property name="text">
+        <string>Pulse device name</string>
+       </property>
+      </widget>
+     </item>
+     <item row="14" column="1">
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
        </property>
       </widget>
      </item>
@@ -269,28 +272,39 @@ This can be used to avoid having to explicitly exit
        </property>
       </widget>
      </item>
-     <item row="12" column="0">
-      <widget class="QLabel" name="label_13">
+     <item row="7" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QSlider" name="punctuate">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="punctuateDisplay">
+         <property name="accessibleName">
+          <string notr="true"/>
+         </property>
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="13" column="0">
+      <widget class="QLabel" name="label_14">
        <property name="text">
-        <string>Input simulate tool</string>
+        <string>Keyboard layout</string>
        </property>
       </widget>
      </item>
-     <item row="12" column="1">
-      <widget class="QComboBox" name="tool_cb">
-       <property name="currentText">
-        <string>XDOTOOL</string>
+     <item row="13" column="1">
+      <widget class="QLineEdit" name="keyboard_le">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is used for DOTOOL method&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
-       <item>
-        <property name="text">
-         <string>XDOTOOL</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>DOTOOL</string>
-        </property>
-       </item>
       </widget>
      </item>
     </layout>

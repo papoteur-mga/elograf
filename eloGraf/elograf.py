@@ -162,6 +162,10 @@ class Settings(QSettings):
             self.directClick = self.value("DirectClick", type=bool)
         else:
             self.directClick: bool = False
+        if self.contains("Keyboard"):
+            self.keyboard = self.value("Keyboard", type=str)
+        else:
+            self.keyboard: str = ""
         self.models = []
         to_select = None
         n = self.beginReadArray("Models")
@@ -215,6 +219,10 @@ class Settings(QSettings):
             self.remove("Env")
         else:
             self.setValue("Env", self.env)
+        if self.keyboard == "":
+            self.remove("Keyboard")
+        else:
+            self.setValue("Keyboard", self.keyboard)
         if self.deviceName == "default":
             self.remove("DeviceName")
         else:
@@ -762,6 +770,7 @@ class ConfigPopup(QDialog):
         advWindow.ui.punctuate.setValue(self.settings.punctuate)
         advWindow.ui.freecommand.setText(self.settings.freeCommand)
         advWindow.ui.env.setText(self.settings.env)
+        advWindow.ui.keyboard_le.setText(self.settings.keyboard)
         advWindow.ui.tool_cb.setCurrentIndex(advWindow.ui.tool_cb.findText(self.settings.tool))
         if self.settings.fullSentence:
             advWindow.ui.fullSentence.setChecked(True)
@@ -803,6 +812,7 @@ class ConfigPopup(QDialog):
             self.settings.deviceName = advWindow.ui.deviceName.currentData()
             self.settings.freeCommand = advWindow.ui.freecommand.text()
             self.settings.env = advWindow.ui.env.text()
+            self.settings.keyboard = advWindow.ui.keyboard_le.text()
             self.settings.tool = advWindow.ui.tool_cb.currentText()
 
 
@@ -900,8 +910,8 @@ class SystemTrayIcon(QSystemTrayIcon):
             except:
                 logging.warn("Environment variables should be in the form key1=value1 key2=value2")
         if self.settings.tool == "DOTOOL":
-            kb_lang, _ = QApplication.inputMethod().locale().name().split("_")
-            env["DOTOOL_XKB_LAYOUT"] = kb_lang
+            if self.settings.keyboard != "":
+                env["DOTOOL_XKB_LAYOUT"] = self.settings.keyboard
             cmd.append("--simulate-input-tool=DOTOOL")
         cmd.append(f"--vosk-model-dir={location}")
         cmd.append("--output=SIMULATE_INPUT")
