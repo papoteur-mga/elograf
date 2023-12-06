@@ -1,5 +1,7 @@
 EloGraf
 ----------
+* 0.5.8
+    - Fix translation file in French
 * 0.5.7
     - Add field "Keyboard layout" for usage with DOTOOL when selected. Pass it to env before launching nerd-dictation
 

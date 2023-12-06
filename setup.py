@@ -22,9 +22,9 @@ data_files = [
 ]
 
 setup(
-    package_data={"": ["translations/*.qm"]},
     data_files=data_files,
     cmdclass={
         "build_qm": BuildQm,
     },
+    package_data={"": ["translations/*.qm"]},
 )
