@@ -4,7 +4,6 @@ import os, glob
 
 
 class BuildQm(build):
-    os.system("pylupdate5 elograf.pro")
     for ts in glob.glob("eloGraf/translations/*.ts"):
         os.system("lrelease {0} -qm {1}".format(ts, (ts[:-2] + "qm")))
 
