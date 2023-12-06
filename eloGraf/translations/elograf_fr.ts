@@ -109,57 +109,57 @@
     <message>
         <location line="42" filename="../elograf.py"/>
         <source>Precommand:</source>
-        <translation type="obsolete"><![CDATA[Commande préliminaire :</translation>
+        <translation type="obsolete">Commande préliminaire :</translation>
     </message>
     <message>
         <location line="161" filename="../elograf.py"/>
         <source>Language</source>
-        <translation type="obsolete"><![CDATA[Langue</translation>
+        <translation type="obsolete">Langue</translation>
     </message>
     <message>
         <location line="161" filename="../elograf.py"/>
         <source>Name</source>
-        <translation type="obsolete"><![CDATA[Nom</translation>
+        <translation type="obsolete">Nom</translation>
     </message>
     <message>
         <location line="161" filename="../elograf.py"/>
         <source>Description</source>
-        <translation type="obsolete"><![CDATA[Description</translation>
+        <translation type="obsolete">Description</translation>
     </message>
     <message>
         <location line="161" filename="../elograf.py"/>
         <source>Size</source>
-        <translation type="obsolete"><![CDATA[Taille</translation>
+        <translation type="obsolete">Taille</translation>
     </message>
     <message>
         <location line="161" filename="../elograf.py"/>
         <source>License</source>
-        <translation type="obsolete"><![CDATA[Licence</translation>
+        <translation type="obsolete">Licence</translation>
     </message>
     <message>
         <location line="183" filename="../elograf.py"/>
         <source>Not provided</source>
-        <translation type="obsolete"><![CDATA[Non précisé</translation>
+        <translation type="obsolete">Non précisé</translation>
     </message>
     <message>
         <location line="153" filename="../elograf.py"/>
         <source>Use custom model location</source>
-        <translation type="obsolete"><![CDATA[Utiliser un emplacement personnel de modèle</translation>
+        <translation type="obsolete">Utiliser un emplacement personnel de modèle</translation>
     </message>
     <message>
         <location line="154" filename="../elograf.py"/>
         <source>Select directory</source>
-        <translation type="obsolete"><![CDATA[Sélectionner un répertoire</translation>
+        <translation type="obsolete">Sélectionner un répertoire</translation>
     </message>
     <message>
         <location line="500" filename="../elograf.py"/>
         <source>Select the model path</source>
-        <translation type="obsolete"><![CDATA[Sélectionner le chemin du modèle</translation>
+        <translation type="obsolete">Sélectionner le chemin du modèle</translation>
     </message>
     <message>
         <location line="49" filename="../elograf.py"/>
         <source>Postcommand:</source>
-        <translation type="obsolete"><![CDATA[Commande postliminaire :</translation>
+        <translation type="obsolete">Commande postliminaire :</translation>
     </message>
     <message>
         <location line="567" filename="../elograf.py"/>
@@ -184,7 +184,7 @@
     <message>
         <location line="560" filename="../elograf.py"/>
         <source>We will download the list of models from {}. Do you agree?</source>
-        <translation type="obsolete"><![CDATA[La liste des modèles va être téléchargée depuis {}. Êtes-vous d&apos;accord ?</translation>
+        <translation type="obsolete">La liste des modèles va être téléchargée depuis {}. Êtes-vous d&apos;accord ?</translation>
     </message>
     <message>
         <location line="560" filename="../elograf.py"/>
