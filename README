@@ -6,7 +6,7 @@ Usage
 
 It is intended to be launched at start of the desktop environnement to display an icon in the icons tray. Use your favorite desktop settings manager to add the command 'elograf' launched at start.
 
-The icon when pressed has a menu with command to sart and stop the dictation. It has also an entry to configure the model and other options.
+The icon when pressed with right click has a menu with command to start and stop the dictation. It has also an entry to configure the model and other options.
 
 When selecting the option "Active direct click on icon", and after a restart, a click on the icon launches nerd-dictation. A new press stops it. With right click, the utility can be exited or configured.
 
@@ -18,7 +18,9 @@ You can also select a directory where a model resides. You have to give it a uni
 The configuration dialog is displayed if no model has been set previously.
 In Advanced dialogue, you can set an optionnal precommand which is launched before nerd-dictation itself. Another line is for optionnal postcommand which is launched after nerd-dictation is stopped.
 You can also select or define some options which are passed to nerd-dictation.
-You can select the input simulation tool in XDOTOOL (used by default) and DOTOOL. DOTOOL should be used for Wayland environment and you have to specify the keyboord layout code with a two letters code like 'fr' or 'de' if you don't want the 'us' layout.
+You can select the input simulation tool in XDOTOOL (used by default) and DOTOOL. DOTOOL should be used for Wayland environment and you have to specify the keyboord layout code with a two letters code like 'fr' or 'de' if you don't use the 'us' layout.
+
+The start can take a long time, according to the size of the model.
 
 Installation
 In command line, as root or as user:

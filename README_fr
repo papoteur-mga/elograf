@@ -18,7 +18,7 @@ Vous pouvez également sélectionner un répertoire où réside un modèle de la
 
 Le dialogue de configuration s'affiche si aucun modèle n'a été défini précédemment.
 
-Dans le dialogue Avancé, vous pouvez définir une précommande optionnelle qui est lancée avant nerd-dictation lui-même. Une autre ligne est pour la post-commande optionnelle qui est lancée après l'arrêt de nerd-dictation.
+Dans le dialogue Avancé, vous pouvez définir une précommande optionnelle qui est lancée avant nerd-dictation lui-même. Une autre ligne est pour la post-commande optionnelle qui est lancée après l'arrêt de nerd-dictation. Cette option a été prévue notamment pour lancer la commande "setxkbmap fr" pour fiabiliser le fonctionner de XDOTOOL qui simule le clavier.
 
 Vous pouvez également sélectionner ou définir certaines options qui sont passées à nerd-dictation.
 
