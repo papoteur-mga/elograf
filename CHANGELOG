@@ -1,5 +1,22 @@
 EloGraf
 ----------
+* 0.5.8
+    - Fix translation file in French
+* 0.5.7
+    - Add field "Keyboard layout" for usage with DOTOOL when selected. Pass it to env before launching nerd-dictation
+
+* 0.5.6
+    - Pass the command to use DOTOOL when selected
+
+* 0.5.5
+    - Add option to add environment variable
+    - Add option of the simulate input tool between XDOTOOL and DOTOOL
+    - Detect keyboard layout when using DOTOOL and add env variable for it
+    - Try to not launch stop nerd-dictation when it is already stopped
+
+* 0.5.4
+    - fix launch of nerd-dictation, really using free command
+
 * 0.5.3
     - avoid loop if no model is selected at first launched
     - fix management of settings when models are added: use list in memory and save the whole list
@@ -18,7 +35,7 @@ EloGraf
 * 0.4.2
     - Add interface for model edition
     - add logging information
-    - save system model in /opt 
+    - save system model in /opt
     - remove the Save button in configuration window
 
 * 0.4.1
@@ -35,14 +52,14 @@ EloGraf
 * 0.3.1
     - revert use nerd-dictation as a module
     - fix closing
-    
+
 * 0.3.0
     - use nerd-dictation as a module
     - detect if nerd-dictation is running and adjust icon according to test
     - default to pynput if not launched from Posix
     - Fix detecting if icon is loaded from theme
     - Fix: avoid error when closing and when postcommand doesn't exist
-    
+
 * 0.2.2
     - Fix passing option to nerd-dictation
     - Fix saving samplerate and freecommand
@@ -56,7 +73,7 @@ EloGraf
 * 0.1.7
     - Use audio-input-microphone icon also for launcher
     - Fix again model returned from settings
-    
+
 * 0.1.6
     - Fix model not returned if custom option is not defined.
 
@@ -75,6 +92,6 @@ EloGraf
     - Use icons from theme
     - Add post command
     - Add option to configure usage of a a custom model
-    
+
 * 0.1.0
     - First release
