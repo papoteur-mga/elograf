@@ -1,0 +1,8 @@
+[main]
+host = https://www.transifex.com
+
+[o:MageiaLinux:p:mageia:r:elograf]
+file_filter = elograf_<lang>.ts
+type = TS
+source_file = elograf_en.ts
+source_lang = en

@@ -4,102 +4,102 @@
 <context>
     <name>@default</name>
     <message>
-        <location filename="../languages.py" line="4"/>
+        <location filename="eloGraf/languages.py" line="4"/>
         <source>English</source>
         <translation>Anglais</translation>
     </message>
     <message>
-        <location filename="../languages.py" line="5"/>
+        <location filename="eloGraf/languages.py" line="5"/>
         <source>Indian English</source>
         <translation>Anglais indien</translation>
     </message>
     <message>
-        <location filename="../languages.py" line="6"/>
+        <location filename="eloGraf/languages.py" line="6"/>
         <source>Chinese</source>
         <translation>Chinois</translation>
     </message>
     <message>
-        <location filename="../languages.py" line="7"/>
+        <location filename="eloGraf/languages.py" line="7"/>
         <source>Russian</source>
         <translation>Russe</translation>
     </message>
     <message>
-        <location filename="../languages.py" line="8"/>
+        <location filename="eloGraf/languages.py" line="8"/>
         <source>French</source>
         <translation>Français</translation>
     </message>
     <message>
-        <location filename="../languages.py" line="9"/>
+        <location filename="eloGraf/languages.py" line="9"/>
         <source>German</source>
         <translation>Allemand</translation>
     </message>
     <message>
-        <location filename="../languages.py" line="10"/>
+        <location filename="eloGraf/languages.py" line="10"/>
         <source>Spanish</source>
         <translation>Espagnol</translation>
     </message>
     <message>
-        <location filename="../languages.py" line="11"/>
+        <location filename="eloGraf/languages.py" line="11"/>
         <source>Portuguese/Brazilian Portuguese</source>
         <translation>Portugais/brésilien</translation>
     </message>
     <message>
-        <location filename="../languages.py" line="12"/>
+        <location filename="eloGraf/languages.py" line="12"/>
         <source>Greek</source>
         <translation>Grec</translation>
     </message>
     <message>
-        <location filename="../languages.py" line="13"/>
+        <location filename="eloGraf/languages.py" line="13"/>
         <source>Turkish</source>
         <translation>Turc</translation>
     </message>
     <message>
-        <location filename="../languages.py" line="14"/>
+        <location filename="eloGraf/languages.py" line="14"/>
         <source>Vietnamese</source>
         <translation>Vietnamien</translation>
     </message>
     <message>
-        <location filename="../languages.py" line="15"/>
+        <location filename="eloGraf/languages.py" line="15"/>
         <source>Italian</source>
         <translation>Italien</translation>
     </message>
     <message>
-        <location filename="../languages.py" line="16"/>
+        <location filename="eloGraf/languages.py" line="16"/>
         <source>Dutch</source>
         <translation>Flamand</translation>
     </message>
     <message>
-        <location filename="../languages.py" line="17"/>
+        <location filename="eloGraf/languages.py" line="17"/>
         <source>Catalan</source>
         <translation>Catalan</translation>
     </message>
     <message>
-        <location filename="../languages.py" line="18"/>
+        <location filename="eloGraf/languages.py" line="18"/>
         <source>Arabic</source>
         <translation>Arabe</translation>
     </message>
     <message>
-        <location filename="../languages.py" line="19"/>
+        <location filename="eloGraf/languages.py" line="19"/>
         <source>Farsi</source>
         <translation>Perse</translation>
     </message>
     <message>
-        <location filename="../languages.py" line="20"/>
+        <location filename="eloGraf/languages.py" line="20"/>
         <source>Filipino</source>
         <translation>Philippin</translation>
     </message>
     <message>
-        <location filename="../languages.py" line="21"/>
+        <location filename="eloGraf/languages.py" line="21"/>
         <source>Ukrainian</source>
         <translation>Ukrainien</translation>
     </message>
     <message>
-        <location filename="../languages.py" line="22"/>
+        <location filename="eloGraf/languages.py" line="22"/>
         <source>Kazakh</source>
         <translation>Kazakh</translation>
     </message>
     <message>
-        <location filename="../languages.py" line="23"/>
+        <location filename="eloGraf/languages.py" line="23"/>
         <source>Speaker identification model</source>
         <translation>Modèle d&apos;identification du locuteur</translation>
     </message>
@@ -210,7 +210,7 @@ Etes-vous d&apos;accord ?</translation>
 <context>
     <name>Dialog</name>
     <message>
-        <location filename="../advanced.ui" line="20"/>
+        <location filename="eloGraf/advanced.ui" line="20"/>
         <source>Advanced parameters</source>
         <translation>Paramètres avancés</translation>
     </message>
@@ -331,12 +331,12 @@ Ceci est aussi utilisé pour un soit mettre une virgule, soit mettre en arrêt l
         <translation>Taux d&apos;échantillonnage (Hz)</translation>
     </message>
     <message>
-        <location filename="../advanced.ui" line="225"/>
+        <location filename="eloGraf/advanced.ui" line="225"/>
         <source>Command to execute after the dictation is stopped</source>
         <translation>Commande à exécuter à la fin de la dictée</translation>
     </message>
     <message>
-        <location filename="../advanced.ui" line="228"/>
+        <location filename="eloGraf/advanced.ui" line="228"/>
         <source>Postcommand</source>
         <translation>Commande post-liminaire</translation>
     </message>
@@ -346,67 +346,67 @@ Ceci est aussi utilisé pour un soit mettre une virgule, soit mettre en arrêt l
         <translation></translation>
     </message>
     <message>
-        <location filename="../custom.ui" line="34"/>
+        <location filename="eloGraf/custom.ui" line="34"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select a custom model&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Selection d&apos;un modèle personalisé&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../custom.ui" line="46"/>
+        <location filename="eloGraf/custom.ui" line="46"/>
         <source>Path</source>
         <translation>Chemin</translation>
     </message>
     <message>
-        <location filename="../custom.ui" line="53"/>
+        <location filename="eloGraf/custom.ui" line="53"/>
         <source>Select the path of your model</source>
         <translation>Sélectionnez le chemin vers le modèle</translation>
     </message>
     <message>
-        <location filename="../custom.ui" line="60"/>
+        <location filename="eloGraf/custom.ui" line="60"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Give a name to your model&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Donnez un nom au modèle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../custom.ui" line="63"/>
+        <location filename="eloGraf/custom.ui" line="63"/>
         <source>Name</source>
         <translation>Nom</translation>
     </message>
     <message>
-        <location filename="../custom.ui" line="73"/>
+        <location filename="eloGraf/custom.ui" line="73"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indicate a class to your model like small, medium or big&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indiquez une classe au modèle, telle que petit, moyen ou grand&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../custom.ui" line="76"/>
+        <location filename="eloGraf/custom.ui" line="76"/>
         <source>Class</source>
         <translation>Classe</translation>
     </message>
     <message>
-        <location filename="../custom.ui" line="86"/>
+        <location filename="eloGraf/custom.ui" line="86"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Give a version number to your model&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Donnez un numéro de version au modèle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../custom.ui" line="89"/>
+        <location filename="eloGraf/custom.ui" line="89"/>
         <source>Version</source>
         <translation>Version</translation>
     </message>
     <message>
-        <location filename="../custom.ui" line="99"/>
+        <location filename="eloGraf/custom.ui" line="99"/>
         <source>Size</source>
         <translation>Taille</translation>
     </message>
     <message>
-        <location filename="../custom.ui" line="14"/>
+        <location filename="eloGraf/custom.ui" line="14"/>
         <source>Select a custom model</source>
         <translation>Sélection d&apos;un modèle personnalisé</translation>
     </message>
     <message>
-        <location filename="../custom.ui" line="122"/>
+        <location filename="eloGraf/custom.ui" line="122"/>
         <source>Language</source>
         <translation>Langue</translation>
     </message>
     <message>
-        <location filename="../confirm.ui" line="20"/>
+        <location filename="eloGraf/confirm.ui" line="20"/>
         <source>Dialog</source>
         <translation></translation>
     </message>
@@ -473,27 +473,27 @@ Etes-vous d&apos;accord ?</translation>
 <context>
     <name>Models</name>
     <message>
-        <location filename="../elograf.py" line="92"/>
+        <location filename="eloGraf/elograf.py" line="92"/>
         <source>Language</source>
         <translation>Langue</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="94"/>
+        <location filename="eloGraf/elograf.py" line="94"/>
         <source>Version</source>
         <translation>Version</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="95"/>
+        <location filename="eloGraf/elograf.py" line="95"/>
         <source>Size</source>
         <translation>Taille</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="96"/>
+        <location filename="eloGraf/elograf.py" line="96"/>
         <source>Class</source>
         <translation>Classe</translation>
     </message>
     <message>
-        <location filename="../elograf.py" line="93"/>
+        <location filename="eloGraf/elograf.py" line="93"/>
         <source>Name</source>
         <translation>Nom</translation>
     </message>
