@@ -4,7 +4,7 @@ import os, glob
 
 
 class BuildQm(build):
-    os.system("pylupdate6 elograf.pro")
+    # os.system("pylupdate6 elograf.pro")
     for ts in glob.glob("eloGraf/translations/*.ts"):
         os.system("lrelease {0} -qm {1}".format(ts, (ts[:-2] + "qm")))
 
@@ -22,9 +22,9 @@ data_files = [
 ]
 
 setup(
-    package_data={"": ["translations/*.qm"]},
     data_files=data_files,
     cmdclass={
         "build_qm": BuildQm,
     },
+    package_data={"": ["translations/*.qm"]},
 )
