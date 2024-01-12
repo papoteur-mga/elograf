@@ -24,5 +24,6 @@ FORMS    +=  \
     eloGraf/custom.ui
 
 TRANSLATIONS     += eloGraf/translations/elograf_fr.ts
+TRANSLATIONS     += eloGraf/translations/elograf_uk.ts
 
 OTHER_FILES += 
