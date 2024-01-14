@@ -23,6 +23,9 @@ Dans le dialogue Avancé, vous pouvez définir une précommande optionnelle qui 
 Vous pouvez également sélectionner ou définir certaines options qui sont passées à nerd-dictation.
 
 Vous pouvez notamment définir l'outil utilisé pour simuler le clavier. XDOTOOL est utilisé par défaut, mais pour l'environnement Wayland, il faut sélectionner DOTOOL. Pour ce dernier, il faut préciser le code à deux lettres de l'agencement du clavier, par exemple 'fr', sinon la disposition 'us' est utilisée.
+Options
+    -l, --log <niveau>  : écrit des informations en fonction du niveau. Le niveau est choisi parmi ceux qui sont prévu dans le langage Python
+    -s, --start         : lance la dictée directement. Ceci n'est possible que si un modèle a été configuré. 
 
 Installation
 Dans la ligne de commande en tant que root ou en utilisateur selon la destination souhaitée de l'installation :

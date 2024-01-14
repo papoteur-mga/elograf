@@ -22,6 +22,11 @@ You can select the input simulation tool in XDOTOOL (used by default) and DOTOOL
 
 The start can take a long time, according to the size of the model.
 
+Options
+    -l, --log <level>   : output information according to the level, where <level> is a standard level in Python
+    -s, --start         : launch the dictation directly. This is possible only if the model has already been configured. This can for example be associated with a shortcut.
+
+
 Installation
 In command line, as root for system wide installation, or as user for a local installation
 pip install .
