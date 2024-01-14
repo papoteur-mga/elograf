@@ -818,7 +818,7 @@ class ConfigPopup(QDialog):
 
 
 class SystemTrayIcon(QSystemTrayIcon):
-    def __init__(self, icon: QIcon, parent=None) -> None:
+    def __init__(self, icon: QIcon,  start: bool, parent=None) -> None:
         QSystemTrayIcon.__init__(self, icon, parent)
         self.settings = Settings()
         menu = QMenu(parent)
@@ -844,6 +844,8 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.setIcon(self.nomicro)
         self.dictating = False
         self.activated.connect(lambda r: self.commute(r))
+        if start:
+            self.dictate()
 
     def currentModel(self) -> Tuple[str, str]:
         # Return the model name selected in settings and its location path
@@ -995,6 +997,7 @@ def main() -> None:
         description="Place an icon in systray to launch offline speech recognition."
     )
     parser.add_argument("-l", "--log", help="specify the log level ", dest="loglevel")
+    parser.add_argument("-s", "--start", help="launch the dictation directly", action='store_true')
     args = parser.parse_args()
     if args.loglevel is not None:
         numeric_level = getattr(logging, args.loglevel.upper(), None)
@@ -1019,7 +1022,7 @@ def main() -> None:
         app.installTranslator(appTranslator)
 
     w = QWidget()
-    trayIcon = SystemTrayIcon(QIcon(":/icons/elograf/24/nomicro.png"), w)
+    trayIcon = SystemTrayIcon(QIcon(":/icons/elograf/24/nomicro.png"), args.start, w)
 
     trayIcon.show()
     exit(app.exec())
