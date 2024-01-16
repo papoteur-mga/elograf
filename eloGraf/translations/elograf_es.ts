@@ -9,7 +9,7 @@
     <message>
         <location filename="languages.py" line="5"/>
         <source>Indian English</source>
-        <translation>Inglés indio</translation>
+        <translation>Inglés Hindú</translation>
     </message>
     <message>
         <location filename="languages.py" line="6"/>
@@ -156,7 +156,7 @@ Do you agree?</source>
         <location filename="advanced.ui" line="28"/>
         <source>Capitalize the first character.
 This is also used to add either a comma or a full stop when dictation is performed according to previous delay</source>
-        <translation>Capitalizar el primer carácter.
+        <translation>Mayuscular el primer carácter.
 Se usa para añadir una coma, o parar completamente el dictado según retardos previos</translation>
     </message>
     <message>
@@ -231,7 +231,7 @@ puede ser útil para añadir puntuaciones antes de entrar al dictado (cero desha
     <message>
         <location filename="advanced.ui" line="145"/>
         <source>Free option</source>
-        <translation type="unfinished"/>
+        <translation>Opciones adicionales</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="179"/>
@@ -250,7 +250,7 @@ Puede usarse para evitar tener que cerrar la aplicación
     <message>
         <location filename="advanced.ui" line="225"/>
         <source>Command to execute after the dictation is stopped</source>
-        <translation>Orden a ejecutar al dejar de dictar</translation>
+        <translation>Orden que ejecutar al dejar de dictar</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="228"/>
@@ -334,7 +334,7 @@ que es bastante sensible en la práctica</translation>
     <message>
         <location filename="custom.ui" line="86"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Give a version number to your model&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Número de Versión para su modelo&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Otorgue un número de versión a su modelo&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="custom.ui" line="89"/>
@@ -367,7 +367,7 @@ que es bastante sensible en la práctica</translation>
     <message>
         <location filename="elograf.py" line="433"/>
         <source>The application failed to save the model. Do you want to retry?</source>
-        <translation>Fallo al guardar el modelo ¿Reintentar?</translation>
+        <translation>La aplicación no pudo guardar el modelo. ¿Quiere volver a intentarlo?</translation>
     </message>
     <message>
         <location filename="elograf.py" line="445"/>
