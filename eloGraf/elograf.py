@@ -844,8 +844,10 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.setIcon(self.nomicro)
         self.dictating = False
         self.activated.connect(lambda r: self.commute(r))
+        self.start_cli = start
         if start:
             self.dictate()
+            self.dictating = True
 
     def currentModel(self) -> Tuple[str, str]:
         # Return the model name selected in settings and its location path
@@ -935,18 +937,22 @@ class SystemTrayIcon(QSystemTrayIcon):
     def watch(self):
         poll = self.dictate_process.poll()
         if poll != None and self.dictating:
-            self.stop_dictate()
             self.dictating = False
+            self.stop_dictate()
             self.processWatch.stop()
+            # the process was launched with the command line option
+            if self.start_cli:
+                QCoreApplication.exit()
 
     def stop_dictate(self) -> None:
-        logging.debug("Stopping nerd-dictation")
-        Popen(
-            [
-                "nerd-dictation",
-                "end",
-            ]
-        )
+        if self.dictating:
+            logging.debug("Stopping nerd-dictation")
+            Popen(
+                [
+                    "nerd-dictation",
+                    "end",
+                ]
+            )
         self.setIcon(self.nomicro)
         if hasattr(self.settings, "postcommand"):
             if self.settings.postcommand:
