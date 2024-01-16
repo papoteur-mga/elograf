@@ -28,6 +28,7 @@ TRANSLATIONS     += eloGraf/translations/elograf_de.ts
 TRANSLATIONS     += eloGraf/translations/elograf_es.ts
 TRANSLATIONS     += eloGraf/translations/elograf_fi.ts
 TRANSLATIONS     += eloGraf/translations/elograf_fr.ts
+TRANSLATIONS     += eloGraf/translations/elograf_it.ts
 TRANSLATIONS     += eloGraf/translations/elograf_nb.ts
 TRANSLATIONS     += eloGraf/translations/elograf_uk.ts
 
