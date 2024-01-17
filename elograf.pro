@@ -23,6 +23,7 @@ FORMS    +=  \
     eloGraf/advanced.ui \
     eloGraf/custom.ui
 
+TRANSLATIONS     += eloGraf/translations/elograf_ca.ts
 TRANSLATIONS     += eloGraf/translations/elograf_cs.ts
 TRANSLATIONS     += eloGraf/translations/elograf_de.ts
 TRANSLATIONS     += eloGraf/translations/elograf_es.ts
