@@ -107,17 +107,17 @@
     <message>
         <location filename="elograf.py" line="540"/>
         <source>Active direct click on icon</source>
-        <translation type="unfinished"/>
+        <translation>Clique direto ativo no ícone</translation>
     </message>
     <message>
         <location filename="elograf.py" line="543"/>
         <source>Import remote model</source>
-        <translation type="unfinished"/>
+        <translation>Importar modelo remoto</translation>
     </message>
     <message>
         <location filename="elograf.py" line="545"/>
         <source>Import local model</source>
-        <translation type="unfinished"/>
+        <translation>Importar modelo local</translation>
     </message>
     <message>
         <location filename="elograf.py" line="547"/>
@@ -128,7 +128,8 @@
         <location filename="elograf.py" line="682"/>
         <source>We will download the list of models from {}.
 Do you agree?</source>
-        <translation type="unfinished"/>
+        <translation>Baixaremos da lista de modelos de {}.
+Você concorda?</translation>
     </message>
     <message>
         <location filename="elograf.py" line="758"/>
@@ -141,7 +142,7 @@ Do you agree?</source>
     <message>
         <location filename="elograf.py" line="294"/>
         <source>Select the model path</source>
-        <translation type="unfinished"/>
+        <translation>Selecione o caminho padrão</translation>
     </message>
 </context>
 <context>
@@ -155,7 +156,8 @@ Do you agree?</source>
         <location filename="advanced.ui" line="28"/>
         <source>Capitalize the first character.
 This is also used to add either a comma or a full stop when dictation is performed according to previous delay</source>
-        <translation type="unfinished"/>
+        <translation>Coloque o primeiro caractere em maiúscula.
+Isto também é usado para adicionar uma vírgula ou um ponto final quando o ditado é executado de acordo com o atraso anterior</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="32"/>
@@ -165,22 +167,22 @@ This is also used to add either a comma or a full stop when dictation is perform
     <message>
         <location filename="advanced.ui" line="46"/>
         <source>Use a comma separators for numbers</source>
-        <translation type="unfinished"/>
+        <translation>Use separadores de vírgula para números</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="49"/>
         <source>Use separator for numbers</source>
-        <translation type="unfinished"/>
+        <translation>Use separadores para números</translation>
     </message>
     <message>
         <location filename="confirm.ui" line="41"/>
         <source>TextLabel</source>
-        <translation type="unfinished"/>
+        <translation>TextLabel</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="87"/>
         <source>Convert numbers into digits instead of using whole words</source>
-        <translation type="unfinished"/>
+        <translation>Converta números em dígitos em vez usar palavras inteiras</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="90"/>
@@ -191,65 +193,68 @@ This is also used to add either a comma or a full stop when dictation is perform
         <location filename="advanced.ui" line="97"/>
         <source>The name of the pulse-audio device to use for recording. 
 See the output of &quot;pactl list sources&quot; to find device names (using the identifier following &quot;Name:&quot;)</source>
-        <translation type="unfinished"/>
+        <translation>O nome do dispositivo pulse-audio a ser usado para gravação.
+Veja a saída de &quot;pactl list sources&quot; para encontrar nomes de dispositivos (usando o identificador após &quot;Name:&quot;)</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="101"/>
         <source>Pulse device name</source>
-        <translation type="unfinished"/>
+        <translation>Nome do dispositivo Pulse</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="121"/>
         <source>The time-out in seconds for detecting the state of dictation from the previous recording,
 this can be useful so punctuation it is added before entering the dictation (zero disables)</source>
-        <translation type="unfinished"/>
+        <translation>O tempo limite em segundos para detectar o estado do ditado da gravação anterior.
+Isso pode ser útil para que a pontuação seja adicionada antes de inserir o ditado (zero desabilta)</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="125"/>
         <source>Punctuate from previous timeout (s)</source>
-        <translation type="unfinished"/>
+        <translation>Pontuar dos tempos limites anteriores</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="132"/>
         <source>Command to execute before launching the dictation</source>
-        <translation type="unfinished"/>
+        <translation>Comando a ser executado antes de iniciar o ditado</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="135"/>
         <source>Precommand</source>
-        <translation type="unfinished"/>
+        <translation>Pré-comando</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="142"/>
         <source>Add option to add on the comamnd line of the dictation tool</source>
-        <translation type="unfinished"/>
+        <translation>Adicionar opção para adicionar na linha de comando da ferramenta de ditado</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="145"/>
         <source>Free option</source>
-        <translation type="unfinished"/>
+        <translation>Opção livre</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="179"/>
         <source>Time out recording when no speech is processed for the time in seconds.
 This can be used to avoid having to explicitly exit
 (zero disables)</source>
-        <translation type="unfinished"/>
+        <translation>Tempo limite de gravação quando nenhuma fala é processada durante o tempo em segundos.
+Isto pode ser usado para evitar ter que sair explicitamente (zero desabilita)</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="184"/>
         <source>Timeout (s)</source>
-        <translation type="unfinished"/>
+        <translation>Tempo limite(s)</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="225"/>
         <source>Command to execute after the dictation is stopped</source>
-        <translation type="unfinished"/>
+        <translation>Comando a ser executado após a interrupção do ditado</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="228"/>
         <source>Postcommand</source>
-        <translation type="unfinished"/>
+        <translation>Pós-comando</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="242"/>
@@ -257,22 +262,24 @@ This can be used to avoid having to explicitly exit
 Setting to zero is the most responsive at the cost of high CPU usage.
 The default value is 0.1 (processing 10 times a second),
 which is quite responsive in practice</source>
-        <translation type="unfinished"/>
+        <translation>Tempo de inatividade entre o processamento do áudio da gravação.
+Definir como zero é o mais responsivo ao custo do alto uso da CPU.
+O valor padrão é 0.1 (processando 10 vezes por segundo), que é bastante responsivo na prática</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="248"/>
         <source>Idle time (ms)</source>
-        <translation type="unfinished"/>
+        <translation>Tempo ocioso (ms)</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="255"/>
         <source>The sample rate to use for recording (in Hz). Defaults to 44100</source>
-        <translation type="unfinished"/>
+        <translation>A taxa de amostragem a ser usada para gravação (em Hz). O padrão é 44100</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="258"/>
         <source>Sample rate (Hz)</source>
-        <translation type="unfinished"/>
+        <translation>Taxa de amostragem (Hz)</translation>
     </message>
     <message>
         <location filename="confirm.ui" line="20"/>
@@ -282,62 +289,62 @@ which is quite responsive in practice</source>
     <message>
         <location filename="custom.ui" line="14"/>
         <source>Select a custom model</source>
-        <translation type="unfinished"/>
+        <translation>Selecione um modelo personalizado</translation>
     </message>
     <message>
         <location filename="custom.ui" line="34"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select a custom model&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"/>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Selecione um modelo personalizado&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="custom.ui" line="46"/>
         <source>Path</source>
-        <translation type="unfinished"/>
+        <translation>Caminho</translation>
     </message>
     <message>
         <location filename="custom.ui" line="53"/>
         <source>Select the path of your model</source>
-        <translation type="unfinished"/>
+        <translation>Selecione o caminho de seu modelo</translation>
     </message>
     <message>
         <location filename="custom.ui" line="60"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Give a name to your model&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"/>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dê um nome ao seu modelo&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="custom.ui" line="63"/>
         <source>Name</source>
-        <translation type="unfinished"/>
+        <translation>Nome</translation>
     </message>
     <message>
         <location filename="custom.ui" line="73"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indicate a class to your model like small, medium or big&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"/>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indique uma classe para o seu modelo como pequena, média ou grande&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="custom.ui" line="76"/>
         <source>Class</source>
-        <translation type="unfinished"/>
+        <translation>Classe</translation>
     </message>
     <message>
         <location filename="custom.ui" line="86"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Give a version number to your model&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"/>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dê um número de versão ao seu modelo&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="custom.ui" line="89"/>
         <source>Version</source>
-        <translation type="unfinished"/>
+        <translation>Versão</translation>
     </message>
     <message>
         <location filename="custom.ui" line="99"/>
         <source>Size</source>
-        <translation type="unfinished"/>
+        <translation>Tamanho</translation>
     </message>
     <message>
         <location filename="custom.ui" line="122"/>
         <source>Language</source>
-        <translation type="unfinished"/>
+        <translation>Idioma</translation>
     </message>
 </context>
 <context>
@@ -345,27 +352,27 @@ which is quite responsive in practice</source>
     <message>
         <location filename="elograf.py" line="391"/>
         <source>Import system wide</source>
-        <translation type="unfinished"/>
+        <translation>Importar todo o sistema</translation>
     </message>
     <message>
         <location filename="elograf.py" line="393"/>
         <source>Import in user space</source>
-        <translation type="unfinished"/>
+        <translation>Importar no espaço do usuário</translation>
     </message>
     <message>
         <location filename="elograf.py" line="433"/>
         <source>The application failed to save the model. Do you want to retry?</source>
-        <translation type="unfinished"/>
+        <translation>O aplicativo não conseguiu salvar o modelo. Quer tentar novamente?</translation>
     </message>
     <message>
         <location filename="elograf.py" line="445"/>
         <source>The model can&apos;t be saved. Check for space available or credentials for {}</source>
-        <translation type="unfinished"/>
+        <translation>O modelo não pode ser salvo. Verifique o espaço disponível ou as credenciais para {}</translation>
     </message>
     <message>
         <location filename="elograf.py" line="471"/>
         <source>We will download the model {} of {} from {}. Do you agree?</source>
-        <translation type="unfinished"/>
+        <translation>Baixaremos o modelo {} de {} em {}. Você concorda?</translation>
     </message>
 </context>
 <context>
@@ -373,27 +380,27 @@ which is quite responsive in practice</source>
     <message>
         <location filename="elograf.py" line="92"/>
         <source>Language</source>
-        <translation type="unfinished"/>
+        <translation>Idioma</translation>
     </message>
     <message>
         <location filename="elograf.py" line="93"/>
         <source>Name</source>
-        <translation type="unfinished"/>
+        <translation>Nome</translation>
     </message>
     <message>
         <location filename="elograf.py" line="94"/>
         <source>Version</source>
-        <translation type="unfinished"/>
+        <translation>Versão</translation>
     </message>
     <message>
         <location filename="elograf.py" line="95"/>
         <source>Size</source>
-        <translation type="unfinished"/>
+        <translation>Tamanho</translation>
     </message>
     <message>
         <location filename="elograf.py" line="96"/>
         <source>Class</source>
-        <translation type="unfinished"/>
+        <translation>Classe</translation>
     </message>
 </context>
 <context>
@@ -401,22 +408,22 @@ which is quite responsive in practice</source>
     <message>
         <location filename="elograf.py" line="802"/>
         <source>Start dictation</source>
-        <translation type="unfinished"/>
+        <translation>Iniciar ditado</translation>
     </message>
     <message>
         <location filename="elograf.py" line="803"/>
         <source>Stop dictation</source>
-        <translation type="unfinished"/>
+        <translation>Parar ditado</translation>
     </message>
     <message>
         <location filename="elograf.py" line="806"/>
         <source>Configuration</source>
-        <translation type="unfinished"/>
+        <translation>Configuração</translation>
     </message>
     <message>
         <location filename="elograf.py" line="807"/>
         <source>Exit</source>
-        <translation type="unfinished"/>
+        <translation>Saída</translation>
     </message>
 </context>
 </TS>
