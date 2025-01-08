@@ -38,6 +38,7 @@ nerd-dictation n'est pas inclus et doit être installé séparément.
 
 Modules Python pré-requis:
 - ujson
+- urllib
 - Qt6 (le nom dépend de votre distribution)
 
 Aspects techniques
@@ -48,6 +49,6 @@ Le fichier de configuration est ~/.config/Elograf/Elograf.conf
 
 Dans l'espace utilisateur, les modèles sont stockés dans ~/.config/vosk-models.
 
-Dans l'espace système, les modèles sont stockés dans /usr/share/vosk-models.
+Dans l'espace système, les modèles sont stockés dans /opt/vosk-models.
 
 Les fichiers de traduction sont enregistrés dans /usr/share/elograf/translations.

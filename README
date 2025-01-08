@@ -34,6 +34,7 @@ In case of local installation, be sure that ~/.local/bin is in the PATH variable
 nerd-dictation is not included and needs to be installed separately.
 Python modules requirements:
 - ujson
+- urllib
 - Qt6
 
 Under the hood
@@ -41,5 +42,5 @@ Under the hood
 This tool is written in Python 3 and use Qt6.
 Configuration file is ~/.config/Elograf/Elograf.conf
 In user space, models are stored in ~/.config/vosk-models
-In system space, models are stored in /usr/share/vosk-models
+In system space, models are stored in /opt/vosk-models
 Translations files are expected in /usr/share/elograf/translations
