@@ -62,7 +62,7 @@ from typing import (
 )
 
 MODEL_USER_PATH = os.path.expanduser("~/.config/vosk-models")
-MODEL_GLOBAL_PATH = "/opt/vosk-models"
+MODEL_GLOBAL_PATH = "/usr/share/vosk-models"
 MODEL_LIST = "model-list.json"
 MODELS_URL = "https://alphacephei.com/vosk/models"
 
