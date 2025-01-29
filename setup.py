@@ -1,7 +1,16 @@
 from setuptools import setup
 from distutils.command.build import build
 import os, glob
+import configparser
 
+config = configparser.ConfigParser()
+config.read('setup.cfg')
+
+# Récupérez la version
+version = config.get('metadata', 'version')
+# create version.py
+with open('eloGraf/version.py', 'w') as f:
+    f.write('__version__ = "{}"\n'.format(version))
 
 class BuildQm(build):
     # os.system("pylupdate6 elograf.pro")

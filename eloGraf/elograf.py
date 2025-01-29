@@ -51,6 +51,8 @@ import eloGraf.elograf_rc  # type: ignore
 import eloGraf.advanced as advanced  # type: ignore
 import eloGraf.confirm as confirm  # type: ignore
 import eloGraf.custom as custom  # type: ignore
+import eloGraf.version as version  # type: ignore
+
 
 # Types.
 from typing import (
@@ -542,7 +544,7 @@ class ConfigPopup(QDialog):
         self.currentModel = currentModel
         import importlib.metadata
 
-        self.setWindowTitle("Elograf " + importlib.metadata.version("eloGraf"))
+        self.setWindowTitle("Elograf - " + version.__version__)
         self.setWindowIcon(QIcon(":/icons/elograf/24/micro.png"))
         layout = QVBoxLayout(self)
         if not os.path.exists(MODEL_USER_PATH):
