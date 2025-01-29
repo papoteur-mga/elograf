@@ -1,7 +1,14 @@
 EloGraf
 ----------
+* 0.6.0
+    - Add tranlsations for ca, cz, de, es, fi, it, no, pt, pt_BR, ru, se, uk
+    - use pyQt6
+    - Add start option (-s)
+    - Close elograf with nerd-dictation when launched with start option
+
 * 0.5.8
     - Fix translation file in French
+
 * 0.5.7
     - Add field "Keyboard layout" for usage with DOTOOL when selected. Pass it to env before launching nerd-dictation
 
