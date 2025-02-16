@@ -128,7 +128,8 @@
         <location filename="elograf.py" line="682"/>
         <source>We will download the list of models from {}.
 Do you agree?</source>
-        <translation type="unfinished"/>
+        <translation>Vi kommer att hämta en lista över modeller från {}.
+Går du med på det?</translation>
     </message>
     <message>
         <location filename="elograf.py" line="758"/>
@@ -141,7 +142,7 @@ Do you agree?</source>
     <message>
         <location filename="elograf.py" line="294"/>
         <source>Select the model path</source>
-        <translation type="unfinished"/>
+        <translation>Välj modellens genväg</translation>
     </message>
 </context>
 <context>
@@ -175,7 +176,7 @@ This is also used to add either a comma or a full stop when dictation is perform
     <message>
         <location filename="confirm.ui" line="41"/>
         <source>TextLabel</source>
-        <translation type="unfinished"/>
+        <translation>Textetikett</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="87"/>
@@ -217,7 +218,7 @@ this can be useful so punctuation it is added before entering the dictation (zer
     <message>
         <location filename="advanced.ui" line="135"/>
         <source>Precommand</source>
-        <translation type="unfinished"/>
+        <translation>Förberedande kommando</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="142"/>
@@ -227,7 +228,7 @@ this can be useful so punctuation it is added before entering the dictation (zer
     <message>
         <location filename="advanced.ui" line="145"/>
         <source>Free option</source>
-        <translation type="unfinished"/>
+        <translation>Fritt alternativ</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="179"/>
@@ -249,7 +250,7 @@ This can be used to avoid having to explicitly exit
     <message>
         <location filename="advanced.ui" line="228"/>
         <source>Postcommand</source>
-        <translation type="unfinished"/>
+        <translation>Efterföljande kommando</translation>
     </message>
     <message>
         <location filename="advanced.ui" line="242"/>
@@ -365,7 +366,7 @@ which is quite responsive in practice</source>
     <message>
         <location filename="elograf.py" line="471"/>
         <source>We will download the model {} of {} from {}. Do you agree?</source>
-        <translation type="unfinished"/>
+        <translation>Vi kommer att hämta modellen {} av {} från {}. Går du med på det?</translation>
     </message>
 </context>
 <context>
