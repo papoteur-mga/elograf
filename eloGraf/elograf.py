@@ -1015,6 +1015,7 @@ def main() -> None:
         raise ValueError("Invalid log level: %s" % args.loglevel)
     logging.basicConfig(level=numeric_level)
     app = QApplication(sys.argv)
+    app.setDesktopFileName("Elograf")
     # don't close application when closing setting window)
     app.setQuitOnLastWindowClosed(False)
     LOCAL_DIR = os.path.dirname(os.path.realpath(__file__))
