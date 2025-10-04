@@ -1150,21 +1150,33 @@ def setup_signal_handlers(tray_icon):
     Setup signal handlers for graceful shutdown.
 
     Handles SIGTERM, SIGINT (Ctrl+C), and SIGHUP.
+    Uses a flag-based approach with QTimer to check for signals.
     """
+    # Flag to track if we should exit
+    tray_icon._should_exit = False
+
     def signal_handler(signum, frame):
+        """Set exit flag when signal is received"""
         sig_name = signal.Signals(signum).name
-        logging.info(f"Received signal {sig_name}, initiating graceful shutdown...")
-        # Cleanup PID file
-        remove_pid_file()
-        # Use Qt's event loop to handle the exit
-        QCoreApplication.instance().quit()
-        tray_icon.exit()
+        logging.info(f"Received signal {sig_name}, will exit on next timer check...")
+        tray_icon._should_exit = True
 
     # Register signal handlers
     signal.signal(signal.SIGTERM, signal_handler)  # kill command
     signal.signal(signal.SIGINT, signal_handler)   # Ctrl+C
     if hasattr(signal, 'SIGHUP'):
         signal.signal(signal.SIGHUP, signal_handler)  # Terminal hangup
+
+    # Timer to periodically check if we should exit
+    def check_exit_flag():
+        if tray_icon._should_exit:
+            logging.info("Exiting due to signal...")
+            tray_icon.exit()
+
+    timer = QTimer()
+    timer.timeout.connect(check_exit_flag)
+    timer.start(200)  # Check every 200ms
+    tray_icon._exit_timer = timer  # Keep reference to prevent garbage collection
 
 
 def main() -> None:
