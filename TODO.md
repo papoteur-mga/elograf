@@ -11,29 +11,26 @@ This document tracks potential improvements and features to implement in Elograf
 - [ ] Show dictation state (active/suspended/stopped) in tray icon
 - [ ] Add visual indicator for number conversion mode
 - [ ] Improve error messages when dependencies are missing
-- [ ] Add GUI to test and preview text processing rules
 
 ### Functionality
 - [ ] Support for multiple language models simultaneously
 - [ ] Add suspend/resume functionality for dictation (using nerd-dictation's --suspend/--resume)
 - [ ] Implement dictation history/log
 - [ ] Add voice commands for punctuation and formatting
-- [ ] Add number-to-digits conversion option (nerd-dictation --numbers-as-digits)
-- [ ] Configure timeout and idle time settings
+- [x] Add number-to-digits conversion option (nerd-dictation --numbers-as-digits)
+- [x] Configure timeout and idle time settings
 - [ ] Add option to capitalize first character automatically
-- [ ] Support for text processing configuration via Python script
 - [ ] Add output mode selection (keyboard simulation vs stdout)
 
 ### Configuration
-- [ ] GUI for configuring global keyboard shortcuts
+- [x] GUI for configuring global keyboard shortcuts (KDE only, via D-Bus)
 - [ ] GUI for configuring nerd-dictation text processing options
-- [ ] Support for custom user configuration scripts (nerd-dictation --config)
-- [ ] Configure number conversion settings (min-value, separators)
+- [x] Configure number conversion settings (digits enabled, separator usage)
 - [ ] Configure punctuation and capitalization rules
 - [ ] Import/export configuration profiles
 - [ ] Auto-detect optimal model based on system resources
 - [ ] Audio backend selection (parec, sox, pw-cat)
-- [ ] Input simulation tool configuration (already supports xdotool/dotool)
+- [x] Input simulation tool configuration (xdotool/dotool with keyboard layout)
 
 ### Platform Support
 - [ ] Test and improve Windows support
@@ -58,8 +55,6 @@ This document tracks potential improvements and features to implement in Elograf
 - [ ] Improve error handling and logging
 - [ ] Code coverage analysis
 
-## Bug Fixes
-- [ ] (None currently tracked)
 
 ---
 
