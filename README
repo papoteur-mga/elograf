@@ -43,6 +43,19 @@ Examples:
 
 Note: Only one instance of Elograf can run at a time. Commands are sent to the running instance via IPC (D-Bus on Linux/KDE, or local sockets on other platforms). The application automatically detaches from the console on startup.
 
+Daemon Management:
+
+Elograf runs as a background daemon and can be managed using standard Unix signals:
+    kill $(cat ~/.config/Elograf/elograf.pid)     : Send SIGTERM for graceful shutdown
+    kill -HUP $(cat ~/.config/Elograf/elograf.pid) : Send SIGHUP to reload
+
+The daemon handles the following signals gracefully:
+- SIGTERM: Stop dictation, cleanup resources, and exit
+- SIGINT (Ctrl+C): Same as SIGTERM
+- SIGHUP: Graceful shutdown
+
+PID file location: ~/.config/Elograf/elograf.pid
+
 
 Installation
 
@@ -76,13 +89,22 @@ Python modules requirements:
 Under the hood
 
 This tool is written in Python 3 and use Qt6.
-Configuration file is ~/.config/Elograf/Elograf.conf
-In user space, models are stored in ~/.config/vosk-models
-In system space, models are stored in /usr/share/vosk-models
-Translations files are expected in /usr/share/elograf/translations
+
+File locations:
+- Configuration file: ~/.config/Elograf/Elograf.conf
+- PID file (daemon): ~/.config/Elograf/elograf.pid
+- User models: ~/.config/vosk-models
+- System models: /usr/share/vosk-models
+- Translations: /usr/share/elograf/translations
 
 Inter-Process Communication:
 Elograf uses an adaptive IPC (Inter-Process Communication) system:
-- On Linux with PyQt6-DBus: Uses D-Bus for communication and KGlobalAccel for global shortcuts
-- On other platforms or without DBus: Uses Qt Local Sockets (QLocalServer/QLocalSocket)
-Both implementations support single-instance detection and CLI commands (--begin, --end)
+- On Linux with D-Bus available: Uses D-Bus for communication and KGlobalAccel for global shortcuts
+- On other platforms or without D-Bus: Uses Qt Local Sockets (QLocalServer/QLocalSocket)
+Both implementations support single-instance detection and CLI commands (--begin, --end, --exit)
+
+Daemon Behavior:
+- Automatically forks to background on Unix systems (detaches from console)
+- Writes PID to ~/.config/Elograf/elograf.pid
+- Handles signals (SIGTERM, SIGINT, SIGHUP) for graceful shutdown
+- Cleans up resources (dictation, IPC, PID file) on exit
