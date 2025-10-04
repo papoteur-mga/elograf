@@ -1172,12 +1172,18 @@ def main() -> None:
         description="Place an icon in systray to launch offline speech recognition."
     )
     parser.add_argument("-l", "--log", help="specify the log level", dest="loglevel")
+    parser.add_argument("--version", help="show version and exit", action='store_true')
     parser.add_argument("--begin", help="begin dictation (or launch if not running)", action='store_true')
     parser.add_argument("--end", help="end dictation in running instance", action='store_true')
     parser.add_argument("--exit", help="exit the running instance", action='store_true')
     parser.add_argument("--list-models", help="list available models", action='store_true')
     parser.add_argument("--set-model", help="set the active model by name", metavar="MODEL_NAME")
     args = parser.parse_args()
+
+    # Handle --version first (no logging needed)
+    if args.version:
+        print(f"Elograf {version.__version__}")
+        sys.exit(0)
 
     if args.loglevel is not None:
         numeric_level = getattr(logging, args.loglevel.upper(), None)
@@ -1297,32 +1303,17 @@ def main() -> None:
     if appTranslator.load("elograf_" + locale, os.path.join(LOCAL_DIR, "translations")):
         app.installTranslator(appTranslator)
 
-    # Print startup message and detach from console
+    # Note: We don't fork() here because Qt applications with D-Bus/system tray
+    # don't work well with fork(). The application will run in the background
+    # via the system tray icon.
     ipc_backend = "D-Bus" if ipc.supports_global_shortcuts() else "Local Sockets"
-    print(f"Elograf started (using {ipc_backend})")
-    print("\nControl commands:")
-    print("  elograf --begin        : Start dictation")
-    print("  elograf --end          : Stop dictation")
-    print("  elograf --exit         : Exit application")
-    print("  elograf --list-models  : List available models")
-    print("  elograf --set-model M  : Set active model to M")
-
-    # Detach from console on Unix systems
-    if os.name == 'posix':
-        # Fork to background
-        try:
-            pid = os.fork()
-            if pid > 0:
-                # Parent process exits
-                sys.exit(0)
-        except OSError as e:
-            logging.error(f"Fork failed: {e}")
-            sys.exit(1)
-
-        # Decouple from parent environment
-        os.chdir('/')
-        os.setsid()
-        os.umask(0)
+    logging.info(f"Elograf started (using {ipc_backend})")
+    logging.info("Available commands:")
+    logging.info("  elograf --begin        : Start dictation")
+    logging.info("  elograf --end          : Stop dictation")
+    logging.info("  elograf --exit         : Exit application")
+    logging.info("  elograf --list-models  : List available models")
+    logging.info("  elograf --set-model M  : Set active model to M")
 
     w = QWidget()
     trayIcon = SystemTrayIcon(

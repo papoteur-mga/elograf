@@ -38,14 +38,15 @@ Options:
     --set-model MODEL_NAME  : set the active model by name
 
 Examples:
-    elograf                        : Launch the application (system tray icon, detaches from console)
+    elograf                        : Launch the application (system tray icon)
     elograf --begin                : Start dictation in the running instance
     elograf --end                  : Stop dictation in the running instance
     elograf --exit                 : Exit the running application
     elograf --list-models          : Show all configured models and their details
     elograf --set-model vosk-en-us : Change active model to 'vosk-en-us'
+    elograf --version              : Show version and exit
 
-Note: Only one instance of Elograf can run at a time. Commands are sent to the running instance via IPC (D-Bus on Linux/KDE, or local sockets on other platforms). The application automatically detaches from the console on startup.
+Note: Only one instance of Elograf can run at a time. Commands are sent to the running instance via IPC (D-Bus on Linux/KDE, or local sockets on other platforms).
 
 Daemon Management:
 
