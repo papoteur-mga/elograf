@@ -78,7 +78,7 @@ def create_ipc_manager(app_id: str = "elograf") -> IPCManager:
     """
     Factory function to create the appropriate IPC manager.
 
-    Tries to create D-Bus implementation first (if available),
+    Tries to create D-Bus implementation first (if D-Bus session bus is available),
     falls back to QLocalServer implementation.
 
     Args:
@@ -87,15 +87,21 @@ def create_ipc_manager(app_id: str = "elograf") -> IPCManager:
     Returns:
         IPCManager instance (either IPCDBus or IPCLocalSocket)
     """
-    # Try D-Bus first
+    # Check if D-Bus session bus is actually available on the system
     try:
-        from eloGraf.ipc_dbus import IPCDBus
-        logging.info("Using D-Bus for inter-process communication")
-        return IPCDBus(app_id)
+        from PyQt6.QtDBus import QDBusConnection
+        bus = QDBusConnection.sessionBus()
+        if bus.isConnected():
+            # D-Bus is available, use it
+            from eloGraf.ipc_dbus import IPCDBus
+            logging.info("Using D-Bus for inter-process communication")
+            return IPCDBus(app_id)
+        else:
+            logging.info("D-Bus session bus not available, falling back to QLocalServer")
     except ImportError as e:
-        logging.info(f"D-Bus not available ({e}), falling back to QLocalServer")
+        logging.info(f"D-Bus module not available ({e}), falling back to QLocalServer")
     except Exception as e:
-        logging.warning(f"Failed to initialize D-Bus ({e}), falling back to QLocalServer")
+        logging.warning(f"Failed to check D-Bus availability ({e}), falling back to QLocalServer")
 
     # Fallback to QLocalServer
     from eloGraf.ipc_localsocket import IPCLocalSocket
