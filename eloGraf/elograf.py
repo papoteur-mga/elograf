@@ -14,6 +14,7 @@ import ujson
 import urllib.request, urllib.error
 import logging
 import argparse
+import signal
 from PyQt6.QtGui import QIcon, QStandardItemModel, QStandardItem, QInputMethod
 from PyQt6.QtCore import (
     QCoreApplication,
@@ -983,8 +984,13 @@ class SystemTrayIcon(QSystemTrayIcon):
         return model, location
 
     def exit(self) -> None:
+        """Clean exit: stop dictation, cleanup IPC, and exit"""
+        logging.info("Exiting Elograf...")
         if self.dictating:
             self.stop_dictate()
+        # Cleanup resources
+        remove_pid_file()
+        self.ipc.cleanup()
         QCoreApplication.exit()
 
     def dictate(self) -> None:
@@ -1120,6 +1126,47 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.dictate()
 
 
+def write_pid_file():
+    """Write PID file for daemon management"""
+    pid_file = os.path.expanduser("~/.config/Elograf/elograf.pid")
+    os.makedirs(os.path.dirname(pid_file), exist_ok=True)
+    with open(pid_file, 'w') as f:
+        f.write(str(os.getpid()))
+    return pid_file
+
+
+def remove_pid_file():
+    """Remove PID file on exit"""
+    pid_file = os.path.expanduser("~/.config/Elograf/elograf.pid")
+    try:
+        if os.path.exists(pid_file):
+            os.remove(pid_file)
+    except Exception as e:
+        logging.warning(f"Failed to remove PID file: {e}")
+
+
+def setup_signal_handlers(tray_icon):
+    """
+    Setup signal handlers for graceful shutdown.
+
+    Handles SIGTERM, SIGINT (Ctrl+C), and SIGHUP.
+    """
+    def signal_handler(signum, frame):
+        sig_name = signal.Signals(signum).name
+        logging.info(f"Received signal {sig_name}, initiating graceful shutdown...")
+        # Cleanup PID file
+        remove_pid_file()
+        # Use Qt's event loop to handle the exit
+        QCoreApplication.instance().quit()
+        tray_icon.exit()
+
+    # Register signal handlers
+    signal.signal(signal.SIGTERM, signal_handler)  # kill command
+    signal.signal(signal.SIGINT, signal_handler)   # Ctrl+C
+    if hasattr(signal, 'SIGHUP'):
+        signal.signal(signal.SIGHUP, signal_handler)  # Terminal hangup
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Place an icon in systray to launch offline speech recognition."
@@ -1230,8 +1277,19 @@ def main() -> None:
         w
     )
 
+    # Setup signal handlers for graceful shutdown
+    setup_signal_handlers(trayIcon)
+
+    # Write PID file for daemon management
+    write_pid_file()
+
     trayIcon.show()
-    exit(app.exec())
+    exit_code = app.exec()
+
+    # Ensure cleanup on exit
+    remove_pid_file()
+    trayIcon.ipc.cleanup()
+    exit(exit_code)
 
 
 if __name__ == "__main__":
