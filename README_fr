@@ -34,16 +34,20 @@ Interface en ligne de commande
 Elograf prend en charge le mode instance unique avec communication inter-processus. Cela vous permet de contrôler une instance en cours d'exécution depuis la ligne de commande.
 
 Options:
-    -l, --log <niveau>  : écrit des informations en fonction du niveau. Le niveau est choisi parmi ceux qui sont prévu dans le langage Python
-    --begin             : démarre la dictée dans l'instance en cours d'exécution (ou lance si elle n'est pas en cours d'exécution)
-    --end               : arrête la dictée dans l'instance en cours d'exécution
-    --exit              : quitte l'instance en cours d'exécution
+    -l, --log <niveau>          : écrit des informations en fonction du niveau. Le niveau est choisi parmi ceux qui sont prévu dans le langage Python
+    --begin                     : démarre la dictée dans l'instance en cours d'exécution (ou lance si elle n'est pas en cours d'exécution)
+    --end                       : arrête la dictée dans l'instance en cours d'exécution
+    --exit                      : quitte l'instance en cours d'exécution
+    --list-models               : liste tous les modèles disponibles (affiche la sélection actuelle avec ●)
+    --set-model NOM_DU_MODÈLE   : définit le modèle actif par nom
 
 Exemples:
-    elograf             : Lance l'application (icône de la barre d'état système, se détache de la console)
-    elograf --begin     : Démarre la dictée dans l'instance en cours d'exécution
-    elograf --end       : Arrête la dictée dans l'instance en cours d'exécution
-    elograf --exit      : Quitte l'application en cours d'exécution
+    elograf                        : Lance l'application (icône de la barre d'état système, se détache de la console)
+    elograf --begin                : Démarre la dictée dans l'instance en cours d'exécution
+    elograf --end                  : Arrête la dictée dans l'instance en cours d'exécution
+    elograf --exit                 : Quitte l'application en cours d'exécution
+    elograf --list-models          : Affiche tous les modèles configurés et leurs détails
+    elograf --set-model vosk-fr-fr : Change le modèle actif à 'vosk-fr-fr'
 
 Remarque: Une seule instance d'Elograf peut s'exécuter à la fois. Les commandes sont envoyées à l'instance en cours d'exécution via IPC (D-Bus sous Linux/KDE, ou sockets locaux sur d'autres plateformes). L'application se détache automatiquement de la console au démarrage.
 

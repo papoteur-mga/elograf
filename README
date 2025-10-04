@@ -30,16 +30,20 @@ Command Line Interface
 Elograf supports single-instance mode with inter-process communication. This allows you to control a running instance from the command line.
 
 Options:
-    -l, --log <level>   : output information according to the level, where <level> is a standard level in Python
-    --begin             : begin dictation in running instance (or launch if not running)
-    --end               : end dictation in running instance
-    --exit              : exit the running instance
+    -l, --log <level>       : output information according to the level, where <level> is a standard level in Python
+    --begin                 : begin dictation in running instance (or launch if not running)
+    --end                   : end dictation in running instance
+    --exit                  : exit the running instance
+    --list-models           : list all available models (shows current selection with ●)
+    --set-model MODEL_NAME  : set the active model by name
 
 Examples:
-    elograf             : Launch the application (system tray icon, detaches from console)
-    elograf --begin     : Start dictation in the running instance
-    elograf --end       : Stop dictation in the running instance
-    elograf --exit      : Exit the running application
+    elograf                        : Launch the application (system tray icon, detaches from console)
+    elograf --begin                : Start dictation in the running instance
+    elograf --end                  : Stop dictation in the running instance
+    elograf --exit                 : Exit the running application
+    elograf --list-models          : Show all configured models and their details
+    elograf --set-model vosk-en-us : Change active model to 'vosk-en-us'
 
 Note: Only one instance of Elograf can run at a time. Commands are sent to the running instance via IPC (D-Bus on Linux/KDE, or local sockets on other platforms). The application automatically detaches from the console on startup.
 

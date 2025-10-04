@@ -1175,6 +1175,8 @@ def main() -> None:
     parser.add_argument("--begin", help="begin dictation (or launch if not running)", action='store_true')
     parser.add_argument("--end", help="end dictation in running instance", action='store_true')
     parser.add_argument("--exit", help="exit the running instance", action='store_true')
+    parser.add_argument("--list-models", help="list available models", action='store_true')
+    parser.add_argument("--set-model", help="set the active model by name", metavar="MODEL_NAME")
     args = parser.parse_args()
 
     if args.loglevel is not None:
@@ -1184,6 +1186,55 @@ def main() -> None:
     if not isinstance(numeric_level, int):
         raise ValueError("Invalid log level: %s" % args.loglevel)
     logging.basicConfig(level=numeric_level, format='%(message)s')
+
+    # Handle model management commands (don't need IPC)
+    if args.list_models or args.set_model:
+        settings = Settings()
+        settings.load()
+
+        if args.list_models:
+            if not settings.models:
+                print("No models configured")
+                print("\nUse the GUI (elograf) to download or import models")
+                sys.exit(0)
+
+            # Get current model
+            current_model = ""
+            if settings.contains("Model/name"):
+                current_model = settings.value("Model/name")
+
+            print("Available models:")
+            print("-" * 80)
+            for i, model in enumerate(settings.models):
+                marker = "●" if model["name"] == current_model else " "
+                print(f"{marker} {model['name']}")
+                print(f"  Language: {model['language']}")
+                print(f"  Type: {model['type']}")
+                print(f"  Version: {model['version']}")
+                print(f"  Size: {model['size']}")
+                print(f"  Location: {model['location']}")
+                print()
+            sys.exit(0)
+
+        if args.set_model:
+            model_name = args.set_model
+            # Check if model exists
+            model_found = False
+            for model in settings.models:
+                if model["name"] == model_name:
+                    model_found = True
+                    break
+
+            if not model_found:
+                print(f"✗ Model '{model_name}' not found", file=sys.stderr)
+                print("\nAvailable models:")
+                for model in settings.models:
+                    print(f"  - {model['name']}")
+                sys.exit(1)
+
+            settings.setValue("Model/name", model_name)
+            print(f"✓ Model set to '{model_name}'")
+            sys.exit(0)
 
     # Create minimal QApplication for IPC check
     app = QApplication(sys.argv)
@@ -1223,9 +1274,11 @@ def main() -> None:
     if not command and ipc.is_running():
         print("Elograf is already running", file=sys.stderr)
         print("\nAvailable commands:")
-        print("  elograf --begin   : Start dictation")
-        print("  elograf --end     : Stop dictation")
-        print("  elograf --exit    : Exit application")
+        print("  elograf --begin        : Start dictation")
+        print("  elograf --end          : Stop dictation")
+        print("  elograf --exit         : Exit application")
+        print("  elograf --list-models  : List available models")
+        print("  elograf --set-model M  : Set active model to M")
         sys.exit(1)
 
     # Normal startup - create new instance
@@ -1248,9 +1301,11 @@ def main() -> None:
     ipc_backend = "D-Bus" if ipc.supports_global_shortcuts() else "Local Sockets"
     print(f"Elograf started (using {ipc_backend})")
     print("\nControl commands:")
-    print("  elograf --begin   : Start dictation")
-    print("  elograf --end     : Stop dictation")
-    print("  elograf --exit    : Exit application")
+    print("  elograf --begin        : Start dictation")
+    print("  elograf --end          : Stop dictation")
+    print("  elograf --exit         : Exit application")
+    print("  elograf --list-models  : List available models")
+    print("  elograf --set-model M  : Set active model to M")
 
     # Detach from console on Unix systems
     if os.name == 'posix':
