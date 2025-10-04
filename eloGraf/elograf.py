@@ -842,7 +842,7 @@ class ConfigPopup(QDialog):
         p = run(["pactl", "list", "sources"], capture_output=True, text=True, env=chenv)
         sortie = p.stdout
         for m in re.finditer(
-            "Name: (?P<name>.*)\n\s*Description: (?P<description>.*)", sortie
+            r"Name: (?P<name>.*)\n\s*Description: (?P<description>.*)", sortie
         ):
             advWindow.ui.deviceName.addItem(m.group("description"), m.group("name"))
             if self.settings.deviceName == m.group("name"):

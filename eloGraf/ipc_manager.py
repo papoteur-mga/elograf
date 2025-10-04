@@ -11,12 +11,17 @@ with multiple implementations (D-Bus, QLocalServer) selected automatically.
 """
 
 import logging
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from typing import Optional
 from PyQt6.QtCore import QObject, pyqtSignal
 
 
-class IPCManager(QObject, ABC):
+# Custom metaclass that combines QObject's metaclass with ABCMeta
+class QABCMeta(type(QObject), ABCMeta):
+    pass
+
+
+class IPCManager(QObject, metaclass=QABCMeta):
     """
     Abstract base class for inter-process communication.
 

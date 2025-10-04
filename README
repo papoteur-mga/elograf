@@ -54,10 +54,9 @@ Install as a tool (globally available):
 For development installation from local directory:
     uv pip install --with ujson --with PyQt6 .
 
-Note: nerd-dictation is not included and needs to be installed separately.
-
-Optional: For global keyboard shortcuts support on KDE (Linux only):
-    uv tool install --with ujson --with PyQt6 --with PyQt6-DBus git+https://github.com/papoteur-mga/elograf
+Note:
+- nerd-dictation is not included and needs to be installed separately
+- PyQt6 includes D-Bus support by default, enabling global keyboard shortcuts on KDE
 
 Method 2: Using pip
 
@@ -67,14 +66,10 @@ In command line, as root for system wide installation, or as user for a local in
 In case of local installation, be sure that ~/.local/bin is in the PATH variable.
 nerd-dictation is not included and needs to be installed separately.
 
-Optional: For global keyboard shortcuts on KDE:
-    pip install PyQt6-DBus
-
 Python modules requirements:
 - ujson
 - urllib
-- Qt6
-- PyQt6-DBus (optional, for global shortcuts on KDE)
+- PyQt6 (includes D-Bus support for global shortcuts on KDE)
 
 Under the hood
 
