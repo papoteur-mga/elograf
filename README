@@ -28,10 +28,27 @@ Options
 
 
 Installation
-In command line, as root for system wide installation, or as user for a local installation
-pip install .
+
+Method 1: Using uv (Recommended)
+
+uv is a fast Python package and project manager. This is the recommended installation method as it handles dependencies automatically.
+
+Install as a tool (globally available):
+    uv tool install --with ujson --with PyQt6 git+https://github.com/papoteur-mga/elograf
+
+For development installation from local directory:
+    uv pip install --with ujson --with PyQt6 .
+
+Note: nerd-dictation is not included and needs to be installed separately.
+
+Method 2: Using pip
+
+In command line, as root for system wide installation, or as user for a local installation:
+    pip install .
+
 In case of local installation, be sure that ~/.local/bin is in the PATH variable.
 nerd-dictation is not included and needs to be installed separately.
+
 Python modules requirements:
 - ujson
 - urllib
