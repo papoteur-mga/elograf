@@ -23,32 +23,92 @@ Dans le dialogue Avancé, vous pouvez définir une précommande optionnelle qui 
 Vous pouvez également sélectionner ou définir certaines options qui sont passées à nerd-dictation.
 
 Vous pouvez notamment définir l'outil utilisé pour simuler le clavier. XDOTOOL est utilisé par défaut, mais pour l'environnement Wayland, il faut sélectionner DOTOOL. Pour ce dernier, il faut préciser le code à deux lettres de l'agencement du clavier, par exemple 'fr', sinon la disposition 'us' est utilisée.
-Options
+
+Raccourcis clavier globaux (KDE uniquement):
+Si vous avez PyQt6-DBus installé et que vous utilisez KDE, vous pouvez configurer des raccourcis clavier globaux dans la boîte de dialogue Paramètres avancés. Ces raccourcis fonctionneront à l'échelle du système même lorsque Elograf s'exécute en arrière-plan.
+
+Le démarrage peut prendre un certain temps, en fonction de la taille du modèle.
+
+Interface en ligne de commande
+
+Elograf prend en charge le mode instance unique avec communication inter-processus. Cela vous permet de contrôler une instance en cours d'exécution depuis la ligne de commande.
+
+Options:
     -l, --log <niveau>  : écrit des informations en fonction du niveau. Le niveau est choisi parmi ceux qui sont prévu dans le langage Python
-    -s, --start         : lance la dictée directement. Ceci n'est possible que si un modèle a été configuré. 
+    --begin             : démarre la dictée dans l'instance en cours d'exécution (ou lance si elle n'est pas en cours d'exécution)
+    --end               : arrête la dictée dans l'instance en cours d'exécution
+    --exit              : quitte l'instance en cours d'exécution
+
+Exemples:
+    elograf             : Lance l'application (icône de la barre d'état système, se détache de la console)
+    elograf --begin     : Démarre la dictée dans l'instance en cours d'exécution
+    elograf --end       : Arrête la dictée dans l'instance en cours d'exécution
+    elograf --exit      : Quitte l'application en cours d'exécution
+
+Remarque: Une seule instance d'Elograf peut s'exécuter à la fois. Les commandes sont envoyées à l'instance en cours d'exécution via IPC (D-Bus sous Linux/KDE, ou sockets locaux sur d'autres plateformes). L'application se détache automatiquement de la console au démarrage.
+
+Gestion du démon:
+
+Elograf s'exécute en tant que démon en arrière-plan et peut être géré à l'aide des signaux Unix standard:
+    kill $(cat ~/.config/Elograf/elograf.pid)     : Envoie SIGTERM pour un arrêt gracieux
+    kill -HUP $(cat ~/.config/Elograf/elograf.pid) : Envoie SIGHUP pour recharger
+
+Le démon gère les signaux suivants de manière gracieuse:
+- SIGTERM: Arrête la dictée, nettoie les ressources et quitte
+- SIGINT (Ctrl+C): Identique à SIGTERM
+- SIGHUP: Arrêt gracieux
+
+Emplacement du fichier PID: ~/.config/Elograf/elograf.pid
+
 
 Installation
-Dans la ligne de commande en tant que root ou en utilisateur selon la destination souhaitée de l'installation :
-pip install .
-(le point à la fin fait partie de la commande)
+
+Méthode 1: Utiliser uv (Recommandé)
+
+uv est un gestionnaire de paquets et de projets Python rapide. C'est la méthode d'installation recommandée car elle gère les dépendances automatiquement.
+
+Installer en tant qu'outil (disponible globalement):
+    uv tool install git+https://github.com/papoteur-mga/elograf
+
+Pour une installation de développement depuis un répertoire local:
+    uv pip install .
+
+Remarque:
+- nerd-dictation n'est pas inclus et doit être installé séparément
+- PyQt6 inclut le support D-Bus par défaut, activant les raccourcis clavier globaux sur KDE
+
+Méthode 2: Utiliser pip
+
+Dans la ligne de commande en tant que root ou en utilisateur selon la destination souhaitée de l'installation:
+    pip install .
 
 Dans ce cas d'une installation dans l'espace utilisateur, assurez vous que ~/.local/bin est bien dans votre variable PATH.
-
 nerd-dictation n'est pas inclus et doit être installé séparément.
 
 Modules Python pré-requis:
 - ujson
 - urllib
-- Qt6 (le nom dépend de votre distribution)
+- PyQt6 (inclut le support D-Bus pour les raccourcis globaux sur KDE)
 
 Aspects techniques
 
 Cet outil est écrit en Python 3 et utilise Qt6.
 
-Le fichier de configuration est ~/.config/Elograf/Elograf.conf
+Emplacements des fichiers:
+- Fichier de configuration: ~/.config/Elograf/Elograf.conf
+- Fichier PID (démon): ~/.config/Elograf/elograf.pid
+- Modèles utilisateur: ~/.config/vosk-models
+- Modèles système: /usr/share/vosk-models
+- Traductions: /usr/share/elograf/translations
 
-Dans l'espace utilisateur, les modèles sont stockés dans ~/.config/vosk-models.
+Communication inter-processus:
+Elograf utilise un système IPC (Inter-Process Communication) adaptatif:
+- Sous Linux avec D-Bus disponible: Utilise D-Bus pour la communication et KGlobalAccel pour les raccourcis globaux
+- Sur d'autres plateformes ou sans D-Bus: Utilise Qt Local Sockets (QLocalServer/QLocalSocket)
+Les deux implémentations prennent en charge la détection d'instance unique et les commandes CLI (--begin, --end, --exit)
 
-Dans l'espace système, les modèles sont stockés dans /usr/share/vosk-models.
-
-Les fichiers de traduction sont enregistrés dans /usr/share/elograf/translations.
+Comportement du démon:
+- Se détache automatiquement en arrière-plan sur les systèmes Unix (se détache de la console)
+- Écrit le PID dans ~/.config/Elograf/elograf.pid
+- Gère les signaux (SIGTERM, SIGINT, SIGHUP) pour un arrêt gracieux
+- Nettoie les ressources (dictée, IPC, fichier PID) à la sortie
