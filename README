@@ -20,11 +20,26 @@ In Advanced dialogue, you can set an optionnal precommand which is launched befo
 You can also select or define some options which are passed to nerd-dictation.
 You can select the input simulation tool in XDOTOOL (used by default) and DOTOOL. DOTOOL should be used for Wayland environment and you have to specify the keyboord layout code with a two letters code like 'fr' or 'de' if you don't use the 'us' layout.
 
+Global Keyboard Shortcuts (KDE only):
+If you have PyQt6-DBus installed and are running on KDE, you can configure global keyboard shortcuts in the Advanced settings dialog. These shortcuts will work system-wide even when Elograf is running in the background.
+
 The start can take a long time, according to the size of the model.
 
-Options
+Command Line Interface
+
+Elograf supports single-instance mode with inter-process communication. This allows you to control a running instance from the command line.
+
+Options:
     -l, --log <level>   : output information according to the level, where <level> is a standard level in Python
-    -s, --start         : launch the dictation directly. This is possible only if the model has already been configured. This can for example be associated with a shortcut.
+    --begin             : begin dictation in running instance (or launch if not running)
+    --end               : end dictation in running instance
+
+Examples:
+    elograf             : Launch the application (system tray icon)
+    elograf --begin     : Start dictation in the running instance
+    elograf --end       : Stop dictation in the running instance
+
+Note: Only one instance of Elograf can run at a time. Commands are sent to the running instance via IPC (D-Bus on Linux/KDE, or local sockets on other platforms).
 
 
 Installation
@@ -41,6 +56,9 @@ For development installation from local directory:
 
 Note: nerd-dictation is not included and needs to be installed separately.
 
+Optional: For global keyboard shortcuts support on KDE (Linux only):
+    uv tool install --with ujson --with PyQt6 --with PyQt6-DBus git+https://github.com/papoteur-mga/elograf
+
 Method 2: Using pip
 
 In command line, as root for system wide installation, or as user for a local installation:
@@ -49,10 +67,14 @@ In command line, as root for system wide installation, or as user for a local in
 In case of local installation, be sure that ~/.local/bin is in the PATH variable.
 nerd-dictation is not included and needs to be installed separately.
 
+Optional: For global keyboard shortcuts on KDE:
+    pip install PyQt6-DBus
+
 Python modules requirements:
 - ujson
 - urllib
 - Qt6
+- PyQt6-DBus (optional, for global shortcuts on KDE)
 
 Under the hood
 
@@ -61,3 +83,9 @@ Configuration file is ~/.config/Elograf/Elograf.conf
 In user space, models are stored in ~/.config/vosk-models
 In system space, models are stored in /usr/share/vosk-models
 Translations files are expected in /usr/share/elograf/translations
+
+Inter-Process Communication:
+Elograf uses an adaptive IPC (Inter-Process Communication) system:
+- On Linux with PyQt6-DBus: Uses D-Bus for communication and KGlobalAccel for global shortcuts
+- On other platforms or without DBus: Uses Qt Local Sockets (QLocalServer/QLocalSocket)
+Both implementations support single-instance detection and CLI commands (--begin, --end)

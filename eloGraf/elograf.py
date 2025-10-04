@@ -26,6 +26,7 @@ from PyQt6.QtCore import (
     Qt,
     QTranslator,
     QTimer,
+    pyqtSlot,
 )
 from PyQt6.QtWidgets import (
     QAbstractItemView,
@@ -52,6 +53,7 @@ import eloGraf.advanced as advanced  # type: ignore
 import eloGraf.confirm as confirm  # type: ignore
 import eloGraf.custom as custom  # type: ignore
 import eloGraf.version as version  # type: ignore
+from eloGraf.ipc_manager import create_ipc_manager, IPCManager  # type: ignore
 
 
 # Types.
@@ -168,6 +170,14 @@ class Settings(QSettings):
             self.keyboard = self.value("Keyboard", type=str)
         else:
             self.keyboard: str = ""
+        if self.contains("BeginShortcut"):
+            self.beginShortcut = self.value("BeginShortcut", type=str)
+        else:
+            self.beginShortcut: str = ""
+        if self.contains("EndShortcut"):
+            self.endShortcut = self.value("EndShortcut", type=str)
+        else:
+            self.endShortcut: str = ""
         self.models = []
         to_select = None
         n = self.beginReadArray("Models")
@@ -225,6 +235,14 @@ class Settings(QSettings):
             self.remove("Keyboard")
         else:
             self.setValue("Keyboard", self.keyboard)
+        if self.beginShortcut == "":
+            self.remove("BeginShortcut")
+        else:
+            self.setValue("BeginShortcut", self.beginShortcut)
+        if self.endShortcut == "":
+            self.remove("EndShortcut")
+        else:
+            self.setValue("EndShortcut", self.endShortcut)
         if self.deviceName == "default":
             self.remove("DeviceName")
         else:
@@ -276,6 +294,35 @@ class AdvancedUI(QDialog):
         self.ui.timeout.valueChanged.connect(self.timeoutChanged)
         self.ui.idleTime.valueChanged.connect(self.idleChanged)
         self.ui.punctuate.valueChanged.connect(self.punctuateChanged)
+
+        # Add keyboard shortcuts configuration (only visible if D-Bus is available)
+        from PyQt6.QtWidgets import QLabel, QLineEdit
+        self._add_shortcuts_config()
+
+    def _add_shortcuts_config(self):
+        """Add global shortcuts configuration fields to the dialog"""
+        from PyQt6.QtWidgets import QLabel, QLineEdit, QKeySequenceEdit
+        from PyQt6.QtGui import QKeySequence
+
+        # Add label and input for Begin shortcut
+        row_count = self.ui.gridLayout.rowCount()
+
+        label_begin = QLabel(self.tr("Global shortcut: Begin"))
+        label_begin.setToolTip(self.tr("Global keyboard shortcut to begin dictation (KDE only)"))
+        self.beginShortcut = QKeySequenceEdit()
+        self.ui.gridLayout.addWidget(label_begin, row_count, 0)
+        self.ui.gridLayout.addWidget(self.beginShortcut, row_count, 1)
+
+        # Add label and input for End shortcut
+        label_end = QLabel(self.tr("Global shortcut: End"))
+        label_end.setToolTip(self.tr("Global keyboard shortcut to end dictation (KDE only)"))
+        self.endShortcut = QKeySequenceEdit()
+        self.ui.gridLayout.addWidget(label_end, row_count + 1, 0)
+        self.ui.gridLayout.addWidget(self.endShortcut, row_count + 1, 1)
+
+        # Move button box to the end
+        self.ui.gridLayout.removeWidget(self.ui.buttonBox)
+        self.ui.gridLayout.addWidget(self.ui.buttonBox, row_count + 2, 1)
 
     def timeoutChanged(self, num: int):
         self.ui.timeoutDisplay.setText(str(num))
@@ -774,6 +821,14 @@ class ConfigPopup(QDialog):
         advWindow.ui.env.setText(self.settings.env)
         advWindow.ui.keyboard_le.setText(self.settings.keyboard)
         advWindow.ui.tool_cb.setCurrentIndex(advWindow.ui.tool_cb.findText(self.settings.tool))
+
+        # Load keyboard shortcuts
+        from PyQt6.QtGui import QKeySequence
+        if self.settings.beginShortcut:
+            advWindow.beginShortcut.setKeySequence(QKeySequence(self.settings.beginShortcut))
+        if self.settings.endShortcut:
+            advWindow.endShortcut.setKeySequence(QKeySequence(self.settings.endShortcut))
+
         if self.settings.fullSentence:
             advWindow.ui.fullSentence.setChecked(True)
         if self.settings.digits:
@@ -816,13 +871,18 @@ class ConfigPopup(QDialog):
             self.settings.env = advWindow.ui.env.text()
             self.settings.keyboard = advWindow.ui.keyboard_le.text()
             self.settings.tool = advWindow.ui.tool_cb.currentText()
+            # Save keyboard shortcuts
+            self.settings.beginShortcut = advWindow.beginShortcut.keySequence().toString()
+            self.settings.endShortcut = advWindow.endShortcut.keySequence().toString()
 
 
 
 class SystemTrayIcon(QSystemTrayIcon):
-    def __init__(self, icon: QIcon,  start: bool, parent=None) -> None:
+    def __init__(self, icon: QIcon, start: bool, ipc: IPCManager, parent=None) -> None:
         QSystemTrayIcon.__init__(self, icon, parent)
         self.settings = Settings()
+        self.ipc = ipc
+
         menu = QMenu(parent)
         # single left click doesn't work in some environments. https://bugreports.qt.io/browse/QTBUG-55911
         # Thus by default we don't enable it, but add Start/Stop menu entries
@@ -830,8 +890,8 @@ class SystemTrayIcon(QSystemTrayIcon):
         if not self.settings.directClick:
             startAction = menu.addAction(self.tr("Start dictation"))
             stopAction = menu.addAction(self.tr("Stop dictation"))
-            startAction.triggered.connect(self.start)
-            stopAction.triggered.connect(self.stop)
+            startAction.triggered.connect(self.begin)
+            stopAction.triggered.connect(self.end)
         configAction = menu.addAction(self.tr("Configuration"))
         exitAction = menu.addAction(self.tr("Exit"))
         self.setContextMenu(menu)
@@ -847,9 +907,65 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.dictating = False
         self.activated.connect(lambda r: self.commute(r))
         self.start_cli = start
+
+        # Connect IPC command handler
+        self.ipc.command_received.connect(self._handle_ipc_command)
+
+        # Start IPC server
+        if not self.ipc.start_server():
+            logging.error("Failed to start IPC server")
+
+        # Register global shortcuts if supported
+        self._register_global_shortcuts()
+
         if start:
             self.dictate()
             self.dictating = True
+
+    def _register_global_shortcuts(self):
+        """Register global keyboard shortcuts if IPC supports it"""
+        if not self.ipc.supports_global_shortcuts():
+            logging.debug("IPC does not support global shortcuts")
+            return
+
+        # Register begin shortcut
+        if self.settings.beginShortcut:
+            success = self.ipc.register_global_shortcut(
+                "begin",
+                self.settings.beginShortcut,
+                self.begin
+            )
+            if success:
+                logging.info(f"Global shortcut registered: {self.settings.beginShortcut} -> begin")
+            else:
+                logging.warning(f"Failed to register global shortcut for 'begin'")
+
+        # Register end shortcut
+        if self.settings.endShortcut:
+            success = self.ipc.register_global_shortcut(
+                "end",
+                self.settings.endShortcut,
+                self.end
+            )
+            if success:
+                logging.info(f"Global shortcut registered: {self.settings.endShortcut} -> end")
+            else:
+                logging.warning(f"Failed to register global shortcut for 'end'")
+
+    def _handle_ipc_command(self, command: str):
+        """
+        Handle commands received from other instances via IPC.
+
+        Args:
+            command: Command string (e.g., "begin", "end")
+        """
+        logging.info(f"Received IPC command: {command}")
+        if command == "begin":
+            self.begin()
+        elif command == "end":
+            self.end()
+        else:
+            logging.warning(f"Unknown IPC command: {command}")
 
     def currentModel(self) -> Tuple[str, str]:
         # Return the model name selected in settings and its location path
@@ -970,16 +1086,18 @@ class SystemTrayIcon(QSystemTrayIcon):
                 self.dictating = True
                 self.dictate()
 
-    def start(self) -> None:
-        logging.debug(f"Start dictation")
+    def begin(self) -> None:
+        """Start dictation (renamed from 'start' to match nerd-dictation)"""
+        logging.debug("Begin dictation")
         if not self.dictating:
             self.dictating = True
             self.dictate()
         else:
-            print("Dictation already started")
+            logging.info("Dictation already started")
 
-    def stop(self) -> None:
-        logging.debug(f"Stop dictation")
+    def end(self) -> None:
+        """Stop dictation (renamed from 'stop' to match nerd-dictation)"""
+        logging.debug("End dictation")
         if self.dictating:
             self.stop_dictate()
         self.dictating = False
@@ -1004,9 +1122,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Place an icon in systray to launch offline speech recognition."
     )
-    parser.add_argument("-l", "--log", help="specify the log level ", dest="loglevel")
-    parser.add_argument("-s", "--start", help="launch the dictation directly", action='store_true')
+    parser.add_argument("-l", "--log", help="specify the log level", dest="loglevel")
+    parser.add_argument("--begin", help="begin dictation (or launch if not running)", action='store_true')
+    parser.add_argument("--end", help="end dictation in running instance", action='store_true')
     args = parser.parse_args()
+
     if args.loglevel is not None:
         numeric_level = getattr(logging, args.loglevel.upper(), None)
     else:
@@ -1014,9 +1134,38 @@ def main() -> None:
     if not isinstance(numeric_level, int):
         raise ValueError("Invalid log level: %s" % args.loglevel)
     logging.basicConfig(level=numeric_level)
+
+    # Create minimal QApplication for IPC check
     app = QApplication(sys.argv)
+
+    # Create IPC manager (will auto-select D-Bus or QLocalServer)
+    ipc = create_ipc_manager("elograf")
+
+    # Determine command to send
+    command = None
+    if args.end:
+        command = "end"
+    elif args.begin:
+        command = "begin"
+
+    # If there's a command and instance is running, send command and exit
+    if command and ipc.is_running():
+        logging.info(f"Sending '{command}' command to running instance")
+        if ipc.send_command(command):
+            logging.info("Command sent successfully")
+            return
+        else:
+            logging.error("Failed to send command")
+            sys.exit(1)
+
+    # If trying to launch without command and instance already running
+    if not command and ipc.is_running():
+        logging.warning("Another instance of Elograf is already running")
+        sys.exit(1)
+
+    # Normal startup - create new instance
     app.setDesktopFileName("Elograf")
-    # don't close application when closing setting window)
+    # don't close application when closing setting window
     app.setQuitOnLastWindowClosed(False)
     LOCAL_DIR = os.path.dirname(os.path.realpath(__file__))
     locale = QLocale.system().name()
@@ -1031,7 +1180,12 @@ def main() -> None:
         app.installTranslator(appTranslator)
 
     w = QWidget()
-    trayIcon = SystemTrayIcon(QIcon(":/icons/elograf/24/nomicro.png"), args.start, w)
+    trayIcon = SystemTrayIcon(
+        QIcon(":/icons/elograf/24/nomicro.png"),
+        args.begin if command == "begin" else False,
+        ipc,
+        w
+    )
 
     trayIcon.show()
     exit(app.exec())
