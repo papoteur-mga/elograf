@@ -957,13 +957,15 @@ class SystemTrayIcon(QSystemTrayIcon):
         Handle commands received from other instances via IPC.
 
         Args:
-            command: Command string (e.g., "begin", "end")
+            command: Command string (e.g., "begin", "end", "exit")
         """
         logging.info(f"Received IPC command: {command}")
         if command == "begin":
             self.begin()
         elif command == "end":
             self.end()
+        elif command == "exit":
+            self.exit()
         else:
             logging.warning(f"Unknown IPC command: {command}")
 
@@ -1125,6 +1127,7 @@ def main() -> None:
     parser.add_argument("-l", "--log", help="specify the log level", dest="loglevel")
     parser.add_argument("--begin", help="begin dictation (or launch if not running)", action='store_true')
     parser.add_argument("--end", help="end dictation in running instance", action='store_true')
+    parser.add_argument("--exit", help="exit the running instance", action='store_true')
     args = parser.parse_args()
 
     if args.loglevel is not None:
@@ -1133,7 +1136,7 @@ def main() -> None:
         numeric_level = logging.INFO
     if not isinstance(numeric_level, int):
         raise ValueError("Invalid log level: %s" % args.loglevel)
-    logging.basicConfig(level=numeric_level)
+    logging.basicConfig(level=numeric_level, format='%(message)s')
 
     # Create minimal QApplication for IPC check
     app = QApplication(sys.argv)
@@ -1143,24 +1146,39 @@ def main() -> None:
 
     # Determine command to send
     command = None
-    if args.end:
+    if args.exit:
+        command = "exit"
+    elif args.end:
         command = "end"
     elif args.begin:
         command = "begin"
 
     # If there's a command and instance is running, send command and exit
     if command and ipc.is_running():
-        logging.info(f"Sending '{command}' command to running instance")
         if ipc.send_command(command):
-            logging.info("Command sent successfully")
+            print(f"✓ Command '{command}' sent successfully")
             return
         else:
-            logging.error("Failed to send command")
+            print(f"✗ Failed to send '{command}' command", file=sys.stderr)
             sys.exit(1)
+
+    # If there's a command but no instance is running
+    if command:
+        if command == "exit":
+            print("No running instance to exit")
+            sys.exit(1)
+        elif command == "end":
+            print("No running instance to stop")
+            sys.exit(1)
+        # For 'begin', continue to launch the app
 
     # If trying to launch without command and instance already running
     if not command and ipc.is_running():
-        logging.warning("Another instance of Elograf is already running")
+        print("Elograf is already running", file=sys.stderr)
+        print("\nAvailable commands:")
+        print("  elograf --begin   : Start dictation")
+        print("  elograf --end     : Stop dictation")
+        print("  elograf --exit    : Exit application")
         sys.exit(1)
 
     # Normal startup - create new instance
@@ -1178,6 +1196,31 @@ def main() -> None:
     appTranslator = QTranslator()
     if appTranslator.load("elograf_" + locale, os.path.join(LOCAL_DIR, "translations")):
         app.installTranslator(appTranslator)
+
+    # Print startup message and detach from console
+    ipc_backend = "D-Bus" if ipc.supports_global_shortcuts() else "Local Sockets"
+    print(f"Elograf started (using {ipc_backend})")
+    print("\nControl commands:")
+    print("  elograf --begin   : Start dictation")
+    print("  elograf --end     : Stop dictation")
+    print("  elograf --exit    : Exit application")
+
+    # Detach from console on Unix systems
+    if os.name == 'posix':
+        # Fork to background
+        try:
+            pid = os.fork()
+            if pid > 0:
+                # Parent process exits
+                sys.exit(0)
+        except OSError as e:
+            logging.error(f"Fork failed: {e}")
+            sys.exit(1)
+
+        # Decouple from parent environment
+        os.chdir('/')
+        os.setsid()
+        os.umask(0)
 
     w = QWidget()
     trayIcon = SystemTrayIcon(
