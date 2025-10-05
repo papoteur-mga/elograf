@@ -180,3 +180,21 @@ class Settings:
             backend.setValue(key, value)
         else:
             backend.remove(key)
+
+    def current_model(self):
+        name = ""
+        location = ""
+        if self.contains("Model/name"):
+            name = self.value("Model/name")
+            for entry in self.models:
+                if entry.get("name") == name:
+                    location = entry.get("location", "")
+                    break
+        if not location:
+            for entry in self.models:
+                loc = entry.get("location", "")
+                if loc:
+                    name = entry.get("name", name)
+                    location = loc
+                    break
+        return name, location

@@ -86,7 +86,7 @@ def test_ipc_command_routes_to_actions(tray, monkeypatch):
 
 def test_suspend_and_resume_toggle(tray, monkeypatch):
     tray_icon, _ = tray
-    tray_icon.dictating = True
+    tray_icon.state_machine.set_ready()
     monkeypatch.setattr(tray_icon.dictation_runner, "is_running", lambda: True)
     calls = []
     monkeypatch.setattr(tray_icon.dictation_runner, "suspend", lambda: calls.append("suspend"))
@@ -105,29 +105,21 @@ def test_commute_toggles(tray, monkeypatch):
     assert tray_icon.toggleAction.text() == "Start dictation"
     def fake_begin():
         actions.append("begin")
-        tray_icon.dictating = True
-        tray_icon.suspended = False
-        tray_icon._update_action_states()
+        tray_icon.state_machine.set_ready()
     def fake_suspend():
         actions.append("suspend")
-        tray_icon.suspended = True
-        tray_icon.dictating = True
-        tray_icon._update_action_states()
+        tray_icon.state_machine.set_suspended()
     def fake_resume():
         actions.append("resume")
-        tray_icon.suspended = False
-        tray_icon.dictating = True
-        tray_icon._update_action_states()
+        tray_icon.state_machine.set_ready()
     monkeypatch.setattr(tray_icon, "begin", fake_begin)
     monkeypatch.setattr(tray_icon, "suspend", fake_suspend)
     monkeypatch.setattr(tray_icon, "resume", fake_resume)
-    tray_icon.dictating = False
-    tray_icon.suspended = False
+    tray_icon.state_machine.set_idle()
     tray_icon.commute(QSystemTrayIcon.ActivationReason.Trigger)
     assert actions[-1] == "begin"
     assert tray_icon.toggleAction.text() == "Suspend dictation"
-    tray_icon.dictating = True
-    tray_icon.suspended = False
+    tray_icon.state_machine.set_ready()
     tray_icon.commute(QSystemTrayIcon.ActivationReason.Trigger)
     assert actions[-1] == "suspend"
     assert tray_icon.toggleAction.text() == "Resume dictation"
@@ -155,16 +147,26 @@ def test_toggle_cycles_states(tray, monkeypatch):
     monkeypatch.setattr(tray_icon, "begin", lambda: sequence.append("begin"))
     monkeypatch.setattr(tray_icon, "suspend", lambda: sequence.append("suspend"))
     monkeypatch.setattr(tray_icon, "resume", lambda: sequence.append("resume"))
-    tray_icon.dictating = False
-    tray_icon.suspended = False
+    def fake_begin():
+        sequence.append("begin")
+        tray_icon.state_machine.set_loading()
+    def fake_suspend():
+        sequence.append("suspend")
+        tray_icon.state_machine.set_suspended()
+    def fake_resume():
+        sequence.append("resume")
+        tray_icon.state_machine.set_ready()
+    monkeypatch.setattr(tray_icon, "begin", fake_begin)
+    monkeypatch.setattr(tray_icon, "suspend", fake_suspend)
+    monkeypatch.setattr(tray_icon, "resume", fake_resume)
+    tray_icon.state_machine.set_idle()
     monkeypatch.setattr(tray_icon.dictation_runner, "is_running", lambda: False)
     tray_icon.toggle()
     assert sequence[-1] == "begin"
-    tray_icon.dictating = True
-    tray_icon.suspended = False
+    tray_icon.state_machine.set_ready()
     monkeypatch.setattr(tray_icon.dictation_runner, "is_running", lambda: True)
     tray_icon.toggle()
     assert sequence[-1] == "suspend"
-    tray_icon.suspended = True
+    tray_icon.state_machine.set_suspended()
     tray_icon.toggle()
     assert sequence[-1] == "resume"
