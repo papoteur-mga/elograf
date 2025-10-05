@@ -30,3 +30,8 @@ elograf = "eloGraf.elograf:main"
 
 [tool.setuptools]
 packages = ["eloGraf"]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.4.4",
+]
