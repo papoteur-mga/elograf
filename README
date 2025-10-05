@@ -6,11 +6,11 @@ Usage
 
 It is intended to be launched at start of the desktop environnement to display an icon in the icons tray. Use your favorite desktop settings manager to add the command 'elograf' launched at start.
 
-The icon when pressed with right click has a menu with command to start and stop the dictation. It has also an entry to configure the model and other options.
+The tray icon menu lets you start, suspend, resume or stop dictation, open Preferences, and exit the application.
 
 When selecting the option "Active direct click on icon", and after a restart, a click on the icon launches nerd-dictation. A new press stops it. With right click, the utility can be exited or configured.
 
-The icon reflects the state of the dictation.
+The icon reflects the state of the dictation (loading, ready, dictating, suspended, stopped). You can also suspend and resume dictation from the tray menu or via dedicated shortcuts.
 
 The configuration dialogue contains a table list of all models which are installed on the system and which can be selected.
 Models can be directly downloaded from alphacei website and stored either in the user or system space. For storing in the system space, root credentials are asked through polkit mechanism.

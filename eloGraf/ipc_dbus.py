@@ -131,6 +131,18 @@ class IPCDBus(IPCManager):
         logging.debug("D-Bus: exit command received")
         self.command_received.emit("exit")
 
+    @pyqtSlot()
+    def suspend(self):
+        """D-Bus slot for 'suspend' command"""
+        logging.debug("D-Bus: suspend command received")
+        self.command_received.emit("suspend")
+
+    @pyqtSlot()
+    def resume(self):
+        """D-Bus slot for 'resume' command"""
+        logging.debug("D-Bus: resume command received")
+        self.command_received.emit("resume")
+
     def supports_global_shortcuts(self) -> bool:
         """
         D-Bus implementation supports global shortcuts via KGlobalAccel.
