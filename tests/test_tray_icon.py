@@ -70,13 +70,14 @@ def test_begin_sets_dictating(tray, monkeypatch):
 
 def test_ipc_command_routes_to_actions(tray, monkeypatch):
     tray_icon, ipc = tray
+    tray_icon.direct_click_enabled = True
     calls = []
     monkeypatch.setattr(tray_icon, "begin", lambda: calls.append("begin"))
     monkeypatch.setattr(tray_icon, "end", lambda: calls.append("end"))
     monkeypatch.setattr(tray_icon, "exit", lambda: calls.append("exit"))
     monkeypatch.setattr(tray_icon, "suspend", lambda: calls.append("suspend"))
     monkeypatch.setattr(tray_icon, "resume", lambda: calls.append("resume"))
-    monkeypatch.setattr(tray_icon, "toggle", lambda: calls.append("toggle"))
+    monkeypatch.setattr(tray_icon, "controller_toggle", lambda: calls.append("toggle"))
 
     for command in ["begin", "end", "suspend", "resume", "toggle", "exit"]:
         ipc.command_received.emit(command)
@@ -101,6 +102,7 @@ def test_suspend_and_resume_toggle(tray, monkeypatch):
 
 def test_commute_toggles(tray, monkeypatch):
     tray_icon, _ = tray
+    tray_icon.direct_click_enabled = True
     actions = []
     assert tray_icon.toggleAction.text() == "Start dictation"
     def fake_begin():

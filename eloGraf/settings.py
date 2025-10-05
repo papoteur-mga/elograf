@@ -26,7 +26,7 @@ class Settings:
         self.tool: str = ""
         self.env: str = ""
         self.deviceName: str = "default"
-        self.directClick: bool = False
+        self.directClick: bool = True
         self.keyboard: str = ""
         self.beginShortcut: str = ""
         self.endShortcut: str = ""
@@ -49,7 +49,7 @@ class Settings:
         self.tool = backend.value("Tool", "", type=str)
         self.env = backend.value("Env", "", type=str)
         self.deviceName = backend.value("DeviceName", "default", type=str)
-        self.directClick = backend.value("DirectClick", False, type=bool)
+        self.directClick = backend.value("DirectClick", True, type=bool)
         self.keyboard = backend.value("Keyboard", "", type=str)
         self.beginShortcut = backend.value("BeginShortcut", "", type=str)
         self.endShortcut = backend.value("EndShortcut", "", type=str)

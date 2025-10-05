@@ -39,9 +39,10 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.ipc = ipc
 
         menu = QMenu(parent)
+        self.direct_click_enabled = self.settings.directClick
         # single left click doesn't work in some environments. https://bugreports.qt.io/browse/QTBUG-55911
         # Thus by default we don't enable it, but add Start/Stop menu entries
-        if not self.settings.directClick:
+        if not self.direct_click_enabled:
             startAction = menu.addAction(self.tr("Start dictation"))
             stopAction = menu.addAction(self.tr("Stop dictation"))
             startAction.triggered.connect(self.begin)
@@ -49,7 +50,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.toggleAction = menu.addAction(self.tr("Toggle dictation"))
         self.suspendAction = menu.addAction(self.tr("Suspend dictation"))
         self.resumeAction = menu.addAction(self.tr("Resume dictation"))
-        self.toggleAction.triggered.connect(self.toggle)
+        self.toggleAction.triggered.connect(self.controller_toggle)
         self.suspendAction.triggered.connect(self.suspend)
         self.resumeAction.triggered.connect(self.resume)
         self.toggleAction.setEnabled(True)
@@ -83,7 +84,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.state_machine.set_idle()
         self._update_action_states()
         self._update_tooltip()
-        self.activated.connect(lambda r: self.commute(r))
+        self.activated.connect(self._handle_activation)
         self.start_cli = start
 
         # Connect IPC command handler
@@ -254,7 +255,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             success = self.ipc.register_global_shortcut(
                 "toggle",
                 self.settings.toggleShortcut,
-                self.toggle
+                self.controller_toggle
             )
             if success:
                 logging.info(f"Global shortcut registered: {self.settings.toggleShortcut} -> toggle")
@@ -302,7 +303,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         elif command == "resume":
             self.resume()
         elif command == "toggle":
-            self.toggle()
+            self.controller_toggle()
         else:
             logging.warning(f"Unknown IPC command: {command}")
 
@@ -363,11 +364,6 @@ class SystemTrayIcon(QSystemTrayIcon):
         self._update_tooltip()
         logging.info("Loading model, please wait...")
 
-    def toggle(self) -> None:
-        """Toggle dictation: start if idle, suspend if running, resume if suspended."""
-        action = self.state_machine.toggle()
-        getattr(self, action)()
-
     def suspend(self) -> None:
         logging.debug("Suspend dictation")
         if self.suspended:
@@ -399,8 +395,22 @@ class SystemTrayIcon(QSystemTrayIcon):
         logging.debug(f"Commute dictation {'off' if self.dictating else 'on'}")
         if reason == QSystemTrayIcon.ActivationReason.Context:
             return
+        if not self.direct_click_enabled:
+            return
+        self.controller_toggle()
+
+    def _handle_activation(self, reason) -> None:
+        if not self.direct_click_enabled:
+            return
+        if reason != QSystemTrayIcon.ActivationReason.Context:
+            self.controller_toggle()
+
+    def controller_toggle(self) -> None:
         action = self.state_machine.toggle()
         getattr(self, action)()
+
+    def toggle(self) -> None:
+        self.controller_toggle()
 
     def begin(self) -> None:
         """Start dictation (renamed from 'start' to match nerd-dictation)"""
@@ -427,6 +437,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         if dialog.returnValue:
             self.setModel(dialog.returnValue[0])
         self.settings.load()
+        self.direct_click_enabled = self.settings.directClick
         if model == "":
             for entry in self.settings.models:
                 if entry.get("location"):
