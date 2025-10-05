@@ -6,7 +6,7 @@ Utilisation
 
 Ce programme est prévu pour être lancé au démarrage de l'environnement de bureau pour afficher une icône dans la barre d'icônes. Utilisez votre gestionnaire de paramètres de bureau préféré pour ajouter le lancement de la commande 'elograf' au démarrage.
 
-L'icône elograf donne accès à un menu avec des entrées pour démarrer, suspendre, reprendre ou arrêter la dictée, ouvrir la configuration et quitter. L'icône change d'apparence pour refléter l'état (charge, prêt, en dictée, suspendu).
+L'icône elograf offre désormais une entrée « basculer la dictée » correspondant à la commande --toggle : un clic ou cette commande alternent démarrage → suspension → reprise. Le menu permet toujours de démarrer, suspendre, reprendre ou arrêter la dictée, ouvrir la configuration et quitter. L'icône reflète les états (chargement, prêt, dictée, suspendu).
 
 La configuration comporte une option de clic direct. Quand elle est activée, et après un redémarrage de l'application, un clic sur l'icône lance la dictée. Un nouvel appui sur l'icône arrête nerd-dictation.
 

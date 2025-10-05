@@ -143,6 +143,12 @@ class IPCDBus(IPCManager):
         logging.debug("D-Bus: resume command received")
         self.command_received.emit("resume")
 
+    @pyqtSlot()
+    def toggle(self):
+        """D-Bus slot for 'toggle' command"""
+        logging.debug("D-Bus: toggle command received")
+        self.command_received.emit("toggle")
+
     def supports_global_shortcuts(self) -> bool:
         """
         D-Bus implementation supports global shortcuts via KGlobalAccel.

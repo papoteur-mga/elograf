@@ -76,11 +76,12 @@ def test_ipc_command_routes_to_actions(tray, monkeypatch):
     monkeypatch.setattr(tray_icon, "exit", lambda: calls.append("exit"))
     monkeypatch.setattr(tray_icon, "suspend", lambda: calls.append("suspend"))
     monkeypatch.setattr(tray_icon, "resume", lambda: calls.append("resume"))
+    monkeypatch.setattr(tray_icon, "toggle", lambda: calls.append("toggle"))
 
-    for command in ["begin", "end", "suspend", "resume", "exit"]:
+    for command in ["begin", "end", "suspend", "resume", "toggle", "exit"]:
         ipc.command_received.emit(command)
 
-    assert calls == ["begin", "end", "suspend", "resume", "exit"]
+    assert calls == ["begin", "end", "suspend", "resume", "toggle", "exit"]
 
 
 def test_suspend_and_resume_toggle(tray, monkeypatch):
@@ -101,20 +102,39 @@ def test_suspend_and_resume_toggle(tray, monkeypatch):
 def test_commute_toggles(tray, monkeypatch):
     tray_icon, _ = tray
     actions = []
-    monkeypatch.setattr(tray_icon, "begin", lambda: actions.append("begin"))
-    monkeypatch.setattr(tray_icon, "suspend", lambda: actions.append("suspend"))
-    monkeypatch.setattr(tray_icon, "resume", lambda: actions.append("resume"))
+    assert tray_icon.toggleAction.text() == "Start dictation"
+    def fake_begin():
+        actions.append("begin")
+        tray_icon.dictating = True
+        tray_icon.suspended = False
+        tray_icon._update_action_states()
+    def fake_suspend():
+        actions.append("suspend")
+        tray_icon.suspended = True
+        tray_icon.dictating = True
+        tray_icon._update_action_states()
+    def fake_resume():
+        actions.append("resume")
+        tray_icon.suspended = False
+        tray_icon.dictating = True
+        tray_icon._update_action_states()
+    monkeypatch.setattr(tray_icon, "begin", fake_begin)
+    monkeypatch.setattr(tray_icon, "suspend", fake_suspend)
+    monkeypatch.setattr(tray_icon, "resume", fake_resume)
     tray_icon.dictating = False
     tray_icon.suspended = False
     tray_icon.commute(QSystemTrayIcon.ActivationReason.Trigger)
     assert actions[-1] == "begin"
+    assert tray_icon.toggleAction.text() == "Suspend dictation"
     tray_icon.dictating = True
     tray_icon.suspended = False
     tray_icon.commute(QSystemTrayIcon.ActivationReason.Trigger)
     assert actions[-1] == "suspend"
+    assert tray_icon.toggleAction.text() == "Resume dictation"
     tray_icon.suspended = True
     tray_icon.commute(QSystemTrayIcon.ActivationReason.Trigger)
     assert actions[-1] == "resume"
+    assert tray_icon.toggleAction.text() == "Suspend dictation"
     tray_icon.commute(QSystemTrayIcon.ActivationReason.Context)
     assert actions[-1] == "resume"
 
@@ -127,3 +147,24 @@ def test_tooltip_updates_with_model(tray, monkeypatch):
     monkeypatch.setattr(tray_icon, "currentModel", lambda: ("", ""))
     tray_icon._update_tooltip()
     assert tray_icon.toolTip() == "EloGraf"
+
+
+def test_toggle_cycles_states(tray, monkeypatch):
+    tray_icon, _ = tray
+    sequence = []
+    monkeypatch.setattr(tray_icon, "begin", lambda: sequence.append("begin"))
+    monkeypatch.setattr(tray_icon, "suspend", lambda: sequence.append("suspend"))
+    monkeypatch.setattr(tray_icon, "resume", lambda: sequence.append("resume"))
+    tray_icon.dictating = False
+    tray_icon.suspended = False
+    monkeypatch.setattr(tray_icon.dictation_runner, "is_running", lambda: False)
+    tray_icon.toggle()
+    assert sequence[-1] == "begin"
+    tray_icon.dictating = True
+    tray_icon.suspended = False
+    monkeypatch.setattr(tray_icon.dictation_runner, "is_running", lambda: True)
+    tray_icon.toggle()
+    assert sequence[-1] == "suspend"
+    tray_icon.suspended = True
+    tray_icon.toggle()
+    assert sequence[-1] == "resume"

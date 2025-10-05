@@ -32,6 +32,7 @@ class Settings:
         self.endShortcut: str = ""
         self.suspendShortcut: str = ""
         self.resumeShortcut: str = ""
+        self.toggleShortcut: str = ""
 
     def load(self) -> None:
         backend = self._backend
@@ -54,6 +55,7 @@ class Settings:
         self.endShortcut = backend.value("EndShortcut", "", type=str)
         self.suspendShortcut = backend.value("SuspendShortcut", "", type=str)
         self.resumeShortcut = backend.value("ResumeShortcut", "", type=str)
+        self.toggleShortcut = backend.value("ToggleShortcut", "", type=str)
 
         self.models = []
         count = backend.beginReadArray("Models")
@@ -103,6 +105,7 @@ class Settings:
         self._set_or_remove("EndShortcut", self.endShortcut)
         self._set_or_remove("SuspendShortcut", self.suspendShortcut)
         self._set_or_remove("ResumeShortcut", self.resumeShortcut)
+        self._set_or_remove("ToggleShortcut", self.toggleShortcut)
         if self.deviceName == "default":
             backend.remove("DeviceName")
         else:

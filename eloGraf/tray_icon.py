@@ -45,10 +45,13 @@ class SystemTrayIcon(QSystemTrayIcon):
             stopAction = menu.addAction(self.tr("Stop dictation"))
             startAction.triggered.connect(self.begin)
             stopAction.triggered.connect(self.end)
+        self.toggleAction = menu.addAction(self.tr("Toggle dictation"))
         self.suspendAction = menu.addAction(self.tr("Suspend dictation"))
         self.resumeAction = menu.addAction(self.tr("Resume dictation"))
+        self.toggleAction.triggered.connect(self.toggle)
         self.suspendAction.triggered.connect(self.suspend)
         self.resumeAction.triggered.connect(self.resume)
+        self.toggleAction.setEnabled(True)
         self.suspendAction.setEnabled(False)
         self.resumeAction.setEnabled(False)
         configAction = menu.addAction(self.tr("Configuration"))
@@ -197,6 +200,14 @@ class SystemTrayIcon(QSystemTrayIcon):
         self._postcommand_ran = True
 
     def _update_action_states(self) -> None:
+        if hasattr(self, "toggleAction"):
+            if self.suspended:
+                label = self.tr("Resume dictation")
+            elif self.dictation_runner.is_running() or self.dictating:
+                label = self.tr("Suspend dictation")
+            else:
+                label = self.tr("Start dictation")
+            self.toggleAction.setText(label)
         if hasattr(self, "suspendAction"):
             self.suspendAction.setEnabled(self.dictation_runner.is_running() and not self.suspended)
         if hasattr(self, "resumeAction"):
@@ -231,6 +242,17 @@ class SystemTrayIcon(QSystemTrayIcon):
                 logging.info(f"Global shortcut registered: {self.settings.endShortcut} -> end")
             else:
                 logging.warning(f"Failed to register global shortcut for 'end'")
+
+        if self.settings.toggleShortcut:
+            success = self.ipc.register_global_shortcut(
+                "toggle",
+                self.settings.toggleShortcut,
+                self.toggle
+            )
+            if success:
+                logging.info(f"Global shortcut registered: {self.settings.toggleShortcut} -> toggle")
+            else:
+                logging.warning("Failed to register global shortcut for 'toggle'")
 
         if self.settings.suspendShortcut:
             success = self.ipc.register_global_shortcut(
@@ -272,6 +294,8 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.suspend()
         elif command == "resume":
             self.resume()
+        elif command == "toggle":
+            self.toggle()
         else:
             logging.warning(f"Unknown IPC command: {command}")
 
@@ -359,6 +383,15 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.dictation_timer.start()
         self._update_tooltip()
         logging.info("Loading model, please wait...")
+
+    def toggle(self) -> None:
+        """Toggle dictation: start if idle, suspend if running, resume if suspended."""
+        if self.suspended:
+            self.resume()
+        elif self.dictation_runner.is_running() or self.dictating:
+            self.suspend()
+        else:
+            self.begin()
 
     def suspend(self) -> None:
         logging.debug("Suspend dictation")

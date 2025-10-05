@@ -28,7 +28,7 @@ class FakeSettings(Settings):
 
 class DummyArgs(argparse.Namespace):
     def __init__(self, **kwargs):
-        defaults = dict(list_models=False, set_model=None, exit=False, end=False, begin=False, resume=False, suspend=False)
+        defaults = dict(list_models=False, set_model=None, exit=False, end=False, begin=False, resume=False, suspend=False, toggle=False)
         defaults.update(kwargs)
         super().__init__(**defaults)
 
@@ -59,5 +59,6 @@ def test_choose_ipc_command_priority():
     assert choose_ipc_command(DummyArgs(exit=True, end=False, begin=False, resume=False, suspend=False)) == "exit"
     assert choose_ipc_command(DummyArgs(exit=False, end=True, begin=False, resume=False, suspend=False)) == "end"
     assert choose_ipc_command(DummyArgs(exit=False, end=False, begin=True, resume=False, suspend=False)) == "begin"
-    assert choose_ipc_command(DummyArgs(exit=False, end=False, begin=False, resume=True, suspend=False)) == "resume"
-    assert choose_ipc_command(DummyArgs(exit=False, end=False, begin=False, resume=False, suspend=True)) == "suspend"
+    assert choose_ipc_command(DummyArgs(exit=False, end=False, begin=False, resume=True, suspend=False, toggle=False)) == "resume"
+    assert choose_ipc_command(DummyArgs(exit=False, end=False, begin=False, resume=False, suspend=True, toggle=False)) == "suspend"
+    assert choose_ipc_command(DummyArgs(exit=False, end=False, begin=False, resume=False, suspend=False, toggle=True)) == "toggle"

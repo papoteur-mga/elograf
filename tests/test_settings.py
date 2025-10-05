@@ -28,6 +28,7 @@ def test_load_defaults_when_backend_empty(tmp_path):
     assert settings.endShortcut == ""
     assert settings.suspendShortcut == ""
     assert settings.resumeShortcut == ""
+    assert settings.toggleShortcut == ""
     assert settings.models == []
 
 
@@ -46,6 +47,7 @@ def test_save_persists_custom_values(tmp_path):
     settings.endShortcut = "Ctrl+Alt+E"
     settings.suspendShortcut = "Ctrl+Alt+S"
     settings.resumeShortcut = "Ctrl+Alt+R"
+    settings.toggleShortcut = "Ctrl+Alt+T"
 
     settings.save()
     backend.sync()
@@ -63,6 +65,7 @@ def test_save_persists_custom_values(tmp_path):
     assert reloaded.value("EndShortcut") == "Ctrl+Alt+E"
     assert reloaded.value("SuspendShortcut") == "Ctrl+Alt+S"
     assert reloaded.value("ResumeShortcut") == "Ctrl+Alt+R"
+    assert reloaded.value("ToggleShortcut") == "Ctrl+Alt+T"
 
 
 def test_add_and_remove_model_updates_backend(tmp_path):

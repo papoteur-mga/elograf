@@ -20,6 +20,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--set-model", help="set the active model by name", metavar="MODEL_NAME")
     parser.add_argument("--resume", help="resume dictation if suspended", action="store_true")
     parser.add_argument("--suspend", help="suspend dictation in running instance", action="store_true")
+    parser.add_argument("--toggle", help="toggle dictation (start/suspend/resume)", action="store_true")
     return parser
 
 
@@ -84,4 +85,6 @@ def choose_ipc_command(args) -> Optional[str]:
         return "resume"
     if getattr(args, "suspend", False):
         return "suspend"
+    if getattr(args, "toggle", False):
+        return "toggle"
     return None

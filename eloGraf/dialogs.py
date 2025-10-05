@@ -84,20 +84,26 @@ class AdvancedUI(QDialog):
         self.ui.gridLayout.addWidget(label_end, row_count + 1, 0)
         self.ui.gridLayout.addWidget(self.endShortcut, row_count + 1, 1)
 
+        label_toggle = QLabel(self.tr("Global shortcut: Toggle"))
+        label_toggle.setToolTip(self.tr("Global keyboard shortcut to toggle dictation (KDE only)"))
+        self.toggleShortcut = QKeySequenceEdit()
+        self.ui.gridLayout.addWidget(label_toggle, row_count + 2, 0)
+        self.ui.gridLayout.addWidget(self.toggleShortcut, row_count + 2, 1)
+
         label_suspend = QLabel(self.tr("Global shortcut: Suspend"))
         label_suspend.setToolTip(self.tr("Global keyboard shortcut to suspend dictation (KDE only)"))
         self.suspendShortcut = QKeySequenceEdit()
-        self.ui.gridLayout.addWidget(label_suspend, row_count + 2, 0)
-        self.ui.gridLayout.addWidget(self.suspendShortcut, row_count + 2, 1)
+        self.ui.gridLayout.addWidget(label_suspend, row_count + 3, 0)
+        self.ui.gridLayout.addWidget(self.suspendShortcut, row_count + 3, 1)
 
         label_resume = QLabel(self.tr("Global shortcut: Resume"))
         label_resume.setToolTip(self.tr("Global keyboard shortcut to resume dictation (KDE only)"))
         self.resumeShortcut = QKeySequenceEdit()
-        self.ui.gridLayout.addWidget(label_resume, row_count + 3, 0)
-        self.ui.gridLayout.addWidget(self.resumeShortcut, row_count + 3, 1)
+        self.ui.gridLayout.addWidget(label_resume, row_count + 4, 0)
+        self.ui.gridLayout.addWidget(self.resumeShortcut, row_count + 4, 1)
 
         self.ui.gridLayout.removeWidget(self.ui.buttonBox)
-        self.ui.gridLayout.addWidget(self.ui.buttonBox, row_count + 4, 1)
+        self.ui.gridLayout.addWidget(self.ui.buttonBox, row_count + 5, 1)
 
     def timeoutChanged(self, num: int) -> None:
         self.ui.timeoutDisplay.setText(str(num))
@@ -481,6 +487,7 @@ class ConfigPopup(QDialog):
             tool_field.setCurrentText(self.settings.tool)
         adv_window.beginShortcut.setKeySequence(self.settings.beginShortcut)
         adv_window.endShortcut.setKeySequence(self.settings.endShortcut)
+        adv_window.toggleShortcut.setKeySequence(self.settings.toggleShortcut)
         adv_window.suspendShortcut.setKeySequence(self.settings.suspendShortcut)
         adv_window.resumeShortcut.setKeySequence(self.settings.resumeShortcut)
         if adv_window.exec():
@@ -520,6 +527,7 @@ class ConfigPopup(QDialog):
                 self.settings.tool = ""
             self.settings.beginShortcut = adv_window.beginShortcut.keySequence().toString()
             self.settings.endShortcut = adv_window.endShortcut.keySequence().toString()
+            self.settings.toggleShortcut = adv_window.toggleShortcut.keySequence().toString()
             self.settings.suspendShortcut = adv_window.suspendShortcut.keySequence().toString()
             self.settings.resumeShortcut = adv_window.resumeShortcut.keySequence().toString()
             self.settings.save()

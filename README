@@ -6,7 +6,7 @@ Usage
 
 It is intended to be launched at start of the desktop environnement to display an icon in the icons tray. Use your favorite desktop settings manager to add the command 'elograf' launched at start.
 
-The tray icon menu lets you start, suspend, resume or stop dictation, open Preferences, and exit the application.
+The tray icon menu and the new --toggle CLI command let you start, suspend/resume, or stop dictation, open Preferences, and exit the application. A single left click cycles start → suspend → resume.
 
 When selecting the option "Active direct click on icon", and after a restart, a click on the icon launches nerd-dictation. A new press stops it. With right click, the utility can be exited or configured.
 
