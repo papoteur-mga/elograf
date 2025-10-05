@@ -1,3 +1,17 @@
+
+## [Unreleased]
+### Added
+- Toggle dictation command cycling start/suspend/resume via CLI, IPC, tray, and configurable shortcut.
+- Modular tray architecture (`tray_icon.py`, `dictation.py`, `model_repository.py`, `settings.py`).
+- Extensive pytest coverage for controller, CLI, repository, settings, and tray interactions.
+
+### Changed
+- System tray tooltip shows active model and reflects suspend/resume state.
+- Updated translations and documentation for suspend/resume/toggle commands, including README/README_fr.
+
+### Fixed
+- PID file cleanup on exit and signal handling.
+
 EloGraf
 ----------
 * 0.6.0

@@ -7,14 +7,14 @@ This document tracks potential improvements and features to implement in Elograf
 ### User Interface
 - [ ] Add visual feedback when dictation starts/stops (notification or toast)
 - [ ] Add status indicator showing current model in use
-- [ ] Add suspend/resume button/menu item in system tray
-- [ ] Show dictation state (active/suspended/stopped) in tray icon
+- [x] Add suspend/resume button/menu item in system tray
+- [x] Show dictation state (active/suspended/stopped) in tray icon
 - [ ] Add visual indicator for number conversion mode
 - [ ] Improve error messages when dependencies are missing
 
 ### Functionality
 - [ ] Support for multiple language models simultaneously
-- [ ] Add suspend/resume functionality for dictation (using nerd-dictation's --suspend/--resume)
+- [x] Add suspend/resume functionality for dictation (using nerd-dictation's --suspend/--resume)
 - [ ] Implement dictation history/log
 - [ ] Add voice commands for punctuation and formatting
 - [x] Add number-to-digits conversion option (nerd-dictation --numbers-as-digits)
@@ -49,7 +49,7 @@ This document tracks potential improvements and features to implement in Elograf
 - [ ] Translate documentation to more languages
 
 ## Technical Debt
-- [ ] Add unit tests
+- [x] Add unit tests
 - [ ] Add integration tests
 - [ ] Set up CI/CD pipeline
 - [ ] Improve error handling and logging
