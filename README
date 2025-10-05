@@ -109,7 +109,7 @@ Elograf uses an adaptive IPC (Inter-Process Communication) system:
 Both implementations support single-instance detection and CLI commands (--begin, --end, --exit)
 
 Daemon Behavior:
-- Automatically forks to background on Unix systems (detaches from console)
+- Runs in the foreground and handles signals (Ctrl+C, SIGTERM, SIGHUP) cleanly
 - Writes PID to ~/.config/Elograf/elograf.pid
 - Handles signals (SIGTERM, SIGINT, SIGHUP) for graceful shutdown
 - Cleans up resources (dictation, IPC, PID file) on exit
