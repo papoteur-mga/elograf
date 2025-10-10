@@ -1,3 +1,37 @@
 [build-system]
 requires = ["setuptools>=42"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "EloGraf"
+version = "0.7.0"
+description = "Utility for launching and configuring nerd-dictation for voice recognition"
+authors = [
+    {name = "papoteur", email = "papoteur@mageia.org"}
+]
+readme = "README"
+requires-python = ">=3.7"
+license = {text = "GPL-3.0"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: POSIX :: Linux",
+]
+dependencies = [
+    "ujson",
+    "PyQt6",
+]
+
+[project.urls]
+Homepage = "https://github.com/papoteur-mga/elograf/"
+
+[project.scripts]
+elograf = "eloGraf.elograf:main"
+
+[tool.setuptools]
+packages = ["eloGraf"]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.4.4",
+]

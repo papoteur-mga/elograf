@@ -1,0 +1,13 @@
+# Build artifacts
+*.pyc
+__pycache__/
+*.egg-info/
+build/
+dist/
+*.qm
+
+# Local configuration
+.claude/settings.local.json
+
+# Version file generated at build time
+eloGraf/version.py
