@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+@author: papoteur
+@co-author: Pablo Caro
+
+ABOUTME: Dialog windows for Elograf including model management and configuration
+ABOUTME: Contains Advanced settings dialog with PulseAudio device selection
+"""
 from __future__ import annotations
 
 import logging
@@ -6,7 +15,7 @@ import urllib.error
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-from subprocess import Popen
+from subprocess import Popen, run, PIPE
 from zipfile import ZipFile
 from PyQt6.QtCore import QCoreApplication, QDir, QSize, Qt, QTimer
 from PyQt6.QtGui import QIcon, QStandardItem, QStandardItemModel
@@ -59,6 +68,39 @@ class Models(QStandardItemModel):
             self.setHeaderData(index, Qt.Orientation.Horizontal, label)
 
 
+def get_pulseaudio_sources() -> List[Tuple[str, str]]:
+    """Get available PulseAudio source devices.
+
+    Returns:
+        List of tuples (device_name, description)
+    """
+    try:
+        result = run(["pactl", "list", "sources"], capture_output=True, text=True, timeout=5)
+        if result.returncode != 0:
+            logging.debug("pactl command failed: %s", result.stderr)
+            return []
+
+        sources = []
+        current_name = None
+        current_desc = None
+
+        for line in result.stdout.splitlines():
+            line = line.strip()
+            if line.startswith("Name:"):
+                current_name = line.split(":", 1)[1].strip()
+            elif line.startswith("Description:"):
+                current_desc = line.split(":", 1)[1].strip()
+                if current_name:
+                    sources.append((current_name, current_desc))
+                    current_name = None
+                    current_desc = None
+
+        return sources
+    except (FileNotFoundError, TimeoutError, Exception) as exc:
+        logging.debug("Could not get PulseAudio sources: %s", exc)
+        return []
+
+
 class AdvancedUI(QDialog):
     def __init__(self) -> None:
         super().__init__()
@@ -68,6 +110,7 @@ class AdvancedUI(QDialog):
         self.ui.idleTime.valueChanged.connect(self.idleChanged)
         self.ui.punctuate.valueChanged.connect(self.punctuateChanged)
         self._add_shortcuts_config()
+        self._populate_audio_devices()
 
     def _add_shortcuts_config(self) -> None:
         row_count = self.ui.gridLayout.rowCount()
@@ -113,6 +156,16 @@ class AdvancedUI(QDialog):
 
     def punctuateChanged(self, num: int) -> None:
         self.ui.punctuateDisplay.setText(str(num))
+
+    def _populate_audio_devices(self) -> None:
+        """Populate the device name combo box with available PulseAudio sources."""
+        sources = get_pulseaudio_sources()
+        self.ui.deviceName.clear()
+        self.ui.deviceName.addItem("default", "default")
+
+        for device_name, description in sources:
+            display_text = f"{description} ({device_name})"
+            self.ui.deviceName.addItem(display_text, device_name)
 
 
 class ConfirmDownloadUI(QDialog):
@@ -485,6 +538,12 @@ class ConfigPopup(QDialog):
         tool_field = self._get_ui_attr(adv_window.ui, "tool", "tool_cb")
         if tool_field and hasattr(tool_field, "setCurrentText"):
             tool_field.setCurrentText(self.settings.tool)
+        device_field = self._get_ui_attr(adv_window.ui, "deviceName", "device_name")
+        if device_field:
+            device_name = self.settings.deviceName
+            index = device_field.findData(device_name)
+            if index >= 0:
+                device_field.setCurrentIndex(index)
         adv_window.beginShortcut.setKeySequence(self.settings.beginShortcut)
         adv_window.endShortcut.setKeySequence(self.settings.endShortcut)
         adv_window.toggleShortcut.setKeySequence(self.settings.toggleShortcut)
@@ -514,12 +573,15 @@ class ConfigPopup(QDialog):
             env_field = self._get_ui_attr(adv_window.ui, "env")
             self.settings.env = env_field.text() if env_field else ""
             device_field = self._get_ui_attr(adv_window.ui, "deviceName", "device_name")
-            if device_field and hasattr(device_field, "currentText"):
+            if device_field and hasattr(device_field, "currentData"):
+                device_data = device_field.currentData()
+                self.settings.deviceName = device_data if device_data else "default"
+            elif device_field and hasattr(device_field, "currentText"):
                 self.settings.deviceName = device_field.currentText()
             elif device_field and hasattr(device_field, "text"):
                 self.settings.deviceName = device_field.text()
             else:
-                self.settings.deviceName = ""
+                self.settings.deviceName = "default"
             tool_field = self._get_ui_attr(adv_window.ui, "tool", "tool_cb")
             if tool_field and hasattr(tool_field, "currentText"):
                 self.settings.tool = tool_field.currentText()
