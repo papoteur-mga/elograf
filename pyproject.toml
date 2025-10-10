@@ -9,7 +9,7 @@ description = "Utility for launching and configuring nerd-dictation for voice re
 authors = [
     {name = "papoteur", email = "papoteur@mageia.org"}
 ]
-readme = "README"
+readme = "README.md"
 requires-python = ">=3.7"
 license = {text = "GPL-3.0"}
 classifiers = [
