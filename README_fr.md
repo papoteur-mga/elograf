@@ -102,6 +102,7 @@ Contrôlez une instance Elograf en cours d'exécution depuis le terminal:
 
 ```bash
 elograf --begin                    # Démarrer la dictée
+elograf -s                         # Démarrer la dictée (forme courte, rétro-compatible)
 elograf --end                      # Arrêter la dictée
 elograf --toggle                   # Basculer l'état de la dictée
 elograf --exit                     # Quitter l'application

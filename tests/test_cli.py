@@ -62,3 +62,15 @@ def test_choose_ipc_command_priority():
     assert choose_ipc_command(DummyArgs(exit=False, end=False, begin=False, resume=True, suspend=False, toggle=False)) == "resume"
     assert choose_ipc_command(DummyArgs(exit=False, end=False, begin=False, resume=False, suspend=True, toggle=False)) == "suspend"
     assert choose_ipc_command(DummyArgs(exit=False, end=False, begin=False, resume=False, suspend=False, toggle=True)) == "toggle"
+
+
+def test_s_flag_alias_for_begin():
+    """Test that -s flag is properly aliased to --begin"""
+    from eloGraf.cli import build_parser
+
+    parser = build_parser()
+    args = parser.parse_args(["-s"])
+    assert args.begin is True
+
+    args_long = parser.parse_args(["--begin"])
+    assert args_long.begin is True

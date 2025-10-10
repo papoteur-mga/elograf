@@ -102,6 +102,7 @@ Control a running Elograf instance from the terminal:
 
 ```bash
 elograf --begin                    # Start dictation
+elograf -s                         # Start dictation (short form, backward compatible)
 elograf --end                      # Stop dictation
 elograf --toggle                   # Toggle dictation state
 elograf --exit                     # Exit application

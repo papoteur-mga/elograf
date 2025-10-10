@@ -13,7 +13,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("-l", "--log", help="specify the log level", dest="loglevel")
     parser.add_argument("--version", help="show version and exit", action="store_true")
-    parser.add_argument("--begin", help="begin dictation (or launch if not running)", action="store_true")
+    parser.add_argument("-s", "--begin", help="begin dictation (or launch if not running)", action="store_true")
     parser.add_argument("--end", help="end dictation in running instance", action="store_true")
     parser.add_argument("--exit", help="exit the running instance", action="store_true")
     parser.add_argument("--list-models", help="list available models", action="store_true")
