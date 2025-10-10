@@ -23,7 +23,7 @@ data_files = [
         "share/icons/hicolor/scalable/apps/",
         ["icons/elograf/scalable/micro.svg", "icons/elograf/scalable/nomicro.svg"],
     ),
-    ("share/doc/elograf/", ["README", "LICENSE"]),
+    ("share/doc/elograf/", ["README.md", "LICENSE"]),
     (
         "share/applications/",
         ["elograf.desktop", ],

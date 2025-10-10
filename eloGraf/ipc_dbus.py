@@ -32,6 +32,7 @@ class IPCDBus(IPCManager):
         self.dbus_path = f"/{app_id}"
         self.registered = False
         self.shortcuts = {}  # action -> callback mapping
+        self._kglobalaccel_available = None  # Cache availability check
 
     def is_running(self) -> bool:
         """
@@ -151,12 +152,17 @@ class IPCDBus(IPCManager):
 
     def supports_global_shortcuts(self) -> bool:
         """
-        D-Bus implementation supports global shortcuts via KGlobalAccel.
+        Check if KGlobalAccel is available and working.
 
         Returns:
-            True
+            False - KGlobalAccel integration is currently disabled due to API incompatibility
         """
-        return True
+        # TODO: KGlobalAccel D-Bus API has changed and requires:
+        # 1. QStringList for actionId instead of separate strings
+        # 2. Array of integers for key codes instead of shortcut strings
+        # 3. Proper key string parsing to convert "Meta+Alt+D" to Qt key codes
+        # Disabling for now to prevent error messages
+        return False
 
     def register_global_shortcut(
         self,

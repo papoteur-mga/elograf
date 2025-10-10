@@ -17,7 +17,7 @@ def build_dictation_command(settings: Settings, location: str) -> Tuple[List[str
 
     cmd: List[str] = ["nerd-dictation", "begin"]
     if settings.sampleRate != DEFAULT_RATE:
-        cmd.append(f"sample-rate={settings.sampleRate}")
+        cmd.append(f"--sample-rate={settings.sampleRate}")
     if settings.timeout != 0:
         cmd.append(f"--timeout={settings.timeout}")
     if settings.idleTime != 0:
