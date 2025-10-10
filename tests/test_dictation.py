@@ -50,3 +50,19 @@ def test_build_command_rejects_bad_env():
     settings.env = "INVALID"  # missing '='
     with pytest.raises(CommandBuildError):
         build_dictation_command(settings, "/models/en")
+
+
+def test_build_command_default_device_name_omits_flag():
+    """When deviceName is 'default', --pulse-device-name should not be added."""
+    settings = make_settings()
+    settings.deviceName = "default"
+    cmd, env = build_dictation_command(settings, "/models/en")
+    assert not any("--pulse-device-name" in arg for arg in cmd)
+
+
+def test_build_command_custom_device_name_adds_flag():
+    """When deviceName is set, --pulse-device-name should be added."""
+    settings = make_settings()
+    settings.deviceName = "alsa_input.pci-0000_00_1b.0.analog-stereo"
+    cmd, env = build_dictation_command(settings, "/models/en")
+    assert "--pulse-device-name=alsa_input.pci-0000_00_1b.0.analog-stereo" in cmd
