@@ -492,9 +492,11 @@ class ConfigPopup(QDialog):
             self.update_list(len(self.settings.models) - 1)
 
     def edit(self) -> None:
+        selected_row = None
         for index in self.table.selectedIndexes():
             for i, model in enumerate(self.settings.models):
                 if model["name"] == self.list.data(self.list.index(index.row(), 1)):
+                    selected_row = i
                     dialog = CustomUI(i, self.settings)
                     dialog.ui.filePicker.setText(model["location"])
                     dialog.ui.languageLineEdit.setText(model["language"])
@@ -505,7 +507,8 @@ class ConfigPopup(QDialog):
                     dialog.exec()
                     break
             break
-        self.update_list(i)
+        if selected_row is not None:
+            self.update_list(selected_row)
 
     def advanced(self) -> None:
         adv_window = AdvancedUI()
