@@ -379,6 +379,7 @@ class ConfigPopup(QDialog):
         super().__init__(parent)
         self.settings = Settings()
         self.currentModel = current_model
+        self.returnValue = None
 
         self.setWindowTitle("Elograf - " + version.__version__)
         self.setWindowIcon(QIcon(":/icons/elograf/24/micro.png"))
