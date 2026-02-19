@@ -33,6 +33,7 @@ TRANSLATIONS     += eloGraf/translations/elograf_it.ts
 TRANSLATIONS     += eloGraf/translations/elograf_nb.ts
 TRANSLATIONS     += eloGraf/translations/elograf_pt.ts
 TRANSLATIONS     += eloGraf/translations/elograf_pt_BR.ts
+TRANSLATIONS     += eloGraf/translations/elograf_ro.ts
 TRANSLATIONS     += eloGraf/translations/elograf_ru.ts
 TRANSLATIONS     += eloGraf/translations/elograf_sv.ts
 TRANSLATIONS     += eloGraf/translations/elograf_uk.ts
