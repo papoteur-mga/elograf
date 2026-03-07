@@ -187,3 +187,31 @@ def test_tooltip_includes_device_name(tray):
     tray_icon._update_tooltip()
     tooltip = tray_icon.toolTip()
     assert "alsa_input.usb-Q2U_Microphone.stereo" in tooltip
+
+
+def test_stop_action_behavior(tray):
+    tray_icon, _ = tray
+    # Initial state: IDLE
+    assert hasattr(tray_icon, "stopAction")
+    assert tray_icon.stopAction.text() == "Stop dictation"
+    assert tray_icon.stopAction.isEnabled() is False
+
+    # State: READY/DICTATING
+    tray_icon.state_machine.set_ready()
+    assert tray_icon.stopAction.isEnabled() is True
+
+    # State: SUSPENDED
+    tray_icon.state_machine.set_suspended()
+    assert tray_icon.stopAction.isEnabled() is True
+
+    # Back to IDLE
+    tray_icon.state_machine.set_idle()
+    assert tray_icon.stopAction.isEnabled() is False
+
+
+def test_no_redundant_actions_in_menu(tray):
+    tray_icon, _ = tray
+    # Verify suspendAction and resumeAction are no longer as attributes 
+    # (meaning they weren't created/added in __init__)
+    assert not hasattr(tray_icon, "suspendAction")
+    assert not hasattr(tray_icon, "resumeAction")

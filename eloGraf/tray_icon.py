@@ -63,14 +63,11 @@ class SystemTrayIcon(QSystemTrayIcon):
         menu = QMenu(parent)
 
         self.toggleAction = menu.addAction(self.tr("Toggle dictation"))
-        self.suspendAction = menu.addAction(self.tr("Suspend dictation"))
-        self.resumeAction = menu.addAction(self.tr("Resume dictation"))
+        self.stopAction = menu.addAction(self.tr("Stop dictation"))
         self.toggleAction.triggered.connect(self.controller_toggle)
-        self.suspendAction.triggered.connect(self.suspend)
-        self.resumeAction.triggered.connect(self.resume)
+        self.stopAction.triggered.connect(self.end)
         self.toggleAction.setEnabled(True)
-        self.suspendAction.setEnabled(False)
-        self.resumeAction.setEnabled(False)
+        self.stopAction.setEnabled(False)
         configAction = menu.addAction(self.tr("Configuration"))
         exitAction = menu.addAction(self.tr("Exit"))
         self.setContextMenu(menu)
@@ -177,6 +174,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         self.dictating = False
         self.suspended = False
+        self.state_machine.set_idle()
         self._update_action_states()
         self._update_tooltip()
         self._run_postcommand_once()
@@ -204,12 +202,9 @@ class SystemTrayIcon(QSystemTrayIcon):
         """Update menu action states based on current dictation state."""
         state = getattr(self, "state_machine", None)
         snapshot = state.state if state else None
-        runner = self.dictation_runner
 
-        if hasattr(self, "suspendAction") and snapshot and runner:
-            self.suspendAction.setEnabled(runner.is_running() and not snapshot.suspended)
-        if hasattr(self, "resumeAction") and snapshot:
-            self.resumeAction.setEnabled(snapshot.suspended)
+        if hasattr(self, "stopAction") and snapshot:
+            self.stopAction.setEnabled(snapshot.dictating)
 
     def _register_global_shortcuts(self):
         """Register global keyboard shortcuts if IPC supports it"""
