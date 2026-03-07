@@ -10,7 +10,7 @@ authors = [
     {name = "papoteur", email = "papoteur@mageia.org"}
 ]
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 license = {text = "GPL-3.0"}
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -27,6 +27,17 @@ dependencies = [
     "websocket-client",
 ]
 
+[project.optional-dependencies]
+local_stt = [
+    "vosk>=0.3.45",
+    "silero-vad>=4.0.0",
+    "torch>=2.0.0",
+    "torchaudio>=2.0.0",
+    "webrtcvad>=2.0.10",
+    "setuptools",
+    "psutil",
+]
+
 [project.urls]
 Homepage = "https://github.com/papoteur-mga/elograf/"
 
@@ -40,4 +51,5 @@ packages = ["eloGraf"]
 dev = [
     "pytest>=7.4.4",
     "pytest-qt>=4.2.0",
+    "numpy",
 ]

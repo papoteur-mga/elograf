@@ -266,10 +266,29 @@ def generate_settings_tab(settings_class: Type, instance: Any | None = None) -> 
             # Add button spanning both columns
             form_layout.addRow(widget)
         else:
-            label = QLabel(label_text)
             if "tooltip" in field.metadata:
-                label.setToolTip(field.metadata["tooltip"])
-            form_layout.addRow(label, widget)
+                # Create a container for label + info icon
+                label_container = QWidget()
+                label_layout = QHBoxLayout(label_container)
+                label_layout.setContentsMargins(0, 0, 0, 0)
+                label_layout.setSpacing(4)
+                
+                label = QLabel(label_text)
+                
+                info_icon = QLabel("ⓘ")
+                info_icon.setStyleSheet("color: #3498db; font-weight: bold;")
+                # Wrap tooltip in HTML to force white color on dark background as requested
+                tooltip_text = field.metadata["tooltip"]
+                info_icon.setToolTip(f"<html><body style='color: white; background-color: #333333; padding: 2px;'>{tooltip_text}</body></html>")
+                
+                label_layout.addWidget(label)
+                label_layout.addWidget(info_icon)
+                label_layout.addStretch()
+                
+                form_layout.addRow(label_container, widget)
+            else:
+                label = QLabel(label_text)
+                form_layout.addRow(label, widget)
 
     layout.addLayout(form_layout)
     layout.addStretch()

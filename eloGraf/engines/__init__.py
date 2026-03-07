@@ -9,6 +9,7 @@ from .google import engine  # noqa: F401
 from .openai import engine  # noqa: F401
 from .assemblyai import engine  # noqa: F401
 from .gemini import engine  # noqa: F401
+from .vosk_local import engine  # noqa: F401
 
 __all__ = [
     "nerd",
@@ -17,4 +18,5 @@ __all__ = [
     "openai",
     "assemblyai",
     "gemini",
+    "vosk_local",
 ]

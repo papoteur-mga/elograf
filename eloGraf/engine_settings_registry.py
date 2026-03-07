@@ -39,6 +39,11 @@ ENGINES: Dict[str, Dict[str, str]] = {
         "class": "GeminiSettings",
         "display_name": "Gemini Live API",
     },
+    "vosk-local": {
+        "module": "eloGraf.engines.vosk_local.settings",
+        "class": "VoskLocalSettings",
+        "display_name": "Vosk (Local)",
+    },
 }
 
 

@@ -126,6 +126,31 @@ def setup_signal_handlers(tray_icon):
     tray_icon._exit_timer = timer  # Keep reference to prevent garbage collection
 
 
+class ColoredFormatter(logging.Formatter):
+    """Logging Formatter to add colors to terminal output."""
+
+    # ANSI escape sequences for colors
+    GREY = "\x1b[38;21m"
+    YELLOW = "\x1b[33;21m"
+    RED = "\x1b[31;21m"
+    BOLD_RED = "\x1b[31;1m"
+    RESET = "\x1b[0m"
+    FORMAT = "%(message)s"
+
+    FORMATS = {
+        logging.DEBUG: GREY + FORMAT + RESET,
+        logging.INFO: RESET + FORMAT + RESET,  # Standard color for INFO
+        logging.WARNING: YELLOW + FORMAT + RESET,
+        logging.ERROR: RED + FORMAT + RESET,
+        logging.CRITICAL: BOLD_RED + FORMAT + RESET,
+    }
+
+    def format(self, record):
+        log_fmt = self.FORMATS.get(record.levelno)
+        formatter = logging.Formatter(log_fmt)
+        return formatter.format(record)
+
+
 def setup_logging(args: argparse.Namespace) -> None:
     """Configure logging based on command-line arguments."""
     if args.loglevel is not None:
@@ -134,7 +159,18 @@ def setup_logging(args: argparse.Namespace) -> None:
         numeric_level = logging.INFO
     if not isinstance(numeric_level, int):
         raise ValueError("Invalid log level: %s" % args.loglevel)
-    logging.basicConfig(level=numeric_level, format='%(message)s')
+    
+    # Configure root logger with custom colored formatter
+    root_logger = logging.getLogger()
+    root_logger.setLevel(numeric_level)
+    
+    # Clear existing handlers if any
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+        
+    handler = logging.StreamHandler()
+    handler.setFormatter(ColoredFormatter())
+    root_logger.addHandler(handler)
 
 
 def handle_cli_commands_and_exit_if_needed(args: argparse.Namespace, ipc: IPCManager) -> None:
