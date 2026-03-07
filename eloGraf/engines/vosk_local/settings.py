@@ -57,13 +57,22 @@ class VoskLocalSettings(EngineSettings):
             "label": "VAD Type",
             "widget": "dropdown",
             "options": ["silero", "webrtc", "rms"],
+            "option_descriptions": {
+                "silero": "Neural VAD - Most accurate speech detection, higher CPU usage",
+                "webrtc": "Algorithmic VAD - Fast and lightweight, best in quiet environments",
+                "rms": "Volume-based VAD - Simplest method, detects any loud sound",
+            },
             "tooltip": (
-                "1. Silero (Neural): El más preciso, detecta muy bien el habla humana incluso con ruido de fondo, "
-                "pero usa más CPU y memoria.\n"
-                "2. WebRTC (Algorítmico): Muy rápido y ligero, excelente en entornos silenciosos, "
-                "pero puede confundirse con ruidos constantes (ventiladores, etc.).\n"
-                "3. RMS (Volumen): El más simple (detecta si el sonido supera un 'volumen'). "
-                "Es el que menos falla, pero el que menos distingue entre un golpe en la mesa y una palabra."
+                "<b>Voice Activity Detection Method</b><br><br>"
+                "<ul>"
+                "<li><b>Silero:</b> Neural network-based. Most accurate at detecting human "
+                "speech even with background noise, but uses more CPU and memory.</li>"
+                "<li><b>WebRTC:</b> Algorithmic VAD from Google's WebRTC project. Very fast "
+                "and lightweight, excellent in quiet environments, but may confuse constant "
+                "noise (fans, etc.) with speech.</li>"
+                "<li><b>RMS:</b> Simple volume threshold. Fastest and simplest, triggers on "
+                "any sound above the threshold. May confuse table knocks with words.</li>"
+                "</ul>"
             ),
         }
     )

@@ -90,7 +90,10 @@ def create_widget_from_field(field: Field, value: Any) -> QWidget:
         if metadata.get("readonly", False):
             widget.setReadOnly(True)
         if "tooltip" in metadata:
-            widget.setToolTip(metadata["tooltip"])
+            # Style: black text on red background as requested
+            tooltip_text = metadata["tooltip"]
+            styled_tooltip = f"<html><body style='color: black; background-color: #ff4444; padding: 5px;'>\n{tooltip_text}\n</body></html>"
+            widget.setToolTip(styled_tooltip)
         return widget
 
     elif widget_type == "password":
@@ -98,19 +101,26 @@ def create_widget_from_field(field: Field, value: Any) -> QWidget:
         widget.setEchoMode(QLineEdit.EchoMode.Password)
         widget.setText(str(value) if value is not None else "")
         if "tooltip" in metadata:
-            widget.setToolTip(metadata["tooltip"])
+            # Style: black text on red background as requested
+            tooltip_text = metadata["tooltip"]
+            styled_tooltip = f"<html><body style='color: black; background-color: #ff4444; padding: 5px;'>\n{tooltip_text}\n</body></html>"
+            widget.setToolTip(styled_tooltip)
         return widget
 
     elif widget_type == "checkbox":
         widget = QCheckBox()
         widget.setChecked(bool(value))
         if "tooltip" in metadata:
-            widget.setToolTip(metadata["tooltip"])
+            # Style: black text on red background as requested
+            tooltip_text = metadata["tooltip"]
+            styled_tooltip = f"<html><body style='color: black; background-color: #ff4444; padding: 5px;'>\n{tooltip_text}\n</body></html>"
+            widget.setToolTip(styled_tooltip)
         return widget
 
     elif widget_type == "dropdown":
         choices_function = metadata.get("choices_function")
         refreshable = metadata.get("refreshable", False)
+        option_descriptions = metadata.get("option_descriptions", {})
 
         # Create the combo box
         combo = QComboBox()
@@ -124,7 +134,12 @@ def create_widget_from_field(field: Field, value: Any) -> QWidget:
             # Use static options from metadata
             options = metadata.get("options", [])
             for option in options:
-                combo.addItem(option)
+                # Build tooltip for this option if description exists
+                if option in option_descriptions:
+                    desc = option_descriptions[option]
+                    combo.addItem(option, desc)
+                else:
+                    combo.addItem(option)
 
         # Set current value
         if value is not None:
@@ -139,7 +154,20 @@ def create_widget_from_field(field: Field, value: Any) -> QWidget:
                     combo.setCurrentIndex(index)
 
         if "tooltip" in metadata:
-            combo.setToolTip(metadata["tooltip"])
+            # Style: black text on red background as requested
+            tooltip_text = metadata["tooltip"]
+            styled_tooltip = f"<html><body style='color: black; background-color: #ff4444; padding: 5px;'>\n{tooltip_text}\n</body></html>"
+            combo.setToolTip(styled_tooltip)
+        elif option_descriptions:
+            # Build a dynamic tooltip showing all options with descriptions
+            tooltip_parts = ["<b>Available Options:</b>", "<ul>"]
+            for option in options:
+                desc = option_descriptions.get(option, "")
+                tooltip_parts.append(f"<li><b>{option}:</b> {desc}</li>")
+            tooltip_parts.append("</ul>")
+            tooltip_html = "\n".join(tooltip_parts)
+            styled_tooltip = f"<html><body style='color: black; background-color: #ff4444; padding: 5px;'>\n{tooltip_html}\n</body></html>"
+            combo.setToolTip(styled_tooltip)
 
         # If refreshable, wrap in container with refresh button
         if refreshable and choices_function:
@@ -192,7 +220,10 @@ def create_widget_from_field(field: Field, value: Any) -> QWidget:
         layout.addWidget(display_label)
 
         if "tooltip" in metadata:
-            slider.setToolTip(metadata["tooltip"])
+            # Style: black text on red background as requested
+            tooltip_text = metadata["tooltip"]
+            styled_tooltip = f"<html><body style='color: black; background-color: #ff4444; padding: 5px;'>\n{tooltip_text}\n</body></html>"
+            slider.setToolTip(styled_tooltip)
 
         # Store references for later value reading
         container.slider = slider  # type: ignore
@@ -206,7 +237,10 @@ def create_widget_from_field(field: Field, value: Any) -> QWidget:
         if callback and callable(callback):
             button.clicked.connect(callback)
         if "tooltip" in metadata:
-            button.setToolTip(metadata["tooltip"])
+            # Style: black text on red background as requested
+            tooltip_text = metadata["tooltip"]
+            styled_tooltip = f"<html><body style='color: black; background-color: #ff4444; padding: 5px;'>\n{tooltip_text}\n</body></html>"
+            button.setToolTip(styled_tooltip)
         return button
 
     else:
@@ -277,9 +311,9 @@ def generate_settings_tab(settings_class: Type, instance: Any | None = None) -> 
                 
                 info_icon = QLabel("ⓘ")
                 info_icon.setStyleSheet("color: #3498db; font-weight: bold;")
-                # Wrap tooltip in HTML to force white color on dark background as requested
+                # Style: black text on red background as requested
                 tooltip_text = field.metadata["tooltip"]
-                info_icon.setToolTip(f"<html><body style='color: white; background-color: #333333; padding: 2px;'>{tooltip_text}</body></html>")
+                info_icon.setToolTip(f"<html><body style='color: black; background-color: #ff4444; padding: 5px;'>\n{tooltip_text}\n</body></html>")
                 
                 label_layout.addWidget(label)
                 label_layout.addWidget(info_icon)
