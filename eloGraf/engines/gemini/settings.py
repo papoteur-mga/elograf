@@ -22,7 +22,12 @@ class GeminiSettings(EngineSettings):
         metadata={
             "label": "API Key",
             "widget": "password",
-            "tooltip": "Google AI API key from https://aistudio.google.com/apikey",
+            "tooltip": (
+                "<b>Google AI API Key</b><br>"
+                "API key for Gemini Live API.<br><br>"
+                "<i>Get your key at:</i> aistudio.google.com/apikey<br>"
+                "<i>Note:</i> Different from Google Cloud credentials"
+            ),
         }
     )
 
@@ -31,7 +36,16 @@ class GeminiSettings(EngineSettings):
         metadata={
             "label": "Model",
             "widget": "text",
-            "tooltip": "Gemini model name (gemini-2.5-flash recommended for real-time)",
+            "tooltip": (
+                "<b>Gemini Model</b><br>"
+                "Select the Gemini model for transcription.<br><br>"
+                "<b>gemini-2.5-flash:</b><br>"
+                "- Recommended for real-time<br>"
+                "- Fastest response time<br>"
+                "<b>gemini-2.5-pro:</b><br>"
+                "- Higher accuracy<br>"
+                "- More capable with complex audio"
+            ),
         }
     )
 

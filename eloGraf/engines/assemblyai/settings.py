@@ -22,7 +22,12 @@ class AssemblyAISettings(EngineSettings):
         metadata={
             "label": "API Key",
             "widget": "password",
-            "tooltip": "AssemblyAI API key or short-lived realtime token",
+            "tooltip": (
+                "<b>AssemblyAI API Key</b><br>"
+                "API key for AssemblyAI Realtime transcription.<br><br>"
+                "<i>Get your key at:</i> www.assemblyai.com<br>"
+                "<i>Note:</i> Supports regular API keys or temporary tokens"
+            ),
         }
     )
 
@@ -31,7 +36,13 @@ class AssemblyAISettings(EngineSettings):
         metadata={
             "label": "Model",
             "widget": "text",
-            "tooltip": "Streaming model identifier (e.g. universal, default, meeting)",
+            "tooltip": (
+                "<b>Transcription Model</b><br>"
+                "AssemblyAI model optimized for different use cases.<br><br>"
+                "<b>universal:</b> General purpose (default)<br>"
+                "<b>meeting:</b> Multi-speaker conversations<br>"
+                "<b>default:</b> Balanced accuracy/speed"
+            ),
         }
     )
 

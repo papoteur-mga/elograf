@@ -23,7 +23,14 @@ class NerdSettings(EngineSettings):
         metadata={
             "label": "Sample rate (Hz)",
             "widget": "text",
-            "tooltip": "The sample rate to use for recording (in Hz). Defaults to 44100",
+            "tooltip": (
+                "<b>Audio Sample Rate</b><br>"
+                "Sample rate for recording in Hertz.<br><br>"
+                "<i>Common values:</i><br>"
+                "44100 Hz: CD quality (default)<br>"
+                "48000 Hz: Professional audio<br>"
+                "16000 Hz: Lower quality, smaller files"
+            ),
         }
     )
 
@@ -33,9 +40,11 @@ class NerdSettings(EngineSettings):
             "label": "Timeout (s)",
             "widget": "slider",
             "tooltip": (
-                "Time out recording when no speech is processed for the time in seconds.\n"
-                "This can be used to avoid having to explicitly exit\n"
-                "(zero disables)"
+                "<b>Recording Timeout</b><br>"
+                "Automatically stop recording after silence period.<br><br>"
+                "<i>0:</i> Disabled (manual stop required)<br>"
+                "<i>2-5:</i> Stop after short silence<br>"
+                "<i>Useful for:</i> Hands-free dictation without explicit stop"
             ),
             "range": [0, 100],
             "step": 1,
@@ -78,8 +87,12 @@ class NerdSettings(EngineSettings):
             "label": "Full sentence",
             "widget": "checkbox",
             "tooltip": (
-                "Capitalize the first character.\n"
-                "This is also used to add either a comma or a full stop when dictation is performed according to previous delay"
+                "<b>Full Sentence Formatting</b><br>"
+                "Capitalize first letter and add punctuation.<br><br>"
+                "<i>Enabled:</i><br>"
+                "- Capitalizes first character<br>"
+                "- Adds comma/full stop based on pause length<br><br>"
+                "<i>Best for:</i> Continuous dictation of full sentences"
             ),
         }
     )
@@ -89,7 +102,14 @@ class NerdSettings(EngineSettings):
         metadata={
             "label": "Numbers as digits",
             "widget": "checkbox",
-            "tooltip": "Convert numbers into digits instead of using whole words",
+            "tooltip": (
+                "<b>Number Format</b><br>"
+                "Convert spoken numbers to digits.<br><br>"
+                "<i>Example:</i><br>"
+                "'twenty five' → '25'<br>"
+                "'one hundred' → '100'<br><br>"
+                "<i>Best for:</i> Technical content, addresses, phone numbers"
+            ),
         }
     )
 

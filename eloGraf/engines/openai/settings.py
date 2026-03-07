@@ -22,7 +22,12 @@ class OpenAISettings(EngineSettings):
         metadata={
             "label": "API Key",
             "widget": "password",
-            "tooltip": "OpenAI API key with realtime access enabled",
+            "tooltip": (
+                "<b>OpenAI API Key</b><br>"
+                "API key with access to Realtime API.<br><br>"
+                "<i>Get your key at:</i> platform.openai.com/api-keys<br>"
+                "<i>Note:</i> Requires billing enabled on your account"
+            ),
         }
     )
 
@@ -32,8 +37,16 @@ class OpenAISettings(EngineSettings):
             "label": "Transcription Model",
             "widget": "dropdown",
             "tooltip": (
-                "Select the transcription model used inside the realtime session "
-                "(mapped to the appropriate session model automatically)."
+                "<b>Transcription Model</b><br>"
+                "Select the model for speech recognition.<br><br>"
+                "<b>gpt-4o-transcribe:</b><br>"
+                "- Higher accuracy<br>"
+                "- Better for complex vocabulary<br>"
+                "- Higher cost<br><br>"
+                "<b>gpt-4o-mini-transcribe:</b><br>"
+                "- Faster response<br>"
+                "- Lower cost<br>"
+                "- Good for general use"
             ),
             "options": ["gpt-4o-transcribe", "gpt-4o-mini-transcribe"],
         }

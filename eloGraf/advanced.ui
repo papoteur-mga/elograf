@@ -39,7 +39,7 @@
           <item row="0" column="0">
            <widget class="QLabel" name="label_stt_engine">
             <property name="toolTip">
-             <string>Speech-to-Text engine to use for dictation</string>
+             <string>&lt;b&gt;Speech-to-Text Engine&lt;/b&gt;&lt;br&gt;Select the STT engine for dictation.&lt;br&gt;&lt;br&gt;&lt;b&gt;nerd-dictation:&lt;/b&gt; Local, offline, private&lt;br&gt;&lt;b&gt;whisper-docker:&lt;/b&gt; High accuracy, requires Docker&lt;br&gt;&lt;b&gt;google-cloud-speech:&lt;/b&gt; Enterprise-grade, requires GCP account&lt;br&gt;&lt;b&gt;openai-realtime:&lt;/b&gt; Low latency, requires API key&lt;br&gt;&lt;b&gt;assemblyai:&lt;/b&gt; Real-time streaming&lt;br&gt;&lt;b&gt;gemini:&lt;/b&gt; Google AI, requires API key</string>
             </property>
             <property name="text">
              <string>STT Engine</string>
@@ -110,6 +110,9 @@
          </item>
          <item row="12" column="0">
           <widget class="QLabel" name="label_13">
+           <property name="toolTip">
+            <string>&lt;b&gt;Input Simulation Tool&lt;/b&gt;&lt;br&gt;Method for typing transcribed text.&lt;br&gt;&lt;br&gt;&lt;b&gt;XDOTOOL:&lt;/b&gt; Simulates X11 keyboard events&lt;br&gt;- More compatible with all applications&lt;br&gt;- Requires xdotool installed&lt;br&gt;&lt;br&gt;&lt;b&gt;DOTOOL:&lt;/b&gt; Uses /dev/uinput directly&lt;br&gt;- Faster and more reliable&lt;br&gt;- Requires root or udev configuration</string>
+           </property>
            <property name="text">
             <string>Input simulate tool</string>
            </property>
@@ -120,6 +123,9 @@
          </item>
          <item row="2" column="0">
           <widget class="QLabel" name="label_12">
+           <property name="toolTip">
+            <string>&lt;b&gt;Environment Variables&lt;/b&gt;&lt;br&gt;Environment variables for the dictation process.&lt;br&gt;&lt;br&gt;&lt;i&gt;Format:&lt;/i&gt; VAR1=value1, VAR2=value2&lt;br&gt;&lt;i&gt;Example:&lt;/i&gt; LD_LIBRARY_PATH=/opt/lib</string>
+           </property>
            <property name="text">
             <string>Environment variables</string>
            </property>
@@ -128,7 +134,7 @@
          <item row="1" column="0">
           <widget class="QLabel" name="label_11">
            <property name="toolTip">
-            <string>Command to execute after the dictation is stopped</string>
+            <string>&lt;b&gt;Post-command&lt;/b&gt;&lt;br&gt;Shell command to execute after dictation stops.&lt;br&gt;&lt;br&gt;&lt;i&gt;Typical use:&lt;/i&gt; Restore environment, send notifications, etc.&lt;br&gt;&lt;i&gt;Example:&lt;/i&gt; notify-send "Dictation ended"</string>
            </property>
            <property name="text">
             <string>Postcommand</string>
@@ -138,7 +144,7 @@
          <item row="0" column="0">
           <widget class="QLabel" name="label_10">
            <property name="toolTip">
-            <string>Command to execute before launching the dictation</string>
+            <string>&lt;b&gt;Pre-command&lt;/b&gt;&lt;br&gt;Shell command to execute before starting dictation.&lt;br&gt;&lt;br&gt;&lt;i&gt;Typical use:&lt;/i&gt; Prepare environment, change keyboard layout, etc.&lt;br&gt;&lt;i&gt;Example:&lt;/i&gt; setxkbmap us</string>
            </property>
            <property name="text">
             <string>Precommand</string>
@@ -148,8 +154,7 @@
          <item row="3" column="0">
           <widget class="QLabel" name="label">
            <property name="toolTip">
-            <string>The name of the pulse-audio device to use for recording. 
-See the output of "pactl list sources" to find device names (using the identifier following "Name:")</string>
+            <string>&lt;b&gt;Audio Input Device&lt;/b&gt;&lt;br&gt;PulseAudio source device for recording.&lt;br&gt;&lt;br&gt;&lt;i&gt;To list available devices:&lt;/i&gt;&lt;br&gt;&lt;code&gt;pactl list sources&lt;/code&gt;&lt;br&gt;&lt;br&gt;Use the identifier after "Name:" in the output.</string>
            </property>
            <property name="text">
             <string>Pulse device name</string>
@@ -158,6 +163,9 @@ See the output of "pactl list sources" to find device names (using the identifie
          </item>
          <item row="13" column="0">
           <widget class="QLabel" name="label_14">
+           <property name="toolTip">
+            <string>&lt;b&gt;Keyboard Layout&lt;/b&gt;&lt;br&gt;Layout used by DOTOOL to simulate keystrokes.&lt;br&gt;&lt;br&gt;&lt;i&gt;Examples:&lt;/i&gt; es, en, us, de, fr&lt;br&gt;Leave empty to auto-detect.</string>
+           </property>
            <property name="text">
             <string>Keyboard layout</string>
            </property>
@@ -166,14 +174,14 @@ See the output of "pactl list sources" to find device names (using the identifie
          <item row="13" column="1">
           <widget class="QLineEdit" name="keyboard_le">
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is used for DOTOOL method&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;b&gt;Keyboard Layout&lt;/b&gt;&lt;br&gt;Layout code used by DOTOOL method.&lt;br&gt;&lt;br&gt;&lt;i&gt;Examples:&lt;/i&gt; es, en, us, de, fr&lt;br&gt;Leave empty for auto-detection.</string>
            </property>
           </widget>
          </item>
          <item row="14" column="0">
           <widget class="QLabel" name="label_direct_click">
            <property name="toolTip">
-            <string>When enabled, clicking the tray icon directly toggles dictation. When disabled, shows Start/Stop buttons in the menu.</string>
+            <string>&lt;b&gt;Direct Click Toggle&lt;/b&gt;&lt;br&gt;Tray icon click behavior.&lt;br&gt;&lt;br&gt;&lt;b&gt;Enabled:&lt;/b&gt; Single click toggles dictation on/off&lt;br&gt;&lt;b&gt;Disabled:&lt;/b&gt; Click shows menu with Start/Stop buttons</string>
            </property>
            <property name="text">
             <string>Direct click toggle</string>

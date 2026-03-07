@@ -22,7 +22,14 @@ class GoogleCloudSettings(EngineSettings):
         metadata={
             "label": "Credentials Path",
             "widget": "text",
-            "tooltip": "Filesystem path to the Google Cloud service account JSON file",
+            "tooltip": (
+                "<b>Service Account Credentials</b><br>"
+                "Path to the Google Cloud service account JSON key file.<br><br>"
+                "<i>How to obtain:</i><br>"
+                "1. Go to Google Cloud Console → IAM & Admin → Service Accounts<br>"
+                "2. Create key → Download JSON<br>"
+                "3. Set path to the downloaded file"
+            ),
         }
     )
 
@@ -49,7 +56,16 @@ class GoogleCloudSettings(EngineSettings):
         metadata={
             "label": "Model",
             "widget": "text",
-            "tooltip": "Google Cloud Speech model name (chirp_3, latest_long, latest_short, ...)",
+            "tooltip": (
+                "<b>Speech Recognition Model</b><br>"
+                "Google Cloud Speech model to use.<br><br>"
+                "<b>Recommended models:</b><br>"
+                "<b>chirp_3:</b> Latest generation, best quality<br>"
+                "<b>latest_long:</b> Optimized for long-form audio<br>"
+                "<b>latest_short:</b> Optimized for short utterances<br>"
+                "<b>command_and_search:</b> Voice commands<br>"
+                "<b>phone_call:</b> Telephony audio"
+            ),
         }
     )
 

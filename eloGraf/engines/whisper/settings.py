@@ -23,7 +23,15 @@ class WhisperSettings(EngineSettings):
         metadata={
             "label": "Whisper Model",
             "widget": "dropdown",
-            "tooltip": "Whisper model size (whisper-docker only)",
+            "tooltip": (
+                "<b>Whisper Model Size</b><br>"
+                "Select the model based on accuracy vs speed trade-off:<br><br>"
+                "<b>tiny:</b> Fastest, lowest accuracy (~39 MB)<br>"
+                "<b>base:</b> Good balance (~74 MB)<br>"
+                "<b>small:</b> Better accuracy (~244 MB)<br>"
+                "<b>medium:</b> High accuracy (~769 MB)<br>"
+                "<b>large-v3:</b> Best accuracy, slowest (~1.5 GB)"
+            ),
             "options": ["tiny", "base", "small", "medium", "large-v3"],
         }
     )
@@ -33,7 +41,12 @@ class WhisperSettings(EngineSettings):
         metadata={
             "label": "Whisper Port",
             "widget": "text",
-            "tooltip": "API port for Whisper Docker container",
+            "tooltip": (
+                "<b>API Port</b><br>"
+                "Port for the Whisper Docker container REST API.<br><br>"
+                "<i>Default:</i> 9000<br>"
+                "<i>Range:</i> 1-65535"
+            ),
         }
     )
 
@@ -42,7 +55,12 @@ class WhisperSettings(EngineSettings):
         metadata={
             "label": "Whisper Language",
             "widget": "text",
-            "tooltip": "Language code for Whisper (e.g., 'es', 'en') - leave empty for auto-detect",
+            "tooltip": (
+                "<b>Language Code</b><br>"
+                "ISO 639-1 language code for transcription.<br><br>"
+                "<i>Examples:</i> en, es, fr, de, it<br>"
+                "<i>Leave empty for auto-detection</i>"
+            ),
         }
     )
 
@@ -51,7 +69,13 @@ class WhisperSettings(EngineSettings):
         metadata={
             "label": "Whisper Chunk Duration (s)",
             "widget": "text",
-            "tooltip": "Audio chunk duration in seconds for Whisper processing",
+            "tooltip": (
+                "<b>Audio Chunk Duration</b><br>"
+                "Length of audio segments sent for transcription.<br><br>"
+                "<i>Shorter (2-3s):</i> Lower latency, more requests<br>"
+                "<i>Longer (5-10s):</i> Better context, less overhead<br>"
+                "<i>Default:</i> 5.0 seconds"
+            ),
         }
     )
 
@@ -78,7 +102,12 @@ class WhisperSettings(EngineSettings):
         metadata={
             "label": "VAD Enabled",
             "widget": "checkbox",
-            "tooltip": "Skip silent chunks by enabling voice activity detection",
+            "tooltip": (
+                "<b>Voice Activity Detection</b><br>"
+                "Skip silent audio chunks to reduce API calls.<br><br>"
+                "<i>Enabled:</i> Only send chunks with detected speech<br>"
+                "<i>Disabled:</i> Process all audio chunks"
+            ),
         }
     )
 
@@ -87,7 +116,14 @@ class WhisperSettings(EngineSettings):
         metadata={
             "label": "VAD Threshold",
             "widget": "text",
-            "tooltip": "RMS loudness threshold; higher values filter more background noise",
+            "tooltip": (
+                "<b>VAD Threshold</b><br>"
+                "RMS loudness threshold for voice detection.<br><br>"
+                "<i>Lower (100-300):</i> Detects quiet speech, more false positives<br>"
+                "<i>Medium (400-600):</i> Good for normal environments<br>"
+                "<i>Higher (700-1000):</i> Filters noise, may miss quiet speech<br>"
+                "<i>Default:</i> 500"
+            ),
         }
     )
 
