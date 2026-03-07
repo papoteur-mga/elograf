@@ -15,7 +15,7 @@ import urllib.error
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-from PyQt6.QtCore import QDir
+from PyQt6.QtCore import QDir, Qt
 from PyQt6.QtWidgets import (
     QDialog,
     QKeySequenceEdit,
@@ -25,6 +25,8 @@ from PyQt6.QtWidgets import (
     QWidget,
     QHBoxLayout,
     QComboBox,
+    QVBoxLayout,
+    QFormLayout,
 )
 
 import eloGraf.advanced as advanced  # type: ignore
@@ -58,8 +60,74 @@ class AdvancedUI(QDialog):
         # Update engine dropdown to include all registered engines
         self._populate_engine_dropdown()
 
+        # Add info icons to General tab labels
+        self._add_info_icons_to_general_tab()
+
+        # Synchronize tabs with current selection
+        self._on_stt_engine_changed(self.ui.stt_engine_cb.currentIndex())
+
         self.ui.stt_engine_cb.currentIndexChanged.connect(self._on_stt_engine_changed)
 
+    def _add_info_icons_to_general_tab(self) -> None:
+        """Add info icons to labels in the General tab that have tooltips."""
+        layout = self.ui.general_grid_layout
+        
+        # Iterate through all widgets in the general grid layout
+        for i in range(layout.rowCount()):
+            item = layout.itemAtPosition(i, 0)
+            if not item:
+                continue
+                
+            widget = item.widget()
+            if isinstance(widget, QLabel) and widget.toolTip():
+                tooltip_text = widget.toolTip()
+                # Clear original tooltip from label to avoid double tooltip
+                widget.setToolTip("")
+                
+                # Create container for label + icon
+                container = QWidget()
+                h_layout = QHBoxLayout(container)
+                h_layout.setContentsMargins(0, 0, 0, 0)
+                h_layout.setSpacing(4)
+                
+                # Move label to container (widget is the existing label)
+                # We need to remove it from the grid first
+                layout.removeWidget(widget)
+                
+                info_icon = QLabel("ⓘ")
+                info_icon.setStyleSheet("color: #3498db; font-weight: bold;")
+                # Force white text on dark background in tooltip as requested
+                info_icon.setToolTip(f"<html><body style='color: white; background-color: #333333; padding: 2px;'>{tooltip_text}</body></html>")
+                
+                h_layout.addWidget(widget)
+                h_layout.addWidget(info_icon)
+                h_layout.addStretch()
+                
+                # Add container back to the grid in the same position
+                layout.addWidget(container, i, 0)
+
+        # Also check the STT Engine label specifically (it's in gridLayout_8)
+        stt_label = self.ui.label_stt_engine
+        if stt_label and stt_label.toolTip():
+            tooltip_text = stt_label.toolTip()
+            stt_label.setToolTip("")
+            
+            container = QWidget()
+            h_layout = QHBoxLayout(container)
+            h_layout.setContentsMargins(0, 0, 0, 0)
+            h_layout.setSpacing(4)
+            
+            self.ui.gridLayout_8.removeWidget(stt_label)
+            
+            info_icon = QLabel("ⓘ")
+            info_icon.setStyleSheet("color: #3498db; font-weight: bold;")
+            info_icon.setToolTip(f"<html><body style='color: black;'>{tooltip_text}</body></html>")
+            
+            h_layout.addWidget(stt_label)
+            h_layout.addWidget(info_icon)
+            h_layout.addStretch()
+            
+            self.ui.gridLayout_8.addWidget(container, 0, 0)
 
     def _generate_engine_tabs(self) -> None:
         """Generate tabs dynamically for all registered engines."""
@@ -78,7 +146,10 @@ class AdvancedUI(QDialog):
                     instance = self._settings_ref.get_engine_settings(engine_id)
                 except Exception as exc:  # pragma: no cover - defensive
                     logging.debug("Failed to load settings for %s: %s", engine_id, exc)
+            
             tab_widget = generate_settings_tab(settings_class, instance)
+            num_widgets = len(getattr(tab_widget, "widgets_map", {}))
+            logging.debug(f"Generated tab for {engine_id} with {num_widgets} widgets")
 
             # Add tab to dialog
             display_name = get_engine_display_name(engine_id)
@@ -91,14 +162,14 @@ class AdvancedUI(QDialog):
             self.engine_tabs[engine_id] = tab_widget
             self.engine_settings_classes[engine_id] = settings_class
 
-            if engine_id == "nerd-dictation":
+            if engine_id in ("nerd-dictation", "vosk-local"):
                 button = tab_widget.widgets_map.get("manage_models_action")
                 if isinstance(button, QPushButton):
                     try:
                         button.clicked.disconnect()
                     except (TypeError, RuntimeError):
                         pass
-                    button.clicked.connect(lambda _checked=False, tab=tab_widget: self._handle_nerd_models(tab))
+                    button.clicked.connect(lambda _checked=False, tab=tab_widget: self._handle_model_selection(tab))
 
     def _populate_engine_dropdown(self) -> None:
         """Populate the engine dropdown with all registered engines."""
@@ -118,7 +189,7 @@ class AdvancedUI(QDialog):
             return None
         return read_settings_from_tab(tab, settings_class)
 
-    def _handle_nerd_models(self, tab: QWidget) -> None:
+    def _handle_model_selection(self, tab: QWidget) -> None:
         launch_model_selection_dialog(self)
         settings_obj = self._settings_ref or Settings()
         try:
@@ -137,16 +208,22 @@ class AdvancedUI(QDialog):
         if not engine:
             return
 
+        logging.debug(f"STT Engine changed to: {engine}")
+
         # Switch to the appropriate tab
         if engine in self.engine_tabs:
             self.ui.tabWidget.setCurrentWidget(self.engine_tabs[engine])
 
         # Enable/disable tabs based on selected engine
+        # "General" tab (index 0) must always be enabled
+        self.ui.tabWidget.setTabEnabled(0, True)
+        
         for engine_name, tab in self.engine_tabs.items():
             enabled = (engine_name == engine)
             idx = self.ui.tabWidget.indexOf(tab)
             if idx >= 0:
                 self.ui.tabWidget.setTabEnabled(idx, enabled)
+                logging.debug(f"Tab {engine_name} (idx {idx}) enabled: {enabled}")
 
     def _add_shortcuts_config(self) -> None:
         # This is a bit of a hack, but it's the easiest way to add the shortcuts

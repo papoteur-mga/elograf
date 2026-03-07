@@ -14,6 +14,7 @@ from eloGraf.engines.google.settings import GoogleCloudSettings
 from eloGraf.engines.openai.settings import OpenAISettings
 from eloGraf.engines.assemblyai.settings import AssemblyAISettings
 from eloGraf.engines.gemini.settings import GeminiSettings
+from eloGraf.engines.vosk_local.settings import VoskLocalSettings
 
 DEFAULT_RATE: int = 44100
 
@@ -91,6 +92,17 @@ class Settings:
         self.geminiVadEnabled: bool = True
         self.geminiVadThreshold: float = 500.0
 
+        # Vosk Local settings
+        self.voskModelPath: str = ""
+        self.voskVadType: str = "silero"
+        self.voskVadThreshold: float = 0.5
+        self.voskSilenceTimeoutMs: int = 500
+        self.voskSampleRate: int = 16000
+        self.voskPartialResults: bool = False
+        self.voskTextFormatting: bool = True
+        self.voskLocale: str = "en_US"
+        self.voskMaxQueueDepth: int = 3
+
     def load(self) -> None:
         backend = self._backend
         self.precommand = backend.value("Precommand", "", type=str)
@@ -161,6 +173,17 @@ class Settings:
         self.geminiChannels = backend.value("GeminiChannels", 1, type=int)
         self.geminiVadEnabled = backend.value("GeminiVadEnabled", True, type=bool)
         self.geminiVadThreshold = backend.value("GeminiVadThreshold", 500.0, type=float)
+
+        # Vosk Local
+        self.voskModelPath = backend.value("VoskModelPath", "", type=str)
+        self.voskVadType = backend.value("VoskVadType", "silero", type=str)
+        self.voskVadThreshold = backend.value("VoskVadThreshold", 0.5, type=float)
+        self.voskSilenceTimeoutMs = backend.value("VoskSilenceTimeoutMs", 500, type=int)
+        self.voskSampleRate = backend.value("VoskSampleRate", 16000, type=int)
+        self.voskPartialResults = backend.value("VoskPartialResults", False, type=bool)
+        self.voskTextFormatting = backend.value("VoskTextFormatting", True, type=bool)
+        self.voskLocale = backend.value("VoskLocale", "en_US", type=str)
+        self.voskMaxQueueDepth = backend.value("VoskMaxQueueDepth", 3, type=int)
 
         self.models = []
         count = backend.beginReadArray("Models")
@@ -329,6 +352,36 @@ class Settings:
             backend.remove("GeminiVadThreshold")
         else:
             backend.setValue("GeminiVadThreshold", self.geminiVadThreshold)
+
+        # Vosk Local
+        self._set_or_remove("VoskModelPath", self.voskModelPath)
+        if self.voskVadType == "silero":
+            backend.remove("VoskVadType")
+        else:
+            backend.setValue("VoskVadType", self.voskVadType)
+        if self.voskVadThreshold == 0.5:
+            backend.remove("VoskVadThreshold")
+        else:
+            backend.setValue("VoskVadThreshold", self.voskVadThreshold)
+        if self.voskSilenceTimeoutMs == 500:
+            backend.remove("VoskSilenceTimeoutMs")
+        else:
+            backend.setValue("VoskSilenceTimeoutMs", self.voskSilenceTimeoutMs)
+        if self.voskSampleRate == 16000:
+            backend.remove("VoskSampleRate")
+        else:
+            backend.setValue("VoskSampleRate", self.voskSampleRate)
+        backend.setValue("VoskPartialResults", int(self.voskPartialResults))
+        backend.setValue("VoskTextFormatting", int(self.voskTextFormatting))
+        if self.voskLocale == "en_US":
+            backend.remove("VoskLocale")
+        else:
+            backend.setValue("VoskLocale", self.voskLocale)
+        if self.voskMaxQueueDepth == 3:
+            backend.remove("VoskMaxQueueDepth")
+        else:
+            backend.setValue("VoskMaxQueueDepth", self.voskMaxQueueDepth)
+
         if self.deviceName == "default":
             backend.remove("DeviceName")
         else:
@@ -425,7 +478,7 @@ class Settings:
 
     def get_engine_settings(
         self, engine_type: Optional[str] = None
-    ) -> Union[NerdSettings, WhisperSettings, GoogleCloudSettings, OpenAISettings, AssemblyAISettings, GeminiSettings, EngineSettings]:
+    ) -> Union[NerdSettings, WhisperSettings, GoogleCloudSettings, OpenAISettings, AssemblyAISettings, GeminiSettings, VoskLocalSettings, EngineSettings]:
         """
         Get type-safe engine settings dataclass for the requested engine.
 
@@ -517,13 +570,28 @@ class Settings:
                 vad_enabled=self.geminiVadEnabled,
                 vad_threshold=self.geminiVadThreshold,
             )
+        if canonical_type == "vosk-local":
+            return VoskLocalSettings(
+                engine_type=canonical_type,
+                device_name=self.deviceName,
+                model_path=self.voskModelPath,
+                sample_rate=self.voskSampleRate,
+                device=None,  # Uses deviceName from Settings
+                vad_threshold=self.voskVadThreshold,
+                vad_type=self.voskVadType,
+                silence_timeout_ms=self.voskSilenceTimeoutMs,
+                partial_results=self.voskPartialResults,
+                text_formatting=self.voskTextFormatting,
+                locale=self.voskLocale,
+                max_queue_depth=self.voskMaxQueueDepth,
+            )
         return EngineSettings(
             engine_type=canonical_type,
             device_name=self.deviceName,
         )
 
     def update_from_dataclass(
-        self, engine_settings: Union[NerdSettings, WhisperSettings, GoogleCloudSettings, OpenAISettings, AssemblyAISettings, GeminiSettings]
+        self, engine_settings: Union[NerdSettings, WhisperSettings, GoogleCloudSettings, OpenAISettings, AssemblyAISettings, GeminiSettings, VoskLocalSettings]
     ) -> None:
         """
         Update settings from a dataclass instance via its plugin.

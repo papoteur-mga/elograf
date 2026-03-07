@@ -155,7 +155,7 @@ def test_manage_models_action_updates_path(qt_app, monkeypatch, tmp_path):
         fake_launch,
     )
 
-    dialog._handle_nerd_models(nerd_tab)
+    dialog._handle_model_selection(nerd_tab)
     assert path_widget.text() == "/tmp/a"
 
 
