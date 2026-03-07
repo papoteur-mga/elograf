@@ -1,6 +1,6 @@
 # Project Description
 
-EloGraf is a desktop utility written in Python that facilitates voice dictation on Linux by integrating with multiple speech recognition engines, including nerd-dictation, Whisper Docker, Google Cloud Speech, and OpenAI Realtime. The application offers a system tray, global shortcuts, and an advanced interface for configuring audio devices, pre/post commands, and engine-specific parameters for each STT engine.
+EloGraf is a desktop utility written in Python that facilitates voice dictation on Linux by integrating with multiple speech recognition engines, including nerd-dictation, Whisper Docker, Google Cloud Speech, OpenAI Realtime, AssemblyAI Realtime, and Gemini Live API. The application offers a system tray, global shortcuts, and an advanced interface for configuring audio devices, pre/post commands, and engine-specific parameters for each STT engine.
 
 ## Main Capabilities
 - Graphical launcher and CLI to start, stop, suspend, and resume dictation
@@ -10,14 +10,14 @@ EloGraf is a desktop utility written in Python that facilitates voice dictation 
 
 ## Technical Structure
 
-The code is organized as a Python package with a modular architecture. Core application logic (UI, state management, etc.) is kept separate from the STT engine implementations. Each speech recognition engine is a self-contained package within the `elograf/engines/` directory, which makes the system extensible and easy to maintain.
+The code is organized as a Python package with a modular architecture. Core application logic (UI, state management, etc.) is kept separate from the STT engine implementations. Each speech recognition engine is a self-contained sub-package within the `eloGraf/engines/` directory, which makes the system extensible and easy to maintain.
 
 ### Engine Module Structure
 
-Each engine is a sub-package that adheres to a common contract, typically containing:
-- `controller.py`: Implements the engine-specific state machine and process runner.
-- `engine.py`: Defines the engine for the `STTFactory`, making it discoverable by the application.
-- `settings.py`: (Optional) Defines a `dataclass` schema for the engine's configuration parameters.
+Each engine is a sub-package that adheres to a common contract:
+- `controller.py`: Implements the engine-specific state machine and communication logic.
+- `engine.py`: Defines the engine metadata for the `STTFactory`.
+- `settings.py`: Defines a `dataclass` schema for the engine's configuration parameters with UI metadata.
 
 ### Abstract STT Interface and Base Implementations
 
@@ -54,11 +54,11 @@ The AudioRecorder automatically selects the best available backend (prefers pare
 
 ### 1. nerd-dictation (Default)
 
-The nerd-dictation integration is implemented in the `elograf/engines/nerd/` package and provides a local, privacy-focused CLI-based speech recognition solution.
+The nerd-dictation integration is implemented in the `eloGraf/engines/nerd/` package and provides a local, privacy-focused CLI-based speech recognition solution.
 
 #### Architecture
 
-nerd-dictation is an external command-line tool that EloGraf wraps and monitors. The controller, defined in `controller.py` within the package, parses stdout to detect state changes.
+nerd-dictation is an external command-line tool that EloGraf wraps and monitors. The controller parses stdout to detect state changes.
 
 **Key Features:**
 - Fully offline operation with no network requirements
@@ -92,14 +92,6 @@ nerd-dictation resume        # Continue
 
 EloGraf spawns the main process and monitors stdout, sending control commands via separate subprocess calls.
 
-#### Configuration
-
-- **Model**: Vosk model directory path
-- **Sample Rate**: Audio sampling rate (default: 44100 Hz)
-- **Timeout**: Auto-stop after silence period (0 = disabled)
-- **Idle Time**: CPU vs responsiveness balance (default: 100ms)
-- **Punctuation Timeout**: Add punctuation based on pause duration
-
 #### Requirements
 
 - `nerd-dictation` installed separately (not included)
@@ -108,7 +100,7 @@ EloGraf spawns the main process and monitors stdout, sending control commands vi
 
 ### 2. Whisper Docker
 
-The Whisper Docker integration is implemented in the `elograf/engines/whisper/` package and runs OpenAI's Whisper ASR in a Docker container as a REST API service.
+The Whisper Docker integration is implemented in the `eloGraf/engines/whisper/` package and runs OpenAI's Whisper ASR in a Docker container as a REST API service.
 
 #### Architecture
 
@@ -119,7 +111,6 @@ Uses the `onerahmet/openai-whisper-asr-webservice` Docker image, which exposes a
 - Automatic container lifecycle management
 - Voice Activity Detection (VAD) to skip silence
 - Auto-reconnect on API failures
-- Chunk-based transcription
 
 #### Container Management
 
@@ -145,27 +136,6 @@ docker run -d --name elograf-whisper \
 4. **Simulate**: Types transcribed text using dotool/xdotool
 5. **Retry**: Auto-reconnects and retries on failures (up to 3 attempts)
 
-#### REST API
-
-- **Endpoint**: `POST http://localhost:9000/asr`
-- **Parameters**:
-  - `output=json`: Response format
-  - `language`: Optional language code (e.g., "en", "es")
-- **Request**: multipart/form-data with audio_file (WAV format)
-- **Response**: `{"text": "transcribed text"}`
-
-#### Configuration
-
-- **Model**: Whisper model size (tiny/base/small/medium/large-v3)
-- **Language**: Language code or auto-detect
-- **Port**: API port (default: 9000)
-- **Chunk Duration**: Recording interval in seconds (default: 5.0)
-- **Sample Rate**: Audio sampling rate (default: 16000 Hz)
-- **Channels**: Audio channels (default: 1 = mono)
-- **VAD**: Enable/disable voice activity detection
-- **VAD Threshold**: RMS threshold for silence detection (default: 500.0)
-- **Auto-reconnect**: Retry on API failures (default: true)
-
 #### Requirements
 
 - Docker installed and running
@@ -174,7 +144,7 @@ docker run -d --name elograf-whisper \
 
 ### 3. Google Cloud Speech-to-Text V2
 
-The Google Cloud Speech integration is implemented in the `elograf/engines/google/` package and uses Google's enterprise-grade speech recognition API with gRPC streaming.
+The Google Cloud Speech integration is implemented in the `eloGraf/engines/google/` package and uses Google's enterprise-grade speech recognition API with gRPC streaming.
 
 #### Architecture
 
@@ -189,56 +159,14 @@ Uses the `google-cloud-speech` Python library to stream audio in real-time to Go
 
 #### Authentication
 
-Supports two authentication methods:
-
-1. **Service Account Key File** (recommended):
-   ```python
-   credentials_path = "/path/to/service-account-key.json"
-   os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
-   ```
-
-2. **Application Default Credentials**:
-   - Uses gcloud auth application-default login
-   - Automatically detected if GOOGLE_APPLICATION_CREDENTIALS not set
+Supports Service Account Key Files and Application Default Credentials.
 
 #### Streaming Flow
 
 1. **Setup**: Creates SpeechClient and configures recognizer
 2. **Generator**: Yields audio chunks as StreamingRecognizeRequest
-   - First request: Contains config (recognizer, language, model)
-   - Subsequent requests: Raw PCM audio data (max 25 KB chunks)
 3. **Stream**: Bidirectional gRPC stream processes audio in real-time
-4. **Results**: Receives partial and final transcription results
-5. **Output**: Only final results are emitted and typed
-
-```python
-# Recognition config
-recognition_config = RecognitionConfig(
-    auto_decoding_config=AutoDetectDecodingConfig(),
-    language_codes=["en-US"],
-    model="chirp_3",
-)
-```
-
-#### Audio Format
-
-- **Input**: WAV format from AudioRecorder
-- **Sent**: Raw PCM (skip 44-byte WAV header)
-- **Sample Rate**: 16000 Hz (default)
-- **Channels**: 1 (mono)
-- **Chunk Duration**: 0.1s (100ms for low latency)
-- **Max Chunk Size**: 25 KB (API limit)
-
-#### Configuration
-
-- **Credentials Path**: Path to service account JSON file
-- **Project ID**: GCP project (auto-detected if empty)
-- **Language Code**: e.g., "en-US", "es-ES", "fr-FR"
-- **Model**: chirp_3, latest_long, latest_short, etc.
-- **Sample Rate**: Audio sampling rate (default: 16000 Hz)
-- **Channels**: Audio channels (default: 1)
-- **VAD**: Enable/disable voice activity detection
-- **VAD Threshold**: RMS threshold (default: 500.0)
+4. **Output**: Only final results are emitted and typed
 
 #### Requirements
 
@@ -249,212 +177,71 @@ recognition_config = RecognitionConfig(
 
 ### 4. OpenAI Realtime API
 
-The OpenAI Realtime API integration is implemented in the `elograf/engines/openai/` package and uses a WebSocket-based communication model for real-time voice transcription.
+The OpenAI Realtime API integration is implemented in the `eloGraf/engines/openai/` package and uses a WebSocket-based communication model for real-time voice transcription.
 
 #### Architecture
 
-The OpenAI Realtime API uses two distinct model concepts:
+Uses WebSocket bidirectional connection to `wss://api.openai.com/v1/realtime`.
 
-1. **Session model**: Defines the general behavior of the WebSocket connection
-   - Available models: `gpt-4o-realtime-preview`, `gpt-4o-mini-realtime-preview`
-   - Specified in the WebSocket connection URL
-   - Controls the overall conversation engine
-
-2. **Transcription model**: Defines the specific engine for transcribing audio to text
-   - Available models: `whisper-1`, `gpt-4o-transcribe`, `gpt-4o-mini-transcribe`
-   - Specified in the `input_audio_transcription` configuration
-   - Independent of the session model
-
-#### Session Configuration
-
-The initial session configuration is sent via a `session.update` event:
-
-```python
-{
-    "type": "session.update",
-    "session": {
-        "input_audio_format": "pcm16",  # Format: PCM 16-bit
-        "input_audio_transcription": {
-            "model": "gpt-4o-transcribe"  # Transcription model
-        },
-        "turn_detection": {
-            "type": "server_vad",
-            "threshold": 0.5,
-            "prefix_padding_ms": 300,
-            "silence_duration_ms": 200,
-            "create_response": False  # Only transcribe, don't generate responses
-        }
-    }
-}
-```
-
-#### Voice Activity Detection (VAD)
-
-The server implements automatic VAD (Voice Activity Detection) which:
-- Detects when the user starts and stops speaking
-- Segments audio into logical fragments
-- Eliminates the need for manual buffer commits
-- Configurable parameters:
-  - `threshold`: Energy threshold for detecting speech (0.0-1.0)
-  - `prefix_padding_ms`: Milliseconds of prior audio to include
-  - `silence_duration_ms`: Silence duration to consider end of phrase
+**Key Features:**
+- Ultra-low latency streaming
+- Server-side VAD (Voice Activity Detection)
+- Configurable models (`gpt-4o-realtime-preview`, `gpt-4o-mini-realtime-preview`)
+- Partial and final transcriptions
 
 #### Audio Data Flow
 
-1. **Capture**: Audio captured via AudioRecorder (using parec backend on Linux)
-   - Format: PCM 16-bit, 16kHz, mono
-   - Chunks of 200ms (6400 bytes)
-   - Dedicated thread continuously reads from audio recorder
-
-2. **Send**: Each chunk is sent as an `input_audio_buffer.append` event:
-```python
-{
-    "type": "input_audio_buffer.append",
-    "audio": base64_encoded_audio
-}
-```
-
-3. **Speech detection**: The server VAD sends notifications:
-   - `input_audio_buffer.speech_started`: Detected speech start
-     - Includes `audio_start_ms`: Start timestamp
-     - Includes `item_id`: Conversation item ID
-   - `input_audio_buffer.speech_stopped`: Detected speech end
-     - Includes `audio_end_ms`: End timestamp
-   - `input_audio_buffer.committed`: Buffer confirmed for processing
-   - `conversation.item.created`: Conversation item created
-
-4. **Transcription**: The server processes audio and sends:
-   - `conversation.item.input_audio_transcription.delta`: Transcription fragments
-     - Multiple deltas are received as audio is processed
-     - Each delta contains `item_id`, `content_index` and `delta` (the text)
-     - Example: "Hello", " good", " morning", ",", " how", " are", " you", "?"
-   - `conversation.item.input_audio_transcription.completed`: Final transcription
-     - Contains the complete `transcript`: "Hello good morning, how are you?"
-     - Includes `usage` with token counters
-
-5. **Input simulation**: The transcribed text is written to the system
-   - Uses `dotool` (preferred) or `xdotool` (fallback)
-   - Text is written where the cursor is active
-
-#### Main Events
-
-| Event | Direction | Purpose |
-|-------|-----------|---------|
-| `session.created` | Server → Client | Session created with default configuration |
-| `session.update` | Client → Server | Configure session (transcription, VAD, etc.) |
-| `session.updated` | Server → Client | Confirmation of updated configuration |
-| `input_audio_buffer.append` | Client → Server | Send audio chunk |
-| `input_audio_buffer.speech_started` | Server → Client | VAD detected speech start |
-| `input_audio_buffer.speech_stopped` | Server → Client | VAD detected speech end |
-| `input_audio_buffer.committed` | Server → Client | Audio buffer confirmed for processing |
-| `conversation.item.created` | Server → Client | Conversation item created |
-| `conversation.item.input_audio_transcription.delta` | Server → Client | Transcription fragment |
-| `conversation.item.input_audio_transcription.completed` | Server → Client | Complete transcription with final text |
-| `error` | Server → Client | Error notification |
-
-#### Audio Parameters
-
-- **Sample rate**: 16000 Hz (API requirement)
-- **Channels**: 1 (mono)
-- **Format**: PCM 16-bit
-- **Minimum chunk size**: 100ms of audio
-- **Encoding for sending**: Base64
-
-#### Configuration in EloGraf
-
-OpenAI Realtime parameters are configured in the "OpenAI" tab of the advanced configuration dialog:
-
-- **API Key**: OpenAI authentication key
-- **Model**: Session model selection (dropdown with regular and mini options)
-- **Language**: Language code for transcription (e.g., "es", "en-US")
-- **VAD Threshold**: Speech detection sensitivity
-- **VAD Prefix Padding**: Prior context in milliseconds
-- **VAD Silence Duration**: Silence duration for segmentation
-- **Sample Rate**: Sampling rate (16000 Hz)
-- **Channels**: Number of channels (1 = mono)
-
-#### Implementation
-
-The `OpenAIRealtimeController` inherits from `BaseSTTEngine` and implements:
-
-1. **WebSocket connection**: Establishes connection to `wss://api.openai.com/v1/realtime`
-2. **Audio thread**: Captures audio from PulseAudio in separate thread
-3. **Reception thread**: Processes server events in separate thread
-4. **Error handling**: Optional automatic reconnection
-5. **Input simulation**: Sends transcribed text to the system via `ydotool` or `xdotool`
-
-#### Complete Flow Example
-
-A real example of transcribing "Hello good morning, how are you?":
-
-1. Client sends audio chunks continuously (every 200ms)
-2. Server detects speech: `input_audio_buffer.speech_started` (audio_start_ms: 308)
-3. Client continues sending audio while user speaks
-4. Server detects silence: `input_audio_buffer.speech_stopped` (audio_end_ms: 2368)
-5. Server confirms: `input_audio_buffer.committed`
-6. Server creates item: `conversation.item.created`
-7. Server sends incremental transcription:
-   - Delta: "Hello"
-   - Delta: " good"
-   - Delta: " morning"
-   - Delta: ","
-   - Delta: " how"
-   - Delta: " are"
-   - Delta: " you"
-   - Delta: "?"
-8. Server sends complete transcription: `conversation.item.input_audio_transcription.completed`
-   - transcript: "Hello good morning, how are you?"
-   - usage: 31 total tokens (21 input, 10 output)
-9. Client writes the text to the system using `dotool`/`xdotool`
-
-**Example duration**: ~2 seconds of audio, nearly instant processing
-
-#### Approximate Costs
-
-- **gpt-4o-realtime-preview**: ~$5-10 per hour of audio
-- **gpt-4o-mini-realtime-preview**: ~$1-2 per hour of audio
-
-Mini models are more economical but may have lower accuracy with accents or background noise.
-
-### 5. AssemblyAI Realtime
-
-The AssemblyAI integration is implemented in the `elograf/engines/assemblyai/` package and provides another cloud-hosted, low-latency streaming engine with optional live transcript formatting.
-
-#### Architecture
-
-AssemblyAI exposes a secured WebSocket endpoint that accepts PCM16 audio frames and returns interim/final transcripts. EloGraf wraps the session with two threads: one for the WebSocket client and one for continuous audio capture via AudioRecorder from `audio_recorder.py`.
-
-- **Authentication**: Either request short-lived streaming tokens via REST or authenticate directly with the API key in the WebSocket headers.
-- **Session lifecycle**: Controller transitions through `STARTING → CONNECTING → READY → RECORDING/TRANSCRIBING` states and handles suspend/resume semantics.
-- **Backpressure handling**: The runner batches audio into ~200 ms chunks, base64-encodes the buffer, and sends `{"audio_data": "..."}` payloads while respecting server pacing.
-
-#### Streaming Flow
-
-1. **Token acquisition**: Optional REST call to `https://api.assemblyai.com/v2/realtime/token` to fetch a temporary streaming token.
-2. **WebSocket handshake**: Connect to `wss://streaming.assemblyai.com/v3/ws` with sample rate, model, and language query parameters; authenticate via header or token.
-3. **Audio loop**: Capture PCM16 audio (default 16 kHz mono), accumulate bytes until threshold, base64 encode, and send via WebSocket.
-4. **Transcription events**: Listen for `message_type = "FinalTranscript"` and `"PartialTranscript"` events; emit text to listeners and type into the focused application.
-5. **Heartbeat & keep-alive**: Periodically send `{"event": "ping"}` frames to keep the session active.
-
-#### Configuration
-
-- **API Key**: Required for token generation or direct auth
-- **Model**: Defaults to `"default"`, other AssemblyAI streaming models supported
-- **Language**: Optional BCP-47 code (e.g., `"en"`, `"es"`)
-- **Sample Rate**: Defaults to 16000 Hz; must match capture settings
-- **Channels**: Mono (1) recommended
-- **Chunk Duration**: Controls audio buffer size before sending (default 0.2 s)
-
-#### Failure Handling
-
-- Captures REST/WebSocket errors and marks `fatal_error` for irrecoverable authentication/config issues.
-- Emits descriptive messages via `emit_error()` so the tray icon and EngineManager can surface the failure and trigger fallbacks.
+1. **Capture**: Audio captured via AudioRecorder (PCM 16-bit, 16kHz, mono)
+2. **Send**: Chunks of 200ms are Base64 encoded and sent as `input_audio_buffer.append` events.
+3. **Transcription**: Server processes audio and sends delta fragments followed by a final completion event.
+4. **Input simulation**: Transcribed text is written via dotool or xdotool.
 
 #### Requirements
 
-- `websocket-client` Python package
+- OpenAI API key
 - Internet connectivity
-- Valid AssemblyAI API key with realtime access enabled
+- `websocket-client` Python library
+- AudioRecorder (parec or PyAudio) for audio recording
+
+### 5. AssemblyAI Realtime
+
+The AssemblyAI integration is implemented in the `eloGraf/engines/assemblyai/` package and provides another cloud-hosted, low-latency streaming engine with optional live transcript formatting.
+
+#### Architecture
+
+AssemblyAI exposes a secured WebSocket endpoint that accepts PCM16 audio frames and returns interim/final transcripts.
+
+**Key Features:**
+- Real-time streaming with interim and final results
+- Support for multiple languages
+- Easy authentication via API Key or temporary tokens
+
+#### Requirements
+
+- AssemblyAI API key
+- Internet connectivity
+- `websocket-client` Python library
+- AudioRecorder (parec or PyAudio) for audio recording
+
+### 6. Gemini Live API
+
+The Gemini Live API integration is implemented in the `eloGraf/engines/gemini/` package and uses Google's Gemini models for real-time speech-to-text via WebSockets.
+
+#### Architecture
+
+Connects to the Gemini Live API using WebSockets for bidirectional audio and text streaming.
+
+**Key Features:**
+- Real-time transcription with Gemini models (e.g., `gemini-2.5-flash`)
+- Server-side VAD support
+- Multi-language support via BCP-47 codes
+- High accuracy and low latency
+
+#### Requirements
+
+- Google AI API key (from AI Studio)
+- Internet connectivity
+- `websocket-client` Python library
 - AudioRecorder (parec or PyAudio) for audio recording
 
 ## Testing
@@ -468,33 +255,10 @@ Run all tests:
 uv run python -m pytest
 ```
 
-Run tests with verbose output:
-```bash
-uv run python -m pytest -v
-```
-
-Run tests for a specific engine:
-```bash
-uv run python -m pytest tests/engines/test_nerd.py -v
-uv run python -m pytest tests/engines/test_gemini.py -v
-```
-
-Run tests with coverage:
-```bash
-uv run python -m pytest --cov=eloGraf --cov-report=html
-```
-
 ### Test Structure
 
 - `tests/engines/` - Engine-specific tests for each STT implementation
 - `tests/test_*.py` - Core functionality tests (settings, audio, IPC, etc.)
-
-Each engine test typically covers:
-- State transitions
-- Output parsing
-- Process lifecycle management
-- Error handling
-- Configuration application
 
 ## Translations
 
@@ -502,14 +266,8 @@ The application interface is available in multiple languages. The translation so
 
 ### Compiling Translations
 
-To make new or updated translations visible in the application, the `.ts` source files must be compiled into the binary `.qm` format that Qt uses at runtime.
-
-The required tools for this are part of the `pyside6` package, which is included in the development dependencies.
-
-To compile all translation files, run the following command from the root of the project:
+To make new or updated translations visible in the application, the `.ts` source files must be compiled into the binary `.qm` format:
 
 ```bash
 uv run pyside6-lrelease eloGraf/translations/*.ts
 ```
-
-This will generate or update the `.qm` files in the `eloGraf/translations/` directory, making them available to the application.

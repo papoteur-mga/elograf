@@ -47,8 +47,13 @@ STTController                    STTProcessRunner
      │                                  │   ├── Audio recording (AudioRecorder)
      │                                  │   └── Real-time streaming
      │                                  │
-     └── AssemblyAIRealtimeController   └── AssemblyAIRealtimeProcessRunner
-         └── AssemblyAIRealtimeState        ├── WebSocket client
+     ├── AssemblyAIRealtimeController   ├── AssemblyAIRealtimeProcessRunner
+     │   └── AssemblyAIRealtimeState    │   ├── WebSocket client
+     │                                  │   ├── Audio recording (AudioRecorder)
+     │                                  │   └── Real-time streaming
+     │                                  │
+     └── GeminiLiveController           └── GeminiLiveProcessRunner
+         └── GeminiLiveState                ├── WebSocket client
                                             ├── Audio recording (AudioRecorder)
                                             └── Real-time streaming
 ```
@@ -131,29 +136,36 @@ Factory functions for engine creation:
 
 ### Engine Implementations
 
-**`nerd_controller.py`**
+Engine controllers and runners are located in the `eloGraf/engines/` directory, organized as sub-packages (e.g., `eloGraf/engines/nerd/`, `eloGraf/engines/whisper/`, etc.).
+
+**`nerd/controller.py`**
 - Manages nerd-dictation subprocess
 - Parses stdout for state changes
 - Direct CLI integration
 
-**`whisper_docker_controller.py`**
+**`whisper/controller.py`**
 - Docker container lifecycle management
 - REST API communication (POST /asr)
 - Voice Activity Detection (VAD)
 - Automatic reconnection
 - Audio recording with AudioRecorder
 
-**`google_cloud_speech_controller.py`**
+**`google/controller.py`**
 - gRPC streaming client
 - Service account authentication
 - Audio chunk streaming
 - Project auto-detection
 
-**`openai_realtime_controller.py`**
+**`openai/controller.py`**
 - WebSocket bidirectional streaming
 - Server-side VAD configuration
 - Real-time partial transcriptions
 - Base64 audio encoding
+
+**`gemini/controller.py`**
+- WebSocket connection to Gemini Live API
+- Real-time streaming recognition
+- Multi-language support
 
 ### `engine_manager.py`
 Manages STT engine lifecycle, configuration, and failure recovery:
@@ -170,8 +182,14 @@ System tray interface that:
 1. Loads settings
 2. Creates EngineManager with appropriate configuration
 3. Delegates engine lifecycle to EngineManager
-4. Updates icon based on state
+4. Updates icon and menu based on state
 5. Handles user interactions
+
+**Tray Menu Actions:**
+- **Start/Suspend/Resume dictation** (Dynamic action)
+- **Stop dictation** (Explicit stop action)
+- **Configuration**
+- **Exit**
 
 ### `settings.py`
 Persistent configuration using QSettings:
@@ -181,7 +199,7 @@ Persistent configuration using QSettings:
 
 ## Audio Recording
 
-All streaming engines (Whisper, Google Cloud, OpenAI, AssemblyAI) use a unified `AudioRecorder` class with pluggable backends:
+All streaming engines (Whisper, Google Cloud, OpenAI, AssemblyAI, Gemini) use a unified `AudioRecorder` class with pluggable backends:
 
 ```python
 class AudioRecorder:
@@ -217,26 +235,7 @@ def _default_input_simulator(text: str):
 
 ## Configuration Storage
 
-Settings are stored per-engine with clear prefixes:
-
-```
-# Whisper Docker
-whisperModel, whisperLanguage, whisperPort,
-whisperChunkDuration, whisperSampleRate, whisperChannels,
-whisperVadEnabled, whisperVadThreshold, whisperAutoReconnect
-
-# Google Cloud Speech
-googleCloudCredentialsPath, googleCloudProjectId,
-googleCloudLanguageCode, googleCloudModel,
-googleCloudSampleRate, googleCloudChannels,
-googleCloudVadEnabled, googleCloudVadThreshold
-
-# OpenAI Realtime
-openaiApiKey, openaiModel, openaiApiVersion,
-openaiSampleRate, openaiChannels,
-openaiVadEnabled, openaiVadThreshold,
-openaiVadPrefixPaddingMs, openaiVadSilenceDurationMs
-```
+Settings are stored per-engine with clear prefixes (e.g., `whisper`, `googleCloud`, `openai`, `gemini`, etc.).
 
 ## File Locations
 
@@ -246,4 +245,4 @@ openaiVadPrefixPaddingMs, openaiVadSilenceDurationMs
 | PID file | `~/.config/Elograf/elograf.pid` |
 | User models | `~/.config/vosk-models` |
 | System models | `/usr/share/vosk-models` |
-| Translations | `/usr/share/elograf/translations` |
+| Translations | `eloGraf/translations/` |
