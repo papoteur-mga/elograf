@@ -197,6 +197,55 @@ uv pip install -e .
 
 This installs: `ujson`, `PyQt6`, `vosk`, `pyaudio` (optional), `requests`, `google-cloud-speech`, and `websocket-client`.
 
+### Wayland Support
+
+For **Wayland** (including KDE Plasma Wayland), Elograf uses **dotool** instead of xdotool for text input simulation.
+
+#### Installing dotool
+
+**Arch/Manjaro:**
+```bash
+sudo pacman -S dotool
+```
+
+**Fedora:**
+```bash
+sudo dnf install dotool
+```
+
+**Ubuntu/Debian/KDE Neon:**
+```bash
+# Install dependencies
+sudo apt install -y build-essential golang-go libevdev-dev scdoc libxkbcommon-dev
+
+# Build from source
+cd /tmp
+git clone https://git.sr.ht/~geb/dotool
+cd dotool
+./build.sh
+sudo ./build.sh install
+
+# Reload udev rules (no reboot required)
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+```
+
+**Verification:**
+```bash
+dotool <<< "type hello"
+# Should type "hello" in your active window
+```
+
+#### Configuration
+
+1. Open Elograf's **Advanced Settings**
+2. Set **Input Tool** to `DOTOOL`
+3. Set **Keyboard Layout** if needed (e.g., `us`, `es`, `fr`)
+
+#### Note on Permissions
+
+dotool uses uinput to simulate keyboard input. The `sudo ./build.sh install` command automatically installs udev rules that grant necessary permissions. You may need to log out and back in for group changes to take effect.
+
 ---
 
 ## Usage

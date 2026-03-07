@@ -20,16 +20,26 @@ class InputSimulator:
         Falls back from dotool to xdotool and logs a warning if neither succeeds.
         """
         for tool in self._candidate_tools():
-            command = self._build_command(tool, text)
-            if command is None:
-                continue
             try:
-                run(command, check=True)
-                return
+                if self._execute_tool(tool, text):
+                    return
             except (CalledProcessError, FileNotFoundError):
                 logging.debug("Input simulator '%s' failed; trying fallback", tool)
                 continue
         logging.warning("Neither dotool nor xdotool available for input simulation")
+
+    def _execute_tool(self, tool: str, text: str) -> bool:
+        """Execute the given tool to type text. Returns True on success."""
+        if shutil.which(tool) is None:
+            return False
+        if tool == "dotool":
+            # dotool reads commands from stdin: "type <text>"
+            run([tool], input=f"type {text}", text=True, check=True)
+            return True
+        if tool == "xdotool":
+            run([tool, "type", "--", text], check=True)
+            return True
+        return False
 
     def _candidate_tools(self) -> Iterable[str]:
         seen = set()
@@ -39,16 +49,6 @@ class InputSimulator:
         for tool in ("dotool", "xdotool"):
             if tool not in seen:
                 yield tool
-
-    @staticmethod
-    def _build_command(tool: str, text: str) -> Optional[list[str]]:
-        if shutil.which(tool) is None:
-            return None
-        if tool == "dotool":
-            return ["dotool", "type", text]
-        if tool == "xdotool":
-            return ["xdotool", "type", "--", text]
-        return None
 
 
 _simulator: Optional[InputSimulator] = None
